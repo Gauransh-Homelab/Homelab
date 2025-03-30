@@ -117,7 +117,7 @@ graph TD
 | <img src="icons/bazarr.png" width="25" height="25" /> | **Bazarr** | 💬 Subtitles | Subtitle management | Docker |
 | <img src="icons/nzbget.png" width="25" height="25" /> | **NZBGet** | ⬇️ Downloader | Usenet client | Docker |
 | <img src="icons/tailscale.png" width="25" height="25" /> | **Glueton** | 🔒 VPN | ExpressVPN binding | Docker |
-| <img src="icons/jellyseerr.png" width="25" height="25" /> | **Jellyseerr** | 🔍 Frontend | Media requests | Docker |
+| <img src="icons/jellyseer.png" width="25" height="25" /> | **Jellyseerr** | 🔍 Frontend | Media requests | Docker |
 | <img src="icons/notifiarr.png" width="25" height="25" /> | **Notifiarr** | 🔔 Notifications | Discord alerts | Docker |
 
 </div>

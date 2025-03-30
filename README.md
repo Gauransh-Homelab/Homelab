@@ -107,18 +107,18 @@ graph TD
 ### Media Stack
 <div align="center">
 
-| Service | Type | Function | Container |
-|---------|------|----------|-----------|
-| **Jellyfin** | 📺 Media | Streaming server | Docker |
-| **Jellyseerr** | 🔍 Frontend | Media requests | Docker |
-| **Radarr** | 🎬 Manager | Movies | Docker |
-| **Sonarr** | 📺 Manager | TV Shows | Docker |
-| **Prowlarr** | 🔍 Indexer | Content search | Docker |
-| **Bazarr** | 💬 Subtitles | Subtitle management | Docker |
-| **qBittorrent** | ⬇️ Downloader | Torrent client | Docker |
-| **NZBGet** | ⬇️ Downloader | Usenet client | Docker |
-| **Glueton** | 🔒 VPN | ExpressVPN binding | Docker |
-| **Notifiarr** | 🔔 Notifications | Discord alerts | Docker |
+| Icon | Service | Type | Function | Container |
+|------|---------|------|----------|-----------|
+| <img src="icons/jellyfin.png" width="25" height="25" /> | **Jellyfin** | 📺 Media | Streaming server | Docker |
+| <img src="icons/qbittorrent.png" width="25" height="25" /> | **qBittorrent** | ⬇️ Downloader | Torrent client | Docker |
+| <img src="icons/sonarr.png" width="25" height="25" /> | **Sonarr** | 📺 Manager | TV Shows | Docker |
+| <img src="icons/radarr.png" width="25" height="25" /> | **Radarr** | 🎬 Manager | Movies | Docker |
+| <img src="icons/prowlarr.png" width="25" height="25" /> | **Prowlarr** | 🔍 Indexer | Content search | Docker |
+| <img src="icons/bazarr.png" width="25" height="25" /> | **Bazarr** | 💬 Subtitles | Subtitle management | Docker |
+| <img src="icons/nzbget.png" width="25" height="25" /> | **NZBGet** | ⬇️ Downloader | Usenet client | Docker |
+| <img src="icons/tailscale.png" width="25" height="25" /> | **Glueton** | 🔒 VPN | ExpressVPN binding | Docker |
+| <img src="icons/jellyseerr.png" width="25" height="25" /> | **Jellyseerr** | 🔍 Frontend | Media requests | Docker |
+| <img src="icons/notifiarr.png" width="25" height="25" /> | **Notifiarr** | 🔔 Notifications | Discord alerts | Docker |
 
 </div>
 

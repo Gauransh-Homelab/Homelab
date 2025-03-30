@@ -122,6 +122,9 @@ graph TD
 
 </div>
 
+### DNS
+- 🛜 **PI Hole** - Adblocking and DNS Sinkhole (running on nas) [ attached directly to router ]
+
 > 💡 **Note**: All media services managed via Portainer in a dedicated LXC container
 >
 > ⚠️ **Current Issue**: Tdarr disabled due to GPU compatibility with Intel Arc A310
@@ -134,15 +137,28 @@ Sonarr and Radarr follow [TRaSH guides](https://trash-guides.info/) for optimal 
 ## 🗄️ Storage Architecture
 
 ```
-Synology DS423+ (24TB Raw / ~12TB Usable)
-├── Media
+Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
+├── NAS
 │   ├── Movies
-│   ├── TV
-│   └── Music
-├── Backups
-│   └── VM Backups
-└── Personal
-    └── Documents
+│   ├── Shows
+│   ├── Music
+│   ├── Youtube
+│   └── Downloads
+│       ├── Qbittorrent
+│           ├── Torrents
+│           ├── Completed
+│           └── Incomplete
+│       └── Nzbget
+│           ├── Queue
+│           ├── Nzb
+│           ├── Intermediate
+│           ├── Tmp
+│           └── Completed
+│
+├── TimeMachine ( Macbook Backups )
+│
+└── Docker
+    └── Pihole
 ```
 
 ---

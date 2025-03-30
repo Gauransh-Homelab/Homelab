@@ -117,7 +117,7 @@ graph TD
 | **Bazarr** | 💬 Subtitles | Subtitle management | Docker |
 | **qBittorrent** | ⬇️ Downloader | Torrent client | Docker |
 | **NZBGet** | ⬇️ Downloader | Usenet client | Docker |
-| **Gluton** | 🔒 VPN | ExpressVPN binding | Docker |
+| **Glueton** | 🔒 VPN | ExpressVPN binding | Docker |
 | **Notifiarr** | 🔔 Notifications | Discord alerts | Docker |
 
 </div>

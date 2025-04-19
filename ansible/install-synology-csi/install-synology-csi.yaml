@@ -2,17 +2,20 @@
 - name: Install and configure Synology CSI on Kubernetes
   hosts: localhost
   gather_facts: no
+
+  # Include the encrypted variables file
+  vars_files:
+    - vault-vars.yml
+  
+  # Define non-sensitive variables directly in the playbook
   vars:
     synology_csi_repo: "https://github.com/zebernst/synology-csi-talos.git"
     synology_csi_dir: "/tmp/synology-csi-talos"
-    dsm_host: "192.168.1.1"        # Replace with your DSM IP
-    dsm_port: 5000                 # Replace if using a different port
-    dsm_https: false               # Set true if using HTTPS
-    dsm_username: "username"       # Replace with your DSM username
-    dsm_password: "password"       # Replace with your DSM password
+    dsm_port: 5000
+    dsm_https: false
     k8s_namespace: "synology-csi"
     client_info_file: "{{ synology_csi_dir }}/config/client-info.yml"
-    k8s_context: ""                # Optionally set your kubeconfig context
+    k8s_context: ""              # Optionally set your kubeconfig context
 
   tasks:
     - name: Ensure git is installed

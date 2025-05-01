@@ -1,2 +1,5 @@
 # ignore ansible variable files
 vault-vars.yml
+
+# Ds store
+.DS_Store

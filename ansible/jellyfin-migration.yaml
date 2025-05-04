@@ -1,0 +1,74 @@
+---
+- name: Fetch Jellyfin Files from Remote Server
+  hosts: localhost
+  gather_facts: true  # Gather facts to get the ansible_env variable
+  
+  vars:
+    remote_host: 192.168.10.254
+    remote_user: root
+    local_base_dir: "{{ playbook_dir }}/../../tmp/jellyfin"  # Using absolute path
+    jellyfin_dirs:
+      - { src: "/etc/jellyfin", dest: "jellyfin-config" }
+      - { src: "/var/lib/jellyfin", dest: "jellyfin-data" }
+      - { src: "/var/cache/jellyfin", dest: "jellyfin-cache" }
+      - { src: "/var/log/jellyfin", dest: "jellyfin-logs" }
+  
+  tasks:
+    - name: Check connectivity to remote server
+      command: ssh -q -o BatchMode=yes -o ConnectTimeout=5 {{ remote_user }}@{{ remote_host }} echo "Connection successful"
+      register: ssh_result
+      changed_when: false
+      ignore_errors: true
+      
+    - name: Display connection status
+      debug:
+        msg: "✅ Successfully connected to {{ remote_host }} as {{ remote_user }}"
+      when: ssh_result.rc == 0
+      
+    - name: Fail if connection unsuccessful
+      fail:
+        msg: "❌ Failed to connect to {{ remote_host }} as {{ remote_user }}. Please check your credentials and network connectivity."
+      when: ssh_result.rc != 0
+    
+    - name: Ensure local directories exist
+      file:
+        path: "{{ local_base_dir }}/{{ item.dest }}"
+        state: directory
+        mode: '0755'
+      loop: "{{ jellyfin_dirs }}"
+      register: dir_creation
+      
+    - name: Display directory creation status
+      debug:
+        msg: "📁 Created directory: {{ local_base_dir }}/{{ item.item.dest }}"
+      loop: "{{ dir_creation.results }}"
+      when: item.changed
+
+    # Using ansible.builtin.command instead of shell with proper encoding
+    - name: Transfer Jellyfin directories using rsync
+      command: >
+        rsync -avz --progress 
+        {{ remote_user }}@{{ remote_host }}:{{ item.src }}/ 
+        {{ local_base_dir }}/{{ item.dest }}/
+      environment:
+        LANG: "C.UTF-8"
+      loop: "{{ jellyfin_dirs }}"
+      register: rsync_results
+      
+    - name: Display transfer completion
+      debug:
+        msg: "🔄 Transferred {{ item.item.src }} from remote server to {{ local_base_dir }}/{{ item.item.dest }}"
+      loop: "{{ rsync_results.results }}"
+            
+    - name: Display summary
+      debug:
+        msg: |
+          📊 Transfer Summary:
+          -----------------------------------------
+          ✅ Jellyfin configuration files: {{ local_base_dir }}/jellyfin-config
+          ✅ Jellyfin data files: {{ local_base_dir }}/jellyfin-data
+          ✅ Jellyfin cache files: {{ local_base_dir }}/jellyfin-cache
+          ✅ Jellyfin log files: {{ local_base_dir }}/jellyfin-logs
+          -----------------------------------------
+          🎉 Jellyfin migration preparation complete! 
+          All files have been copied to {{ local_base_dir }}

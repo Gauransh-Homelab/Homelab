@@ -1,0 +1,115 @@
+# Default values for jellyfin chart.
+replicaCount: 1
+
+image:
+  repository: jellyfin/jellyfin
+  pullPolicy: IfNotPresent
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+podSecurityContext: {}
+securityContext: {}
+
+service:
+  type: ClusterIP
+  port: 8096
+  targetPort: 8096
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: jellyfin.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+
+# Environment variables
+env:
+  TZ: "Etc/UTC"
+
+# Persistence configuration
+persistence:
+  config:
+    enabled: true
+    accessModes:
+      - ReadWriteOnce
+    size: 2Gi
+    mountPath: /config
+  
+  cache:
+    enabled: true
+    accessModes:
+      - ReadWriteOnce
+    size: 5Gi
+    mountPath: /cache
+  
+  data:
+    enabled: true
+    accessModes:
+      - ReadWriteOnce
+    size: 10Gi
+    mountPath: /data
+  
+  logs:
+    enabled: true
+    accessModes:
+      - ReadWriteOnce
+    size: 1Gi
+    mountPath: /logs
+  
+  media:
+    enabled: true
+    storageClass: "nfs-client"
+    accessModes:
+      - ReadWriteOnce
+    size: 1Ti
+    mountPath: /media
+
+# Init container to verify required directories exist
+initContainers:
+  checkRequiredDirectories:
+    enabled: true
+    image: busybox:1.36.1
+    command: ["/bin/sh", "-c"]
+    args:
+      - |
+        echo "Checking required Jellyfin directories..."
+        missing=0
+        for dir in "/config" "/cache" "/data" "/logs"; do
+          if [ ! -d "$dir" ]; then
+            echo "ERROR: Required directory $dir does not exist"
+            missing=1
+          else
+            echo "✓ Directory $dir exists"
+          fi
+        done
+        if [ $missing -ne 0 ]; then
+          echo "FATAL: Some required directories are missing. Cannot start Jellyfin."
+          exit 1
+        fi
+        echo "All required directories are present. Proceeding with startup."
+
+resources: {}
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+

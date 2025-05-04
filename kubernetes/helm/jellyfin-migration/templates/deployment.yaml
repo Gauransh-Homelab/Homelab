@@ -1,0 +1,197 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "jellyfin.fullname" . }}
+  labels:
+    {{- include "jellyfin.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "jellyfin.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "jellyfin.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "jellyfin.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if .Values.initContainers.checkRequiredDirectories.enabled }}
+      initContainers:
+        - name: check-required-directories
+          image: {{ .Values.initContainers.checkRequiredDirectories.image }}
+          command: {{ .Values.initContainers.checkRequiredDirectories.command }}
+          args: {{ .Values.initContainers.checkRequiredDirectories.args }}
+          volumeMounts:
+            {{- if .Values.persistence.config.enabled }}
+            - name: config
+              mountPath: {{ .Values.persistence.config.mountPath }}
+              {{- if .Values.persistence.config.subPath }}
+              subPath: {{ .Values.persistence.config.subPath }}
+              {{- end }}
+            {{- end }}
+            {{- if .Values.persistence.cache.enabled }}
+            - name: cache
+              mountPath: {{ .Values.persistence.cache.mountPath }}
+              {{- if .Values.persistence.cache.subPath }}
+              subPath: {{ .Values.persistence.cache.subPath }}
+              {{- end }}
+            {{- end }}
+            {{- if .Values.persistence.data.enabled }}
+            - name: data
+              mountPath: {{ .Values.persistence.data.mountPath }}
+              {{- if .Values.persistence.data.subPath }}
+              subPath: {{ .Values.persistence.data.subPath }}
+              {{- end }}
+            {{- end }}
+            {{- if .Values.persistence.logs.enabled }}
+            - name: logs
+              mountPath: {{ .Values.persistence.logs.mountPath }}
+              {{- if .Values.persistence.logs.subPath }}
+              subPath: {{ .Values.persistence.logs.subPath }}
+              {{- end }}
+            {{- end }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: TZ
+              value: {{ .Values.env.TZ | quote }}
+            - name: JELLYFIN_CONFIG_DIR
+              value: {{ .Values.persistence.config.mountPath | quote }}
+            - name: JELLYFIN_CACHE_DIR
+              value: {{ .Values.persistence.cache.mountPath | quote }}
+            - name: JELLYFIN_DATA_DIR
+              value: {{ .Values.persistence.data.mountPath | quote }}
+            - name: JELLYFIN_LOG_DIR
+              value: {{ .Values.persistence.logs.mountPath | quote }}
+            {{- range $key, $value := .Values.env }}
+            {{- if ne $key "TZ" }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.targetPort }}
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            {{- if .Values.persistence.config.enabled }}
+            - name: config
+              mountPath: {{ .Values.persistence.config.mountPath }}
+              {{- if .Values.persistence.config.subPath }}
+              subPath: {{ .Values.persistence.config.subPath }}
+              {{- end }}
+            {{- end }}
+            {{- if .Values.persistence.cache.enabled }}
+            - name: cache
+              mountPath: {{ .Values.persistence.cache.mountPath }}
+              {{- if .Values.persistence.cache.subPath }}
+              subPath: {{ .Values.persistence.cache.subPath }}
+              {{- end }}
+            {{- end }}
+            {{- if .Values.persistence.data.enabled }}
+            - name: data
+              mountPath: {{ .Values.persistence.data.mountPath }}
+              {{- if .Values.persistence.data.subPath }}
+              subPath: {{ .Values.persistence.data.subPath }}
+              {{- end }}
+            {{- end }}
+            {{- if .Values.persistence.logs.enabled }}
+            - name: logs
+              mountPath: {{ .Values.persistence.logs.mountPath }}
+              {{- if .Values.persistence.logs.subPath }}
+              subPath: {{ .Values.persistence.logs.subPath }}
+              {{- end }}
+            {{- end }}
+            {{- if .Values.persistence.media.enabled }}
+            - name: media
+              mountPath: {{ .Values.persistence.media.mountPath }}
+              {{- if .Values.persistence.media.subPath }}
+              subPath: {{ .Values.persistence.media.subPath }}
+              {{- end }}
+            {{- end }}
+      volumes:
+        {{- if .Values.persistence.config.enabled }}
+        - name: config
+          {{- if .Values.persistence.config.existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.config.existingClaim }}
+          {{- else }}
+          persistentVolumeClaim:
+            claimName: {{ include "jellyfin.fullname" . }}-config
+          {{- end }}
+        {{- end }}
+        {{- if .Values.persistence.cache.enabled }}
+        - name: cache
+          {{- if .Values.persistence.cache.existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.cache.existingClaim }}
+          {{- else }}
+          persistentVolumeClaim:
+            claimName: {{ include "jellyfin.fullname" . }}-cache
+          {{- end }}
+        {{- end }}
+        {{- if .Values.persistence.data.enabled }}
+        - name: data
+          {{- if .Values.persistence.data.existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.data.existingClaim }}
+          {{- else }}
+          persistentVolumeClaim:
+            claimName: {{ include "jellyfin.fullname" . }}-data
+          {{- end }}
+        {{- end }}
+        {{- if .Values.persistence.logs.enabled }}
+        - name: logs
+          {{- if .Values.persistence.logs.existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.logs.existingClaim }}
+          {{- else }}
+          persistentVolumeClaim:
+            claimName: {{ include "jellyfin.fullname" . }}-logs
+          {{- end }}
+        {{- end }}
+        {{- if .Values.persistence.media.enabled }}
+        - name: media
+          {{- if .Values.persistence.media.existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.media.existingClaim }}
+          {{- else }}
+          persistentVolumeClaim:
+            claimName: {{ include "jellyfin.fullname" . }}-media
+          {{- end }}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+

@@ -1,0 +1,114 @@
+{{- if and .Values.persistence.config.enabled (not .Values.persistence.config.existingClaim) }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ include "jellyfin.fullname" . }}-config
+  labels:
+    {{- include "jellyfin.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    {{- toYaml .Values.persistence.config.accessModes | nindent 4 }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.config.size }}
+  {{- if .Values.persistence.config.storageClass }}
+  {{- if (eq "-" .Values.persistence.config.storageClass) }}
+  storageClassName: ""
+  {{- else }}
+  storageClassName: "{{ .Values.persistence.config.storageClass }}"
+  {{- end }}
+  {{- end }}
+---
+{{- end }}
+
+{{- if and .Values.persistence.cache.enabled (not .Values.persistence.cache.existingClaim) }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ include "jellyfin.fullname" . }}-cache
+  labels:
+    {{- include "jellyfin.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    {{- toYaml .Values.persistence.cache.accessModes | nindent 4 }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.cache.size }}
+  {{- if .Values.persistence.cache.storageClass }}
+  {{- if (eq "-" .Values.persistence.cache.storageClass) }}
+  storageClassName: ""
+  {{- else }}
+  storageClassName: "{{ .Values.persistence.cache.storageClass }}"
+  {{- end }}
+  {{- end }}
+---
+{{- end }}
+
+{{- if and .Values.persistence.data.enabled (not .Values.persistence.data.existingClaim) }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ include "jellyfin.fullname" . }}-data
+  labels:
+    {{- include "jellyfin.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    {{- toYaml .Values.persistence.data.accessModes | nindent 4 }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.data.size }}
+  {{- if .Values.persistence.data.storageClass }}
+  {{- if (eq "-" .Values.persistence.data.storageClass) }}
+  storageClassName: ""
+  {{- else }}
+  storageClassName: "{{ .Values.persistence.data.storageClass }}"
+  {{- end }}
+  {{- end }}
+---
+{{- end }}
+
+{{- if and .Values.persistence.logs.enabled (not .Values.persistence.logs.existingClaim) }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ include "jellyfin.fullname" . }}-logs
+  labels:
+    {{- include "jellyfin.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    {{- toYaml .Values.persistence.logs.accessModes | nindent 4 }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.logs.size }}
+  {{- if .Values.persistence.logs.storageClass }}
+  {{- if (eq "-" .Values.persistence.logs.storageClass) }}
+  storageClassName: ""
+  {{- else }}
+  storageClassName: "{{ .Values.persistence.logs.storageClass }}"
+  {{- end }}
+  {{- end }}
+---
+{{- end }}
+
+{{- if and .Values.persistence.media.enabled (not .Values.persistence.media.existingClaim) }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ include "jellyfin.fullname" . }}-media
+  labels:
+    {{- include "jellyfin.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    {{- toYaml .Values.persistence.media.accessModes | nindent 4 }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.media.size }}
+  {{- if .Values.persistence.media.storageClass }}
+  {{- if (eq "-" .Values.persistence.media.storageClass) }}
+  storageClassName: ""
+  {{- else }}
+  storageClassName: "{{ .Values.persistence.media.storageClass }}"
+  {{- end }}
+  {{- end }}
+{{- end }}
+

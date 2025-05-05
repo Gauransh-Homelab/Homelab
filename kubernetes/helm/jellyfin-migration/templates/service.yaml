@@ -23,4 +23,3 @@ spec:
       {{- end }}
   selector:
     {{- include "jellyfin.selectorLabels" . | nindent 4 }}
-

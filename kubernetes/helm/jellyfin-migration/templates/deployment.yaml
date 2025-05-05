@@ -65,6 +65,9 @@ spec:
               subPath: {{ .Values.persistence.logs.subPath }}
               {{- end }}
             {{- end }}
+            {{- if .Values.extraVolumeMounts }}
+            {{- toYaml .Values.extraVolumeMounts | nindent 12 }}
+            {{- end }}
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}
@@ -124,63 +127,44 @@ spec:
               subPath: {{ .Values.persistence.logs.subPath }}
               {{- end }}
             {{- end }}
-            {{- if .Values.persistence.media.enabled }}
-            - name: media
-              mountPath: {{ .Values.persistence.media.mountPath }}
-              {{- if .Values.persistence.media.subPath }}
-              subPath: {{ .Values.persistence.media.subPath }}
-              {{- end }}
+            {{- if .Values.extraVolumeMounts }}
+            {{- toYaml .Values.extraVolumeMounts | nindent 12 }}
             {{- end }}
       volumes:
         {{- if .Values.persistence.config.enabled }}
         - name: config
-          {{- if .Values.persistence.config.existingClaim }}
+          {{- if not .Values.persistence.config.existingClaim }}
+          {{ fail "Config PVC existingClaim must be specified" }}
+          {{- end }}
           persistentVolumeClaim:
             claimName: {{ .Values.persistence.config.existingClaim }}
-          {{- else }}
-          persistentVolumeClaim:
-            claimName: {{ include "jellyfin.fullname" . }}-config
-          {{- end }}
         {{- end }}
         {{- if .Values.persistence.cache.enabled }}
         - name: cache
-          {{- if .Values.persistence.cache.existingClaim }}
+          {{- if not .Values.persistence.cache.existingClaim }}
+          {{ fail "Cache PVC existingClaim must be specified" }}
+          {{- end }}
           persistentVolumeClaim:
             claimName: {{ .Values.persistence.cache.existingClaim }}
-          {{- else }}
-          persistentVolumeClaim:
-            claimName: {{ include "jellyfin.fullname" . }}-cache
-          {{- end }}
         {{- end }}
         {{- if .Values.persistence.data.enabled }}
         - name: data
-          {{- if .Values.persistence.data.existingClaim }}
+          {{- if not .Values.persistence.data.existingClaim }}
+          {{ fail "Data PVC existingClaim must be specified" }}
+          {{- end }}
           persistentVolumeClaim:
             claimName: {{ .Values.persistence.data.existingClaim }}
-          {{- else }}
-          persistentVolumeClaim:
-            claimName: {{ include "jellyfin.fullname" . }}-data
-          {{- end }}
         {{- end }}
         {{- if .Values.persistence.logs.enabled }}
         - name: logs
-          {{- if .Values.persistence.logs.existingClaim }}
+          {{- if not .Values.persistence.logs.existingClaim }}
+          {{ fail "Logs PVC existingClaim must be specified" }}
+          {{- end }}
           persistentVolumeClaim:
             claimName: {{ .Values.persistence.logs.existingClaim }}
-          {{- else }}
-          persistentVolumeClaim:
-            claimName: {{ include "jellyfin.fullname" . }}-logs
-          {{- end }}
         {{- end }}
-        {{- if .Values.persistence.media.enabled }}
-        - name: media
-          {{- if .Values.persistence.media.existingClaim }}
-          persistentVolumeClaim:
-            claimName: {{ .Values.persistence.media.existingClaim }}
-          {{- else }}
-          persistentVolumeClaim:
-            claimName: {{ include "jellyfin.fullname" . }}-media
-          {{- end }}
+        {{- if .Values.extraVolumes }}
+        {{- toYaml .Values.extraVolumes | nindent 8 }}
         {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
@@ -194,4 +178,3 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-

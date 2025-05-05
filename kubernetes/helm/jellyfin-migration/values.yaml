@@ -1,4 +1,3 @@
-# Default values for jellyfin chart.
 replicaCount: 1
 
 image:
@@ -41,42 +40,48 @@ env:
   TZ: "Etc/UTC"
 
 # Persistence configuration
+# IMPORTANT: All PVCs must be pre-created before installing this chart.
+# This chart will not create PVCs and requires you to specify existingClaim for each enabled volume.
 persistence:
   config:
     enabled: true
-    accessModes:
-      - ReadWriteOnce
-    size: 2Gi
+    # REQUIRED: Name of the existing PVC to use for config data
+    existingClaim: ""
     mountPath: /config
   
   cache:
     enabled: true
-    accessModes:
-      - ReadWriteOnce
-    size: 5Gi
+    # REQUIRED: Name of the existing PVC to use for cache data
+    existingClaim: ""
     mountPath: /cache
   
   data:
     enabled: true
-    accessModes:
-      - ReadWriteOnce
-    size: 10Gi
+    # REQUIRED: Name of the existing PVC to use for application data
+    existingClaim: ""
     mountPath: /data
   
   logs:
     enabled: true
-    accessModes:
-      - ReadWriteOnce
-    size: 1Gi
+    # REQUIRED: Name of the existing PVC to use for logs
+    existingClaim: ""
     mountPath: /logs
-  
-  media:
-    enabled: true
-    storageClass: "nfs-client"
-    accessModes:
-      - ReadWriteOnce
-    size: 1Ti
-    mountPath: /media
+
+# Note: Media volumes should be managed separately by the user.
+# Example of adding a media volume in your custom values.yaml:
+#
+# extraVolumes:
+#   - name: my-media
+#     persistentVolumeClaim:
+#       claimName: my-existing-media-pvc
+# 
+# extraVolumeMounts:
+#   - name: my-media
+#     mountPath: /media
+
+# Extra volumes and mounts for user-defined storage like media
+extraVolumes: []
+extraVolumeMounts: []
 
 # Init container to verify required directories exist
 initContainers:
@@ -112,4 +117,3 @@ autoscaling:
 nodeSelector: {}
 tolerations: []
 affinity: {}
-

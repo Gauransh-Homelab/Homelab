@@ -17,8 +17,6 @@ spec:
         app.kubernetes.io/name: jellyfin
         app.kubernetes.io/instance: my-jellyfin
     spec:
-      serviceAccountName: jellyfin-sa
-      securityContext: {}
       containers:
         - name: jellyfin
           securityContext: {}
@@ -26,7 +24,7 @@ spec:
           imagePullPolicy: IfNotPresent
           env:
             - name: TZ
-              value: "Etc/UTC"
+              value: "Asia/Singapore"
             - name: JELLYFIN_CONFIG_DIR
               value: "/config"
             - name: JELLYFIN_CACHE_DIR

@@ -6,7 +6,7 @@ metadata:
     app.kubernetes.io/name: jellyfin
     app.kubernetes.io/instance: my-jellyfin
 spec:
-  type: LoadBalencer 
+  type: LoadBalancer 
   ports:
     - port: 8096
       targetPort: http

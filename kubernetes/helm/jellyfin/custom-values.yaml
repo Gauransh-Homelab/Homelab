@@ -1,0 +1,10 @@
+Service:
+  type: LoadBalancer
+
+persistence:
+  config:
+    enabled: true
+    size: 50Gi
+  media:
+    enabled: false
+

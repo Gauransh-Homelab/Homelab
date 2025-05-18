@@ -1,0 +1,32 @@
+# your-app-directory/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Specify the namespace for all resources defined here
+namespace: jelly
+
+# List of resources Kustomize should manage
+resources:
+- pvc-config-dummy-pod.yaml
+
+# Inline patch to add volumes and volumeMounts to the Pod
+patches:
+- patch: |-
+    # This is a multi-line string YAML patch
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: busybox-copier # This must match the name in pod.yaml
+    spec:
+      containers:
+      - name: busybox      # This must match the container name in pod.yaml
+        volumeMounts:
+        - # add here
+      volumes:
+      - # add here
+
+  target:
+    # Specifies which resource the patch should be applied to
+    kind: Pod
+    name: busybox-copier
+

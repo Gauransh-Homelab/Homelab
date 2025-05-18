@@ -1,0 +1,14 @@
+# base/pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: busybox-copier
+  namespace: jelly
+spec:
+  containers:
+  - name: busybox
+    image: busybox:latest
+    command: ["/bin/sh", "-c", "sleep 3600"]
+    # no volumeMounts here
+  restartPolicy: Never
+

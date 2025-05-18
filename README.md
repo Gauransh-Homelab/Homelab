@@ -9,7 +9,7 @@
 <div align="center">
 
 ![Homelab Status](https://img.shields.io/badge/status-operational-brightgreen)
-![Proxmox](https://img.shields.io/badge/Proxmox-8.4-orange)
+![Proxmox](https://img.shields.io/badge/Proxmox-8.0-orange)
 ![Services](https://img.shields.io/badge/Services-10+-blue)
 ![Last Updated](https://img.shields.io/badge/Last%20Updated-May%182025-lightgrey)
 

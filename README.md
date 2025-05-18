@@ -11,7 +11,7 @@
 ![Homelab Status](https://img.shields.io/badge/status-operational-brightgreen)
 ![Proxmox](https://img.shields.io/badge/Proxmox-8.4-orange)
 ![Services](https://img.shields.io/badge/Services-10+-blue)
-![Last Updated](https://img.shields.io/badge/Last%20Updated-May%182025-lightblue)
+![Last Updated](https://img.shields.io/badge/Last%20Updated-May%182025-blue)
 
 *A personal homelab environment with virtualization, media services, and remote access*
 

@@ -1,11 +1,17 @@
-# 🏠 Homelab Setup
+# Homlab V2
+
+> v2 Is currently in progress, currently using a talos cluster and migrating all services,
+> the README will be updated once full migration is complete with details on the migration,
+> what services used etc. v1 README will still be available for reference
+
+# 🏠 Homelab v1 Setup
 
 <div align="center">
 
 ![Homelab Status](https://img.shields.io/badge/status-operational-brightgreen)
-![Proxmox](https://img.shields.io/badge/Proxmox-8.0-orange)
+![Proxmox](https://img.shields.io/badge/Proxmox-8.4-orange)
 ![Services](https://img.shields.io/badge/Services-10+-blue)
-![Last Updated](https://img.shields.io/badge/Last%20Updated-March%202025-lightgrey)
+![Last Updated](https://img.shields.io/badge/Last%20Updated-May%182025-lightblue)
 
 *A personal homelab environment with virtualization, media services, and remote access*
 

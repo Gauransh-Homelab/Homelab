@@ -1,10 +1,44 @@
+image:
+  pullPolicy: IfNotPresent
+  repository: jellyfin/jellyfin
+
+metrics:
+  enabled: false
+  serviceMonitor:
+    additionalLabels: {}
+    enabled: false
+
+nodeSelector: {}
+
 service:
   type: LoadBalancer
 
-persistence:
+strategy:
+  type: RollingUpdate
+
+terminationGracePeriodSeconds: 30
+
+volumes:
   config:
-    enabled: true
-    size: 50Gi
-  media:
-    enabled: false
+    existingClaim: jellyfin-config
+  cache:
+    existingClaim: jellyfin-cache
+  data:
+    existingClaim: jellyfin-data
+  log:
+    existingClaim: jellyfin-log
+
+volumeMounts:
+  config:
+    mountPath: /config
+    volume: config
+  cache:
+    mountPath: /cache
+    volume: cache
+  data:
+    mountPath: /data
+    volume: data
+  log:
+    mountPath: /log
+    volume: log
 

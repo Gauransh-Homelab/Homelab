@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: jellyfin-service
+  namespace: jelly # Adjust if using a different namespace
+spec:
+  type: LoadBalancer # Or NodePort, or ClusterIP (if using Ingress)
+  selector:
+    app: jellyfin # This must match the labels on your Pods/Deployment
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8096       # Port the service will listen on
+      targetPort: http # Name of the port defined in the Deployment's container spec (or the port number 8096)
+  # If using type: LoadBalancer and you want to suggest a specific IP (if your provider supports it)
+  # loadBalancerIP: <your-desired-static-ip>
+

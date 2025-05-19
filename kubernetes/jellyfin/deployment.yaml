@@ -17,14 +17,10 @@ spec:
       labels:
         app: jellyfin
     spec:
-      # If you strictly need `network_mode: host` for features like DLNA discovery,
-      # you can uncomment the following line. Be aware of the implications:
-      # it bypasses some Kubernetes networking abstractions and directly uses the node's network.
-      # hostNetwork: true
       securityContext:
-        runAsUser: <your_uid>      # Replace with your desired User ID
-        runAsGroup: <your_gid>     # Replace with your desired Group ID
-        fsGroup: <your_gid>        # Often same as runAsGroup, ensures group permissions on volumes
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
       containers:
         - name: jellyfin
           image: jellyfin/jellyfin:latest # Or a specific version
@@ -38,16 +34,12 @@ spec:
               value: "/var/lib/jellyfin"
             - name: JELLYFIN_LOG_DIR
               value: "/var/log/jellyfin"
-            # Add any other environment variables you need, e.g., TZ for timezone
-            # - name: TZ
-            #   value: "Your/Timezone"
+            - name: TZ
+              value: "Asia/Singapore"
           ports:
             - name: http
               containerPort: 8096 # Default Jellyfin HTTP port
               protocol: TCP
-            # If using hostNetwork: true, you might not need to define containerPort
-            # for DLNA (1900/udp, 7359/udp) here, as it will use host ports directly.
-            # If not using hostNetwork, DLNA may require additional setup (e.g. hostPort or specific CNI).
           volumeMounts:
             - name: config-volume
               mountPath: /etc/jellyfin        # Matches JELLYFIN_CONFIG_DIR
@@ -57,42 +49,16 @@ spec:
               mountPath: /var/lib/jellyfin    # Matches JELLYFIN_DATA_DIR
             - name: log-volume
               mountPath: /var/log/jellyfin    # Matches JELLYFIN_LOG_DIR
-            - name: media-volume
-              mountPath: /media/movies        # Example: replace with your desired container path for movies
-            # Add more media volumeMounts as needed, e.g.:
-            # - name: media-tv-volume
-            #   mountPath: /media/tv
-          # Liveness and Readiness probes are recommended for production
-          # livenessProbe:
-          #   httpGet:
-          #     path: /health
-          #     port: http
-          #   initialDelaySeconds: 30
-          #   periodSeconds: 10
-          # readinessProbe:
-          #   httpGet:
-          #     path: /health
-          #     port: http
-          #   initialDelaySeconds: 5
-          #   periodSeconds: 10
       volumes:
         - name: config-volume
           persistentVolumeClaim:
-            claimName: <your-pvc-name-for-config> # Replace with your existing PVC name for config
+            claimName: jellyfin-config # Replace with your existing PVC name for config
         - name: cache-volume
           persistentVolumeClaim:
-            claimName: <your-pvc-name-for-cache>  # Replace with your existing PVC name for cache
+            claimName: jellyfin-cache  # Replace with your existing PVC name for cache
         - name: data-volume
           persistentVolumeClaim:
-            claimName: <your-pvc-name-for-data>   # Replace with your existing PVC name for data
+            claimName: jellyfin-data   # Replace with your existing PVC name for data
         - name: log-volume
           persistentVolumeClaim:
-            claimName: <your-pvc-name-for-logs>   # Replace with your existing PVC name for logs
-        - name: media-volume
-          persistentVolumeClaim:
-            claimName: <your-pvc-name-for-media>  # Replace with your existing PVC name for your media library
-        # Add more media volumes as needed, matching the volumeMounts
-        # - name: media-tv-volume
-        #   persistentVolumeClaim:
-        #     claimName: <your-pvc-name-for-tv>
-
+            claimName: jellyfin-log   # Replace with your existing PVC name for logs

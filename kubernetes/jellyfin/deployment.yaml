@@ -18,9 +18,9 @@ spec:
         app: jellyfin
     spec:
       securityContext:
-        runAsUser: 1000
-        runAsGroup: 1000
-        fsGroup: 1000
+        runAsUser: 110
+        runAsGroup: 118
+        fsGroup: 118
       containers:
         - name: jellyfin
           image: jellyfin/jellyfin:latest # Or a specific version

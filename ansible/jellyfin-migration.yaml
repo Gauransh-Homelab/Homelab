@@ -6,7 +6,7 @@
   vars:
     remote_host: 192.168.10.254
     remote_user: root
-    local_base_dir: "{{ playbook_dir }}/../../tmp/jellyfin"  # Using absolute path
+    local_base_dir: "{{ playbook_dir }}"  # Using absolute path
     jellyfin_dirs:
       - { src: "/etc/jellyfin", dest: "jellyfin-config" }
       - { src: "/var/lib/jellyfin", dest: "jellyfin-data" }

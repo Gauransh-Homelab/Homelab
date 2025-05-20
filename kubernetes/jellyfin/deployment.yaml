@@ -49,6 +49,9 @@ spec:
               mountPath: /var/lib/jellyfin    # Matches JELLYFIN_DATA_DIR
             - name: log-volume
               mountPath: /var/log/jellyfin    # Matches JELLYFIN_LOG_DIR
+            - name: media
+              mountPath: /NAS
+
       volumes:
         - name: config-volume
           persistentVolumeClaim:
@@ -62,3 +65,8 @@ spec:
         - name: log-volume
           persistentVolumeClaim:
             claimName: jellyfin-log   # Replace with your existing PVC name for logs
+        - name: media
+          nfs:
+            server: 192.168.10.101
+            path: /volume1/NAS
+            readOnly: false

@@ -1,4 +1,3 @@
-# your-app-directory/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
@@ -21,12 +20,27 @@ patches:
       containers:
       - name: busybox      # This must match the container name in pod.yaml
         volumeMounts:
-        - # add here
+        - mountPath: /mnt/config
+          name: jellyfin-config-volume
+        - mountPath: /mnt/data
+          name: jellyfin-data-volume
+        - mountPath: /mnt/cache
+          name: jellyfin-cache-volume
+        - mountPath: /mnt/log
+          name: jellyfin-log-volume
       volumes:
-      - # add here
-
+      - name: jellyfin-config-volume
+        persistentVolumeClaim:
+          claimName: jellyfin-config
+      - name: jellyfin-data-volume
+        persistentVolumeClaim:
+          claimName: jellyfin-data
+      - name: jellyfin-cache-volume
+        persistentVolumeClaim:
+          claimName: jellyfin-cache
+      - name: jellyfin-log-volume
+        persistentVolumeClaim:
+          claimName: jellyfin-log
   target:
-    # Specifies which resource the patch should be applied to
     kind: Pod
     name: busybox-copier
-

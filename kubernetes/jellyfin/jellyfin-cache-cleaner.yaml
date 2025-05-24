@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: jellyfin-cache-cleaner
+  namespace: jelly
+spec:
+  schedule: "*/20 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: cleaner
+            image: alpine:3
+            command: ["/bin/sh", "-c"]
+            args:
+              - find /cache/transcodes -type f -mmin +60 -delete
+            volumeMounts:
+            - name: jellyfin-cache
+              mountPath: /cache
+          restartPolicy: OnFailure
+          volumes:
+          - name: jellyfin-cache
+            persistentVolumeClaim:
+              claimName: jellyfin-cache
+

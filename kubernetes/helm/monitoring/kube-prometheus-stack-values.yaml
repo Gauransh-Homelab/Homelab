@@ -73,9 +73,8 @@ grafana:
       cpu: 50m
       memory: 256Mi
   
-  # Admin credentials (change these in production)
+  # Admin credentials - password will be auto-generated on first install
   adminUser: admin
-  adminPassword: homelab-secure-2024!
   
   # Preconfigure data sources for LGTM stack
   datasources:

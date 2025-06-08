@@ -1,0 +1,246 @@
+# kube-prometheus-stack values for LGTM homelab deployment
+# This includes Prometheus, Grafana, and Alertmanager with persistent storage
+
+# Global configuration
+global:
+  # Use synology-iscsi storage class for all persistent volumes
+  storageClass: synology-iscsi
+
+# Prometheus configuration
+prometheus:
+  prometheusSpec:
+    # Storage configuration for Prometheus
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: synology-iscsi
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 30Gi
+    
+    # Data retention policy
+    retention: 15d
+    retentionSize: 45GB
+    
+    # Resource limits for homelab environment
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+      requests:
+        cpu: 200m
+        memory: 1Gi
+    
+    # Replicas for HA (can be reduced to 1 for single node)
+    replicas: 1
+    
+    # Additional scrape configs for the LGTM stack
+    additionalScrapeConfigs:
+      - job_name: 'loki'
+        static_configs:
+          - targets: ['loki:3100']
+      - job_name: 'tempo'
+        static_configs:
+          - targets: ['tempo:3100']
+
+# Grafana configuration
+grafana:
+  # Enable persistence for Grafana
+  persistence:
+    enabled: true
+    storageClassName: synology-iscsi
+    size: 5Gi
+    accessModes:
+      - ReadWriteOnce
+  
+  # Service configuration - LoadBalancer for MetalLB
+  service:
+    type: LoadBalancer
+    port: 3000
+    annotations:
+      metallb.universe.tf/address-pool: default
+  
+  # Resource limits for homelab
+  resources:
+    limits:
+      cpu: 200m
+      memory: 512Mi
+    requests:
+      cpu: 50m
+      memory: 256Mi
+  
+  # Admin credentials (change these in production)
+  adminUser: admin
+  adminPassword: homelab-secure-2024!
+  
+  # Preconfigure data sources for LGTM stack
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        # Prometheus data source
+        - name: Prometheus
+          type: prometheus
+          access: proxy
+          url: http://kube-prometheus-stack-prometheus:9090
+          isDefault: true
+          editable: true
+        
+        # Loki data source for logs
+        - name: Loki
+          type: loki
+          access: proxy
+          url: http://loki:3100
+          editable: true
+          jsonData:
+            derivedFields:
+              - datasourceUid: tempo
+                matcherRegex: "traceID=(\\w+)"
+                name: TraceID
+                url: "$${__value.raw}"
+        
+        # Tempo data source for traces
+        - name: Tempo
+          type: tempo
+          access: proxy
+          url: http://tempo:3100
+          editable: true
+          jsonData:
+            tracesToLogs:
+              datasourceUid: loki
+              filterByTraceID: true
+              filterBySpanID: false
+              tags: ['job', 'instance', 'pod', 'namespace']
+            nodeGraph:
+              enabled: true
+  
+  # Enable dashboard providers for integrated dashboards
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: 'default'
+          orgId: 1
+          folder: ''
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/default
+  
+  # Import common dashboards
+  dashboards:
+    default:
+      # Kubernetes cluster monitoring
+      kubernetes-cluster:
+        gnetId: 7249
+        revision: 1
+        datasource: Prometheus
+      
+      # Node exporter dashboard
+      node-exporter:
+        gnetId: 1860
+        revision: 29
+        datasource: Prometheus
+      
+      # Loki dashboard
+      loki-dashboard:
+        gnetId: 13639
+        revision: 2
+        datasource: Loki
+      
+      # Tempo dashboard
+      tempo-dashboard:
+        gnetId: 16698
+        revision: 1
+        datasource: Tempo
+
+# Alertmanager configuration
+alertmanager:
+  alertmanagerSpec:
+    # Storage for Alertmanager
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: synology-iscsi
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 2Gi
+    
+    # Resource limits for homelab
+    resources:
+      limits:
+        cpu: 200m
+        memory: 512Mi
+      requests:
+        cpu: 50m
+        memory: 256Mi
+    
+    # Single replica for homelab
+    replicas: 1
+
+# Node exporter configuration
+nodeExporter:
+  enabled: true
+  resources:
+    limits:
+      cpu: 200m
+      memory: 200Mi
+    requests:
+      cpu: 25m
+      memory: 50Mi
+
+# Kube-state-metrics configuration
+kubeStateMetrics:
+  enabled: true
+  resources:
+    limits:
+      cpu: 200m
+      memory: 200Mi
+    requests:
+      cpu: 25m
+      memory: 50Mi
+
+# Prometheus operator configuration
+prometheusOperator:
+  resources:
+    limits:
+      cpu: 200m
+      memory: 200Mi
+    requests:
+      cpu: 25m
+      memory: 50Mi
+  
+  # Enable creation of PrometheusRules for LGTM stack
+  prometheusConfigReloader:
+    resources:
+      limits:
+        cpu: 200m
+        memory: 200Mi
+      requests:
+        cpu: 25m
+        memory: 50Mi
+
+# Default rules for alerting
+defaultRules:
+  create: true
+  rules:
+    alertmanager: true
+    etcd: true
+    general: true
+    k8s: true
+    kubeApiserver: true
+    kubeApiserverAvailability: true
+    kubeApiserverSlos: true
+    kubelet: true
+    kubePrometheusGeneral: true
+    kubePrometheusNodeRecording: true
+    kubernetesApps: true
+    kubernetesResources: true
+    kubernetesStorage: true
+    kubernetesSystem: true
+    node: true
+    prometheus: true
+    prometheusOperator: true

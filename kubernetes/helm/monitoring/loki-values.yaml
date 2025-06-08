@@ -1,0 +1,232 @@
+# Loki values for LGTM homelab deployment
+# Single binary mode with filesystem backend and persistent storage
+
+# Enable single binary deployment mode for simplicity
+deploymentMode: SingleBinary
+
+# Single binary configuration
+singleBinary:
+  # Enable persistent storage
+  persistence:
+    enabled: true
+    storageClass: synology-iscsi
+    size: 20Gi
+    accessModes:
+      - ReadWriteOnce
+  
+  # Resource limits for homelab environment
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 512Mi
+  
+  # Single replica for homelab setup
+  replicas: 1
+  
+  # Enable service monitor for Prometheus scraping
+  serviceMonitor:
+    enabled: true
+    interval: 60s
+    scrapeTimeout: 10s
+
+# Loki configuration
+loki:
+  # Authentication configuration (disabled for homelab)
+  auth_enabled: false
+  
+  # Common configuration
+  commonConfig:
+    path_prefix: /var/loki
+    replication_factor: 1
+  
+  # Storage configuration - using filesystem backend
+  storage:
+    type: filesystem
+    filesystem:
+      chunks_directory: /var/loki/chunks
+      rules_directory: /var/loki/rules
+  
+  # Schema configuration for log storage
+  schemaConfig:
+    configs:
+      - from: 2024-01-01
+        store: tsdb
+        object_store: filesystem
+        schema: v13
+        index:
+          prefix: loki_index_
+          period: 24h
+  
+  # Server configuration
+  server:
+    http_listen_port: 3100
+    grpc_listen_port: 9095
+    log_level: info
+  
+  # Chunk store configuration
+  chunk_store_config:
+    chunk_cache_config:
+      embedded_cache:
+        enabled: true
+        max_size_mb: 500
+  
+  # Query range configuration
+  query_range:
+    cache_results: true
+    results_cache:
+      cache:
+        embedded_cache:
+          enabled: true
+          max_size_mb: 500
+  
+  # Limits configuration for homelab
+  limits_config:
+    # Retention period (7 days)
+    retention_period: 168h
+    
+    # Ingestion limits
+    ingestion_rate_mb: 32
+    ingestion_burst_size_mb: 64
+    per_stream_rate_limit: 32MB
+    per_stream_rate_limit_burst: 64MB
+    
+    # Query limits
+    max_query_length: 12000h
+    max_query_parallelism: 8
+    max_streams_per_user: 0
+    max_global_streams_per_user: 5000
+    
+    # Split queries by interval
+    split_queries_by_interval: 30m
+    
+    # Enable structured metadata and JSON parsing
+    structured_metadata:
+      enabled: true
+      max_entries_per_log: 128
+    
+    # Cardinality limits
+    max_label_name_length: 1024
+    max_label_value_length: 4096
+    max_label_names_per_series: 30
+  
+  # Table manager configuration for retention
+  table_manager:
+    retention_deletes_enabled: true
+    retention_period: 168h
+  
+  # Compactor configuration for cleanup
+  compactor:
+    working_directory: /var/loki/compactor
+    shared_store: filesystem
+    compaction_interval: 10m
+    retention_enabled: true
+    retention_delete_delay: 2h
+    retention_delete_worker_count: 150
+
+# Service configuration
+service:
+  type: ClusterIP
+  port: 3100
+  targetPort: 3100
+
+# Service account configuration
+serviceAccount:
+  create: true
+  automount: true
+
+# Gateway configuration (disabled for single binary)
+gateway:
+  enabled: false
+
+# Test configuration
+test:
+  enabled: false
+
+# Monitoring configuration
+monitoring:
+  # Enable self-monitoring
+  selfMonitoring:
+    enabled: true
+    grafanaAgent:
+      installOperator: false
+  
+  # Service monitor for Prometheus
+  serviceMonitor:
+    enabled: true
+    interval: 60s
+    path: /metrics
+    port: http-metrics
+    scheme: http
+    scrapeTimeout: 10s
+    
+    # Additional labels for service monitor
+    labels:
+      release: kube-prometheus-stack
+  
+  # Prometheus rules for alerting
+  prometheusRule:
+    enabled: true
+    
+    # Alert rules for Loki
+    rules:
+      - alert: LokiProcessTooManyRestarts
+        expr: changes(process_start_time_seconds{job=~"loki"}[15m]) > 2
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: Loki process too many restarts
+          description: "A loki process had too many restarts (target {{ $labels.instance }})"
+      
+      - alert: LokiRequestErrors
+        expr: 100 * sum(rate(loki_request_duration_seconds_count{status_code=~"5.."}[1m])) by (namespace, job, route) / sum(rate(loki_request_duration_seconds_count[1m])) by (namespace, job, route) > 10
+        for: 15m
+        labels:
+          severity: critical
+        annotations:
+          summary: Loki request errors
+          description: "The {{ $labels.job }} and {{ $labels.route }} are experiencing errors"
+
+# Write ahead log configuration
+write:
+  persistence:
+    size: 5Gi
+    storageClass: synology-iscsi
+
+# Read configuration
+read:
+  persistence:
+    size: 5Gi
+    storageClass: synology-iscsi
+
+# Backend configuration  
+backend:
+  persistence:
+    size: 5Gi
+    storageClass: synology-iscsi
+
+# Chunk cache configuration
+chunksCache:
+  enabled: false
+
+# Results cache configuration
+resultsCache:
+  enabled: false
+
+# Ruler configuration (disabled for single binary)
+ruler:
+  enabled: false
+
+# Index gateway configuration (disabled for single binary)
+indexGateway:
+  enabled: false
+
+# Bloom compactor and gateway (disabled for single binary)
+bloomCompactor:
+  enabled: false
+
+bloomGateway:
+  enabled: false

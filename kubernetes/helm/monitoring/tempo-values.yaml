@@ -1,6 +1,9 @@
 # Tempo values for LGTM homelab deployment
 # Single binary mode with local backend and multi-format trace ingestion
 
+# Namespace configuration
+namespaceOverride: monitoring
+
 # Service account configuration
 serviceAccount:
   create: true

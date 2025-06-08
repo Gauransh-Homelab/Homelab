@@ -1,6 +1,9 @@
 # Loki values for LGTM homelab deployment
 # Single binary mode with filesystem backend and persistent storage
 
+# Namespace configuration
+namespaceOverride: monitoring
+
 # Enable single binary deployment mode for simplicity
 deploymentMode: SingleBinary
 

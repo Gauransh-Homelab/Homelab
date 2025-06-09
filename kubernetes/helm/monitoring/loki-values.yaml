@@ -12,7 +12,7 @@ singleBinary:
   # Enable persistent storage
   persistence:
     enabled: true
-    storageClass: synology-iscsi
+    storageClass: nfs-client
     size: 20Gi
     accessModes:
       - ReadWriteOnce

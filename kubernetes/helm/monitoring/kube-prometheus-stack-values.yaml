@@ -3,8 +3,8 @@
 
 # Global configuration
 global:
-  # Use synology-iscsi storage class for all persistent volumes
-  storageClass: synology-iscsi
+  # Use nfs-client storage class for all persistent volumes
+  storageClass: nfs-client
 
 # Namespace configuration
 namespaceOverride: monitoring

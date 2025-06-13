@@ -1,0 +1,41 @@
+nfs:
+  server: 192.168.10.101
+  path: /volume1/kube
+
+replicaCount: 1
+
+namespace: synology-csi
+
+image:
+  repository: registry.k8s.io/sig-storage/nfs-subdir-external-provisioner
+  tag: v4.0.2
+  pullPolicy: IfNotPresent
+
+storageClass:
+  create: true
+  defaultClass: false
+  name: nfs-client
+  allowVolumeExpansion: true
+  reclaimPolicy: Delete
+  archiveOnDelete: true
+  onDelete: rename
+  pathPattern: "${.PVC.namespace}/${.PVC.name}"
+  accessModes: ReadWriteMany
+
+leaderElection:
+  enabled: true
+
+rbac:
+  create: true
+
+serviceAccount:
+  create: true
+  name: nfs-client-provisioner
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+resources: {}

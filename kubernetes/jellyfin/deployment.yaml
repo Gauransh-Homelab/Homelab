@@ -39,13 +39,13 @@ spec:
               protocol: TCP
           volumeMounts:
             - name: config-volume
-              mountPath: /etc/jellyfin        # Matches JELLYFIN_CONFIG_DIR
+              mountPath: /etc/jellyfin # Matches JELLYFIN_CONFIG_DIR
             - name: cache-volume
-              mountPath: /var/cache/jellyfin  # Matches JELLYFIN_CACHE_DIR
+              mountPath: /var/cache/jellyfin # Matches JELLYFIN_CACHE_DIR
             - name: data-volume
-              mountPath: /var/lib/jellyfin    # Matches JELLYFIN_DATA_DIR
+              mountPath: /var/lib/jellyfin # Matches JELLYFIN_DATA_DIR
             - name: log-volume
-              mountPath: /var/log/jellyfin    # Matches JELLYFIN_LOG_DIR
+              mountPath: /var/log/jellyfin # Matches JELLYFIN_LOG_DIR
             - name: media
               mountPath: /NAS
 
@@ -55,13 +55,13 @@ spec:
             claimName: jellyfin-config # Replace with your existing PVC name for config
         - name: cache-volume
           persistentVolumeClaim:
-            claimName: jellyfin-cache  # Replace with your existing PVC name for cache
+            claimName: jellyfin-cache # Replace with your existing PVC name for cache
         - name: data-volume
           persistentVolumeClaim:
-            claimName: jellyfin-data   # Replace with your existing PVC name for data
+            claimName: jellyfin-data # Replace with your existing PVC name for data
         - name: log-volume
           persistentVolumeClaim:
-            claimName: jellyfin-log   # Replace with your existing PVC name for logs
+            claimName: jellyfin-log # Replace with your existing PVC name for logs
         - name: media
           nfs:
             server: 192.168.10.101

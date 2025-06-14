@@ -195,7 +195,7 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 4. Configure GPU passthrough
 5. Implement iSCSI storage
 
-> 🚧 **TODO**: Create detailed migration plan document with timeline
+> 🚧 ~~**TODO**: Create detailed migration plan document with timeline~~
 
 ---
 

@@ -1,0 +1,158 @@
+# LibreChat Helm Chart Values
+# Custom configuration for LibreChat deployment
+
+# Application configuration
+app:
+  name: librechat
+  version: "1.8.10"
+
+# Image configuration
+image:
+  repository: ghcr.io/danny-avila/librechat
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+# Service configuration
+service:
+  type: LoadBalancer
+  port: 3080
+  targetPort: 3080
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: ""
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  hosts:
+    - host: libre.arkhaya.xyz
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: librechat-tls
+      hosts:
+        - libre.arkhaya.xyz
+
+# Deployment configuration
+deployment:
+  replicas: 1
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "2Gi"
+      cpu: "1000m"
+
+# Environment variables from secret
+envFromSecret:
+  enabled: true
+  secretName: librechat-credentials-env
+
+# MongoDB configuration
+mongodb:
+  enabled: true
+  auth:
+    enabled: false
+  persistence:
+    enabled: true
+    size: 10Gi
+    storageClass: "synology-iscsi"
+  service:
+    port: 27017
+  podSecurityContext:
+    enabled: true
+    fsGroup: 1001
+  containerSecurityContext:
+    enabled: true
+    runAsUser: 1001
+    runAsGroup: 1001
+    runAsNonRoot: true
+    allowPrivilegeEscalation: false
+
+# MeiliSearch configuration
+meilisearch:
+  enabled: true
+  persistence:
+    enabled: true
+    size: 5Gi
+    storageClass: "synology-iscsi"
+  environment:
+    MEILI_NO_ANALYTICS: "true"
+    MEILI_ENV: "production"
+  service:
+    port: 7700
+
+# Redis configuration (optional)
+redis:
+  enabled: false
+
+# Persistence for uploads and logs
+persistence:
+  uploads:
+    enabled: true
+    size: 5Gi
+    storageClass: "nfs-client"
+    accessMode: ReadWriteMany
+  logs:
+    enabled: true
+    size: 1Gi
+    storageClass: "nfs-client"
+    accessMode: ReadWriteMany
+
+# Node selector and tolerations
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# Security context
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+
+# Pod security context
+podSecurityContext:
+  fsGroup: 1000
+
+# Health checks
+livenessProbe:
+  httpGet:
+    path: /api/health
+    port: 3080
+  initialDelaySeconds: 60
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /api/health
+    port: 3080
+  initialDelaySeconds: 30
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+# Additional environment variables
+env:
+  - name: HOST
+    value: "0.0.0.0"
+  - name: PORT
+    value: "3080"
+  - name: NODE_ENV
+    value: "production"
+
+# ConfigMap for additional configuration
+configMap:
+  enabled: true
+  data:
+    # Add librechat.yaml configuration here if needed
+    librechat.yaml: |
+      # LibreChat configuration file
+      version: 1.0.5
+      cache: true

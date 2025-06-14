@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: backup-receiver-pod
+  namespace: ai-stuff
+spec:
+  containers:
+  - name: backup-receiver
+    image: busybox:latest
+    command:
+    - sleep
+    - "3600"  # Keep pod alive for 1 hour
+    volumeMounts:
+    - name: backup-storage
+      mountPath: /backup
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+  volumes:
+  - name: backup-storage
+    persistentVolumeClaim:
+      claimName: mongodb-backup-pvc
+  restartPolicy: Never
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    seccompProfile:
+      type: RuntimeDefault

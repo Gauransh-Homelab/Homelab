@@ -1,0 +1,83 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mongodb-restore-job
+  namespace: ai-stuff
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: mongo-restore
+        image: mongo:7.0
+        command:
+        - /bin/bash
+        - -c
+        - |
+          echo "🔄 Starting MongoDB restore process..."
+          
+          # Wait for MongoDB to be ready
+          until mongosh --host librechat-mongodb:27017 --eval "db.adminCommand('ping')" > /dev/null 2>&1; do
+            echo "⏳ Waiting for MongoDB to be ready..."
+            sleep 5
+          done
+          
+          echo "✅ MongoDB is ready, starting restore..."
+          
+          # Navigate to backup directory
+          cd /backup/LibreChat/LibreChat
+          
+          echo "📄 Found backup files:"
+          ls -la *.bson
+          
+          # Restore each collection
+          for file in *.bson; do
+            collection=$(basename "$file" .bson)
+            echo "📄 Restoring collection: $collection"
+            mongorestore --host librechat-mongodb:27017 --db LibreChat --collection "$collection" "$file" --drop
+          done
+          
+          echo "🎉 MongoDB restore completed successfully!"
+          
+          # Verify the restore
+          echo "🔍 Verifying restore..."
+          mongosh --host librechat-mongodb:27017 LibreChat --eval "
+            print('📊 Database collections and document counts:');
+            db.getCollectionNames().forEach(function(collection) {
+              var count = db[collection].countDocuments();
+              print('  ' + collection + ': ' + count + ' documents');
+            });
+          "
+        
+        volumeMounts:
+        - name: backup-storage
+          mountPath: /backup
+          readOnly: true
+        
+        env:
+        - name: MONGO_INITDB_DATABASE
+          value: "LibreChat"
+        
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          runAsNonRoot: true
+          runAsUser: 999
+          runAsGroup: 999
+          seccompProfile:
+            type: RuntimeDefault
+      
+      volumes:
+      - name: backup-storage
+        persistentVolumeClaim:
+          claimName: mongodb-backup-pvc
+      
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+        seccompProfile:
+          type: RuntimeDefault

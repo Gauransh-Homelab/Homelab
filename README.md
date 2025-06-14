@@ -1,5 +1,8 @@
 # Homlab V2
 
+## You can see current progress with this link below
+<a>https://publish.obsidian.md/gauranshmathur</a>
+
 > v2 Is currently in progress, currently using a talos cluster and migrating all services,
 > the README will be updated once full migration is complete with details on the migration,
 > what services used etc. v1 README will still be available for reference

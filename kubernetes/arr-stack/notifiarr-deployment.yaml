@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notifiarr
+  namespace: arr-stack
+  labels:
+    app: notifiarr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notifiarr
+  template:
+    metadata:
+      labels:
+        app: notifiarr
+    spec:
+      containers:
+      - name: notifiarr
+        image: golift/notifiarr:latest
+        env:
+        - name: PUID
+          value: "1000"
+        - name: PGID
+          value: "1000"
+        - name: TZ
+          value: "Asia/Singapore"
+        - name: DN_API_KEY
+          value: "your-notifiarr-api-key"  # TODO: Move to secret
+        ports:
+        - containerPort: 5454
+          name: http
+        volumeMounts:
+        - name: notifiarr-config
+          mountPath: /config
+        - name: nfs-media
+          mountPath: /HDD
+        - name: nfs-nas
+          mountPath: /NAS
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 5454
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 5454
+          initialDelaySeconds: 15
+          periodSeconds: 15
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "50m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+
+      volumes:
+      - name: notifiarr-config
+        persistentVolumeClaim:
+          claimName: notifiarr-config
+      - name: nfs-media
+        nfs:
+          server: 192.168.10.101
+          path: /volume1/HDD
+      - name: nfs-nas
+        nfs:
+          server: 192.168.10.101
+          path: /volume1/NAS

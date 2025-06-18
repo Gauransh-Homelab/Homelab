@@ -1,0 +1,111 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bazarr
+  namespace: arr-stack
+  labels:
+    app: bazarr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bazarr
+  template:
+    metadata:
+      labels:
+        app: bazarr
+    spec:
+      containers:
+      - name: bazarr
+        image: lscr.io/linuxserver/bazarr:latest
+        env:
+        - name: PUID
+          value: "1000"
+        - name: PGID
+          value: "1000"
+        - name: TZ
+          value: "Asia/Singapore"
+        ports:
+        - containerPort: 6767
+          name: http
+        volumeMounts:
+        - name: bazarr-config
+          mountPath: /config
+        - name: nfs-media
+          mountPath: /HDD
+        - name: nfs-nas
+          mountPath: /NAS
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 6767
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 6767
+          initialDelaySeconds: 15
+          periodSeconds: 15
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+
+      - name: bazarr2
+        image: lscr.io/linuxserver/bazarr:latest
+        env:
+        - name: PUID
+          value: "1000"
+        - name: PGID
+          value: "1000"
+        - name: TZ
+          value: "Asia/Singapore"
+        ports:
+        - containerPort: 6768
+          name: http2
+        volumeMounts:
+        - name: bazarr2-config
+          mountPath: /config
+        - name: nfs-media
+          mountPath: /HDD
+        - name: nfs-nas
+          mountPath: /NAS
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 6768
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 6768
+          initialDelaySeconds: 15
+          periodSeconds: 15
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+
+      volumes:
+      - name: bazarr-config
+        persistentVolumeClaim:
+          claimName: bazarr-config
+      - name: bazarr2-config
+        persistentVolumeClaim:
+          claimName: bazarr2-config
+      - name: nfs-media
+        nfs:
+          server: 192.168.10.101
+          path: /volume1/HDD
+      - name: nfs-nas
+        nfs:
+          server: 192.168.10.101
+          path: /volume1/NAS

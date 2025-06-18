@@ -1,0 +1,24 @@
+apiVersion: apps.projectsveltos.io/v1alpha1
+kind: Cleaner
+metadata:
+  name: completed-job-pods
+  namespace: k8s-cleaner
+spec:
+  schedule: "0 */2 * * *"  # Every 2 hours
+  resourcePolicySet:
+    resourceSelectors:
+    - namespace: jelly
+      kind: Pod
+      group: ""
+      version: v1
+      evaluate: |
+        function evaluate()
+          local hs = {}
+          if obj.status.phase == "Succeeded" then
+            hs.matching = true
+          else
+            hs.matching = false
+          end
+          return hs
+        end
+  action: Delete

@@ -1,0 +1,130 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vpn-group
+  namespace: arr-stack
+  labels:
+    app: vpn-group
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vpn-group
+  template:
+    metadata:
+      labels:
+        app: vpn-group
+    spec:
+      containers:
+      - name: gluetun
+        image: qmcgaw/gluetun:latest
+        env:
+        - name: VPN_SERVICE_PROVIDER
+          value: "expressvpn"
+        - name: OPENVPN_USER
+          value: "your-expressvpn-username"  # TODO: Move to secret
+        - name: OPENVPN_PASSWORD
+          value: "your-expressvpn-password"  # TODO: Move to secret
+        - name: SERVER_COUNTRIES
+          value: "Singapore"
+        - name: FIREWALL_OUTBOUND_SUBNETS
+          value: "192.168.0.0/16,10.0.0.0/8"
+        - name: TZ
+          value: "Asia/Singapore"
+        securityContext:
+          capabilities:
+            add:
+              - NET_ADMIN
+        ports:
+        - containerPort: 8080
+          name: qbittorrent
+        - containerPort: 6881
+          name: qb-torrent
+        - containerPort: 6789
+          name: nzbget
+        volumeMounts:
+        - name: gluetun-config
+          mountPath: /gluetun
+        - name: nfs-media
+          mountPath: /HDD
+        - name: nfs-nas
+          mountPath: /NAS
+
+      - name: qbittorrent
+        image: lscr.io/linuxserver/qbittorrent:latest
+        env:
+        - name: PUID
+          value: "1000"
+        - name: PGID
+          value: "1000"
+        - name: TZ
+          value: "Asia/Singapore"
+        - name: WEBUI_PORT
+          value: "8080"
+        volumeMounts:
+        - name: qbittorrent-config
+          mountPath: /config
+        - name: nfs-media
+          mountPath: /HDD
+        - name: nfs-nas
+          mountPath: /NAS
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 15
+
+      - name: nzbget
+        image: lscr.io/linuxserver/nzbget:latest
+        env:
+        - name: PUID
+          value: "1000"
+        - name: PGID
+          value: "1000"
+        - name: TZ
+          value: "Asia/Singapore"
+        volumeMounts:
+        - name: nzbget-config
+          mountPath: /config
+        - name: nfs-media
+          mountPath: /HDD
+        - name: nfs-nas
+          mountPath: /NAS
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 6789
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 6789
+          initialDelaySeconds: 15
+          periodSeconds: 15
+
+      volumes:
+      - name: gluetun-config
+        persistentVolumeClaim:
+          claimName: gluetun-config
+      - name: qbittorrent-config
+        persistentVolumeClaim:
+          claimName: qbittorrent-config
+      - name: nzbget-config
+        persistentVolumeClaim:
+          claimName: nzbget-config
+      - name: nfs-media
+        nfs:
+          server: 192.168.10.101
+          path: /volume1/HDD
+      - name: nfs-nas
+        nfs:
+          server: 192.168.10.101
+          path: /volume1/NAS

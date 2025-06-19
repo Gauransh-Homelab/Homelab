@@ -15,6 +15,7 @@ spec:
       labels:
         app: vpn-group
     spec:
+      shareProcessNamespace: true
       containers:
       - name: gluetun
         image: qmcgaw/gluetun:latest
@@ -35,6 +36,8 @@ spec:
           value: "Singapore"
         - name: FIREWALL_OUTBOUND_SUBNETS
           value: "192.168.0.0/16,10.0.0.0/8"
+        - name: FIREWALL_VPN_INPUT_PORTS
+          value: "8080,6789"
         - name: TZ
           value: "Asia/Singapore"
         securityContext:
@@ -74,18 +77,8 @@ spec:
           mountPath: /HDD
         - name: nfs-nas
           mountPath: /NAS
-        livenessProbe:
-          httpGet:
-            path: /
-            port: 8080
-          initialDelaySeconds: 30
-          periodSeconds: 30
-        readinessProbe:
-          httpGet:
-            path: /
-            port: 8080
-          initialDelaySeconds: 15
-          periodSeconds: 15
+        dependsOn:
+        - gluetun
 
       - name: nzbget
         image: lscr.io/linuxserver/nzbget:latest
@@ -103,18 +96,8 @@ spec:
           mountPath: /HDD
         - name: nfs-nas
           mountPath: /NAS
-        livenessProbe:
-          httpGet:
-            path: /
-            port: 6789
-          initialDelaySeconds: 30
-          periodSeconds: 30
-        readinessProbe:
-          httpGet:
-            path: /
-            port: 6789
-          initialDelaySeconds: 15
-          periodSeconds: 15
+        dependsOn:
+        - gluetun
 
       volumes:
       - name: gluetun-config

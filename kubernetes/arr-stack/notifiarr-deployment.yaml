@@ -26,7 +26,10 @@ spec:
         - name: TZ
           value: "Asia/Singapore"
         - name: DN_API_KEY
-          value: "your-notifiarr-api-key"  # TODO: Move to secret
+          valueFrom:
+            secretKeyRef:
+              name: arr-stack-secrets
+              key: notifiarr-api-key
         ports:
         - containerPort: 5454
           name: http

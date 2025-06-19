@@ -22,9 +22,15 @@ spec:
         - name: VPN_SERVICE_PROVIDER
           value: "expressvpn"
         - name: OPENVPN_USER
-          value: "your-expressvpn-username"  # TODO: Move to secret
+          valueFrom:
+            secretKeyRef:
+              name: arr-stack-secrets
+              key: expressvpn-username
         - name: OPENVPN_PASSWORD
-          value: "your-expressvpn-password"  # TODO: Move to secret
+          valueFrom:
+            secretKeyRef:
+              name: arr-stack-secrets
+              key: expressvpn-password
         - name: SERVER_COUNTRIES
           value: "Singapore"
         - name: FIREWALL_OUTBOUND_SUBNETS

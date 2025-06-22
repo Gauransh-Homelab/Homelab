@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: radarr2
+  namespace: arr-stack
+  labels:
+    app: radarr2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: radarr2
+  template:
+    metadata:
+      labels:
+        app: radarr2
+    spec:
+      containers:
+      - name: radarr2
+        image: lscr.io/linuxserver/radarr:latest
+        env:
+        - name: PUID
+          value: "1000"
+        - name: PGID
+          value: "1000"
+        - name: TZ
+          value: "Asia/Singapore"
+        ports:
+        - containerPort: 7878
+          name: http
+        volumeMounts:
+        - name: radarr2-config
+          mountPath: /config
+        - name: nfs-nas
+          mountPath: /NAS
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 7878
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 7878
+          initialDelaySeconds: 15
+          periodSeconds: 15
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+
+      volumes:
+      - name: radarr2-config
+        persistentVolumeClaim:
+          claimName: radarr2-config
+      - name: nfs-nas
+        nfs:
+          server: 192.168.10.101
+          path: /volume1/NAS

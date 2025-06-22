@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bazarr2
+  namespace: arr-stack
+  labels:
+    app: bazarr2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bazarr2
+  template:
+    metadata:
+      labels:
+        app: bazarr2
+    spec:
+      containers:
+      - name: bazarr2
+        image: lscr.io/linuxserver/bazarr:latest
+        env:
+        - name: PUID
+          value: "1000"
+        - name: PGID
+          value: "1000"
+        - name: TZ
+          value: "Asia/Singapore"
+        ports:
+        - containerPort: 6767
+          name: http
+        volumeMounts:
+        - name: bazarr2-config
+          mountPath: /config
+        - name: nfs-nas
+          mountPath: /NAS
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 6767
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 6767
+          initialDelaySeconds: 15
+          periodSeconds: 15
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "100m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+
+      volumes:
+      - name: bazarr2-config
+        persistentVolumeClaim:
+          claimName: bazarr2-config
+      - name: nfs-nas
+        nfs:
+          server: 192.168.10.101
+          path: /volume1/NAS

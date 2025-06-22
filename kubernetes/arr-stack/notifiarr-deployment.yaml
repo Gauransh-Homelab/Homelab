@@ -36,8 +36,12 @@ spec:
         volumeMounts:
         - name: notifiarr-config
           mountPath: /config
-        - name: nfs-nas
-          mountPath: /NAS
+        - name: host-utmp
+          mountPath: /var/run/utmp
+          readOnly: true
+        - name: host-machine-id
+          mountPath: /etc/machine-id
+          readOnly: true
         livenessProbe:
           httpGet:
             path: /
@@ -62,7 +66,11 @@ spec:
       - name: notifiarr-config
         persistentVolumeClaim:
           claimName: notifiarr-config
-      - name: nfs-nas
-        nfs:
-          server: 192.168.10.101
-          path: /volume1/NAS
+      - name: host-utmp
+        hostPath:
+          path: /var/run/utmp
+          type: File
+      - name: host-machine-id
+        hostPath:
+          path: /etc/machine-id
+          type: File

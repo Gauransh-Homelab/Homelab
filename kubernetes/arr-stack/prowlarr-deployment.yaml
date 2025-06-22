@@ -31,8 +31,6 @@ spec:
         volumeMounts:
         - name: prowlarr-config
           mountPath: /config
-        - name: nfs-media
-          mountPath: /HDD
         - name: nfs-nas
           mountPath: /NAS
         livenessProbe:
@@ -59,10 +57,6 @@ spec:
       - name: prowlarr-config
         persistentVolumeClaim:
           claimName: prowlarr-config
-      - name: nfs-media
-        nfs:
-          server: 192.168.10.101
-          path: /volume1/HDD
       - name: nfs-nas
         nfs:
           server: 192.168.10.101

@@ -36,8 +36,6 @@ spec:
         volumeMounts:
         - name: notifiarr-config
           mountPath: /config
-        - name: nfs-media
-          mountPath: /HDD
         - name: nfs-nas
           mountPath: /NAS
         livenessProbe:
@@ -64,10 +62,6 @@ spec:
       - name: notifiarr-config
         persistentVolumeClaim:
           claimName: notifiarr-config
-      - name: nfs-media
-        nfs:
-          server: 192.168.10.101
-          path: /volume1/HDD
       - name: nfs-nas
         nfs:
           server: 192.168.10.101

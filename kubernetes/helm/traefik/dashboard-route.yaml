@@ -1,0 +1,46 @@
+# Internal-Only Dashboard Access
+# Dashboard is accessible internally via DuckDNS + Tailscale only
+# NO external web access for security
+
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: traefik-dashboard-internal
+  namespace: traefik
+  labels:
+    app: traefik-dashboard
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`traefik.arkhaya.duckdns.org`)  # Internal access via DuckDNS + Tailscale
+      kind: Rule
+      services:
+        - name: api@internal  # Traefik's internal API service
+          kind: TraefikService
+      middlewares:
+        - name: traefik-dashboard-auth@kubernetescrd  # Still require login for security
+        - name: security-headers@kubernetescrd        # Add security headers
+  tls:
+    certResolver: duckdns  # Use DuckDNS for SSL certificate
+
+---
+# Dashboard Access Methods:
+#
+# 1. Via Tailscale + DuckDNS (Recommended):
+#    https://traefik.arkhaya.duckdns.org
+#    - Requires Tailscale connection
+#    - Automatic SSL certificate
+#    - Username/password protection
+#
+# 2. Via kubectl port-forward (Local only):
+#    kubectl port-forward -n traefik svc/traefik 8080:8080
+#    http://localhost:8080/dashboard/
+#    - No authentication required
+#    - Only accessible from machine running kubectl
+#
+# 3. Direct LoadBalancer access (Local network):
+#    https://192.168.10.11:8080/dashboard/
+#    - Requires knowing the LoadBalancer IP
+#    - No authentication on this port
+#    - Only accessible from local network

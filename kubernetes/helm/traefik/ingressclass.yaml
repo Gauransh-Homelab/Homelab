@@ -1,0 +1,30 @@
+# Default IngressClass Configuration
+# Makes Traefik the default ingress controller for the cluster
+
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  name: traefik
+  annotations:
+    # Make this the default ingress class
+    # Any new Ingress resources will automatically use Traefik
+    ingressclass.kubernetes.io/is-default-class: "true"
+  labels:
+    app.kubernetes.io/name: traefik
+spec:
+  controller: traefik.io/ingress-controller
+
+---
+# What this does:
+#
+# 1. Creates an IngressClass named "traefik"
+# 2. Sets it as the default for the cluster
+# 3. Any new Ingress resources will automatically use Traefik
+# 4. You won't need to specify ingressClassName in your Ingress manifests
+#
+# Without this, you would need to add this to every Ingress:
+# spec:
+#   ingressClassName: traefik
+#
+# With this default, Kubernetes automatically assigns Traefik to handle
+# all Ingress resources unless you specify a different class.

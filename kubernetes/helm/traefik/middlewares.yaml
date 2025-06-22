@@ -1,0 +1,85 @@
+# Traefik Middlewares - Reusable security and functionality components
+
+# Security Headers Middleware - Enhances website security
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: security-headers
+  namespace: traefik
+spec:
+  headers:
+    # HSTS - Force HTTPS for 1 year, include subdomains
+    stsSeconds: 31536000
+    stsIncludeSubdomains: true
+    stsPreload: true
+    
+    # Security headers
+    frameDeny: true                    # Prevent clickjacking attacks
+    contentTypeNosniff: true           # Prevent MIME-type sniffing
+    browserXssFilter: true             # Enable XSS protection
+    referrerPolicy: "strict-origin-when-cross-origin"
+    
+    # Optional: Custom security headers
+    customRequestHeaders:
+      X-Forwarded-Proto: "https"       # Ensure backend knows it's HTTPS
+    
+    # Remove server information headers
+    customResponseHeaders:
+      Server: ""                       # Hide server information
+      X-Powered-By: ""                # Hide framework information
+
+---
+# Dashboard Authentication Middleware - Protects Traefik dashboard
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: traefik-dashboard-auth
+  namespace: traefik
+spec:
+  basicAuth:
+    secret: traefik-dashboard-auth     # References the secret we created
+
+---
+# Rate Limiting Middleware - Prevents abuse (optional)
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: rate-limit
+  namespace: traefik
+spec:
+  rateLimit:
+    burst: 100                         # Allow bursts up to 100 requests
+    average: 50                        # Average 50 requests per second
+
+---
+# IP Whitelist Middleware - Restrict access to specific IPs (optional)
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: local-only
+  namespace: traefik
+spec:
+  ipWhiteList:
+    sourceRange:
+      - "192.168.0.0/16"              # Local network
+      - "10.0.0.0/8"                  # Private network
+      - "172.16.0.0/12"               # Docker networks
+
+---
+# HTTPS Redirect Middleware - Force HTTPS (alternative to entry point redirect)
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: https-redirect
+  namespace: traefik
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true
+
+---
+# Example usage in IngressRoute:
+# middlewares:
+#   - name: security-headers@kubernetescrd
+#   - name: rate-limit@kubernetescrd
+#   - name: local-only@kubernetescrd    # Only if restricting to local network

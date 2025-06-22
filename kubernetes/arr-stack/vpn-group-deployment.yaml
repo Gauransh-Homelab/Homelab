@@ -15,10 +15,10 @@ spec:
       labels:
         app: vpn-group
     spec:
-      shareProcessNamespace: true
-      containers:
+      initContainers:
       - name: gluetun
         image: qmcgaw/gluetun:latest
+        restartPolicy: Always
         env:
         - name: VPN_SERVICE_PROVIDER
           value: "expressvpn"
@@ -41,9 +41,11 @@ spec:
         - name: TZ
           value: "Asia/Singapore"
         securityContext:
+          privileged: true
           capabilities:
             add:
               - NET_ADMIN
+              - SYS_MODULE
         ports:
         - containerPort: 8080
           name: qbittorrent
@@ -54,11 +56,9 @@ spec:
         volumeMounts:
         - name: gluetun-config
           mountPath: /gluetun
-        - name: nfs-media
-          mountPath: /HDD
         - name: nfs-nas
           mountPath: /NAS
-
+      containers:
       - name: qbittorrent
         image: lscr.io/linuxserver/qbittorrent:latest
         env:
@@ -70,15 +70,13 @@ spec:
           value: "Asia/Singapore"
         - name: WEBUI_PORT
           value: "8080"
+        - name: TORRENTING_PORT
+          value: "6881"
         volumeMounts:
         - name: qbittorrent-config
           mountPath: /config
-        - name: nfs-media
-          mountPath: /HDD
         - name: nfs-nas
           mountPath: /NAS
-        dependsOn:
-        - gluetun
 
       - name: nzbget
         image: lscr.io/linuxserver/nzbget:latest
@@ -89,15 +87,15 @@ spec:
           value: "1000"
         - name: TZ
           value: "Asia/Singapore"
+        - name: NZBGET_USER
+          value: "user"
+        - name: NZBGET_PASS
+          value: "password"
         volumeMounts:
         - name: nzbget-config
           mountPath: /config
-        - name: nfs-media
-          mountPath: /HDD
         - name: nfs-nas
           mountPath: /NAS
-        dependsOn:
-        - gluetun
 
       volumes:
       - name: gluetun-config
@@ -109,10 +107,6 @@ spec:
       - name: nzbget-config
         persistentVolumeClaim:
           claimName: nzbget-config
-      - name: nfs-media
-        nfs:
-          server: 192.168.10.101
-          path: /volume1/HDD
       - name: nfs-nas
         nfs:
           server: 192.168.10.101

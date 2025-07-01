@@ -25,11 +25,7 @@ spec:
           value: "1000"
         - name: TZ
           value: "Asia/Singapore"
-        - name: DN_API_KEY
-          valueFrom:
-            secretKeyRef:
-              name: arr-stack-secrets
-              key: notifiarr-api-key
+
         ports:
         - containerPort: 5454
           name: http

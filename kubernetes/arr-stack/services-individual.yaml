@@ -87,3 +87,4 @@ spec:
       targetPort: 6767
       name: http
   type: LoadBalancer
+

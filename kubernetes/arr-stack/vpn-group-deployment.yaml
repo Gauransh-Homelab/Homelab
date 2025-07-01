@@ -7,6 +7,8 @@ metadata:
     app: vpn-group
 spec:
   replicas: 1
+  strategy:
+    type: Recreate  # Critical for VPN containers
   selector:
     matchLabels:
       app: vpn-group
@@ -17,7 +19,7 @@ spec:
     spec:
       initContainers:
       - name: gluetun
-        image: qmcgaw/gluetun:latest
+        image: qmcgaw/gluetun:v3.38.0  # Pinned version
         restartPolicy: Always
         env:
         - name: VPN_SERVICE_PROVIDER
@@ -34,33 +36,39 @@ spec:
               key: expressvpn-password
         - name: SERVER_COUNTRIES
           value: "Singapore"
+        # CRITICAL: Kubernetes-specific configurations
+        - name: DNS_KEEP_NAMESERVER
+          value: "on"  # Required for cluster communication
         - name: FIREWALL_OUTBOUND_SUBNETS
-          value: "192.168.0.0/16,10.0.0.0/8"
+          value: "192.168.0.0/16,10.0.0.0/8,10.42.0.0/15"  # Include cluster networks
         - name: FIREWALL_VPN_INPUT_PORTS
           value: "8080,6789"
         - name: TZ
           value: "Asia/Singapore"
         securityContext:
-          privileged: true
           capabilities:
             add:
-              - NET_ADMIN
-              - SYS_MODULE
-        ports:
-        - containerPort: 8080
-          name: qbittorrent
-        - containerPort: 6881
-          name: qb-torrent
-        - containerPort: 6789
-          name: nzbget
+              - NET_ADMIN  # Minimal required capability
+        # CRITICAL: TUN device access  
         volumeMounts:
+        - name: dev-net-tun
+          mountPath: /dev/net/tun
         - name: gluetun-config
           mountPath: /gluetun
         - name: nfs-nas
           mountPath: /NAS
+        # Add readiness probe to ensure VPN is up
+        readinessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - "wget -q --spider http://localhost:8000/v1/openvpn/status || exit 1"
+          initialDelaySeconds: 30
+          periodSeconds: 10
       containers:
       - name: qbittorrent
-        image: lscr.io/linuxserver/qbittorrent:latest
+        image: lscr.io/linuxserver/qbittorrent:4.6.7  # Pinned version
         env:
         - name: PUID
           value: "1000"
@@ -72,14 +80,25 @@ spec:
           value: "8080"
         - name: TORRENTING_PORT
           value: "6881"
+        ports:
+        - containerPort: 8080
+          name: qb-webui
+        - containerPort: 6881
+          name: qb-torrent
         volumeMounts:
         - name: qbittorrent-config
           mountPath: /config
         - name: nfs-nas
           mountPath: /NAS
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 30
 
       - name: nzbget
-        image: lscr.io/linuxserver/nzbget:latest
+        image: lscr.io/linuxserver/nzbget:25.1  # Pinned version
         env:
         - name: PUID
           value: "1000"
@@ -87,13 +106,27 @@ spec:
           value: "1000"
         - name: TZ
           value: "Asia/Singapore"
+        ports:
+        - containerPort: 6789
+          name: nzbget-webui
         volumeMounts:
         - name: nzbget-config
           mountPath: /config
         - name: nfs-nas
           mountPath: /NAS
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 6789
+          initialDelaySeconds: 60
+          periodSeconds: 30
 
       volumes:
+      # CRITICAL: TUN device volume
+      - name: dev-net-tun
+        hostPath:
+          path: /dev/net/tun
+          type: CharDevice
       - name: gluetun-config
         persistentVolumeClaim:
           claimName: gluetun-config

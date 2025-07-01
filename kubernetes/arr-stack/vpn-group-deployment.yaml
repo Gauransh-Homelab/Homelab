@@ -87,10 +87,6 @@ spec:
           value: "1000"
         - name: TZ
           value: "Asia/Singapore"
-        - name: NZBGET_USER
-          value: "user"
-        - name: NZBGET_PASS
-          value: "password"
         volumeMounts:
         - name: nzbget-config
           mountPath: /config

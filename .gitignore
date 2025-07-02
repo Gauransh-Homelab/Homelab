@@ -4,3 +4,27 @@ vault-vars.yml
 # Ds store
 ~/.DS_Store
 .DS_Store
+
+  # Certificate files (using naming convention)
+  *.secret.crt
+  *.secret.pem
+  *.secret.key
+  *.secret.cert
+  *.secret.pfx
+  *.secret.p12
+  *.secret.yml
+  *.secret.yaml
+
+  # Alternative: prefix-based naming
+  secret-*.crt
+  secret-*.pem
+  secret-*.key
+  secret-*.cert
+  secret-*.pfx
+  secret-*.p12
+  secret-*.yml
+  secret-*.yaml
+
+  # Or both patterns combined
+  *-secret.*
+  secret.*

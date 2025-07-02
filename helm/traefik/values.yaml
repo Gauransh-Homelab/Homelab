@@ -10,12 +10,18 @@ deployment:
 ports:
   web:
     port: 8000      # Internal container port
-    expose: true
+    expose:
+      default: true
     exposedPort: 80 # External HTTP port
-    redirectTo: websecure  # Auto-redirect HTTP → HTTPS (like NPM)
+    redirections:
+      entryPoint:
+        to: websecure
+        scheme: https
+        permanent: true
   websecure:
     port: 8443      # Internal container port  
-    expose: true
+    expose:
+      default: true
     exposedPort: 443 # External HTTPS port
     tls:
       enabled: true  # Enable SSL/TLS termination
@@ -26,59 +32,22 @@ service:
   externalTrafficPolicy: Local  # Preserves real client IP addresses (important for logs/security)
   loadBalancerIP: "192.168.10.11"  # Request specific IP from MetalLB pool
 
-# Let's Encrypt Certificate Resolvers - Auto SSL like NPM
-certificatesResolvers:
-  # For DuckDNS domains (*.duckdns.org)
-  duckdns:
-    acme:
-      email: your-email@example.com  # CHANGE THIS to your email
-      storage: /data/acme.json       # Certificate storage location
-      dnsChallenge:
-        provider: duckdns
-        delayBeforeCheck: 60         # DNS propagation wait time
-        resolvers:
-          - "1.1.1.1:53"            # Cloudflare DNS for reliability
-          - "8.8.8.8:53"            # Google DNS backup
-  
-  # For Cloudflare domains (your custom domains)
-  cloudflare:
-    acme:
-      email: your-email@example.com  # CHANGE THIS to your email
-      storage: /data/acme.json
-      dnsChallenge:
-        provider: cloudflare
-        delayBeforeCheck: 30         # Cloudflare DNS is usually faster
-        resolvers:
-          - "1.1.1.1:53"
-          - "8.8.8.8:53"
+# Certificate management now handled by cert-manager
+# Use ClusterIssuers: letsencrypt-cloudflare or letsencrypt-duckdns
+# Add cert-manager annotations to IngressRoute resources for automatic certificates
 
-# Persistent Storage for Certificates - Critical for Let's Encrypt
-persistence:
-  enabled: true
-  size: 128Mi
-  path: /data
-  # Uses default storage class from your cluster
+# No persistent storage needed - cert-manager handles certificates as Kubernetes secrets
+# persistence:
+#   enabled: false
 
 # Dashboard Configuration - Web interface like NPM
 dashboard:
   enabled: true
 # We'll create a secure IngressRoute separately for dashboard access
 
-# DNS Provider Environment Variables - API credentials for Let's Encrypt
-env:
-  # DuckDNS API Token
-  - name: DUCKDNS_TOKEN
-    valueFrom:
-      secretKeyRef:
-        name: dns-secrets
-        key: duckdns-token
-  
-  # Cloudflare API Token (NOT Global API Key - use scoped token)
-  - name: CF_DNS_API_TOKEN
-    valueFrom:
-      secretKeyRef:
-        name: dns-secrets
-        key: cloudflare-token
+# DNS credentials now used by cert-manager ClusterIssuers
+# No environment variables needed in Traefik
+# env: []
 
 # Logging Configuration
 logs:
@@ -106,10 +75,8 @@ resources:
 ping:
   enabled: false    # Disable public ping endpoint
 
-# Additional Arguments - Fine-tune Traefik behavior
+# Additional Arguments - Basic configuration for cert-manager integration
 additionalArguments:
-  # Enable more detailed logs for certificate resolver
+  # Enable more detailed logs
   - "--log.level=INFO"
-  # Increase timeout for slow DNS providers
-  - "--certificatesresolvers.duckdns.acme.dnschallenge.delaybeforecheck=60"
-  - "--certificatesresolvers.cloudflare.acme.dnschallenge.delaybeforecheck=30"
+  # Cert-manager handles all certificate operations

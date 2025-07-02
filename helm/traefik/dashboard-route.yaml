@@ -9,6 +9,9 @@ metadata:
   namespace: traefik
   labels:
     app: traefik-dashboard
+  annotations:
+    # Use cert-manager for automatic certificate generation
+    cert-manager.io/cluster-issuer: "letsencrypt-cloudflare"
 spec:
   entryPoints:
     - websecure
@@ -22,7 +25,7 @@ spec:
         - name: traefik-dashboard-auth@kubernetescrd  # Still require login for security
         - name: security-headers@kubernetescrd        # Add security headers
   tls:
-    certResolver: duckdns  # Use DuckDNS for SSL certificate
+    secretName: traefik-dashboard-tls  # cert-manager will create this certificate
 
 ---
 # Dashboard Access Methods:

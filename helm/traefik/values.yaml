@@ -80,3 +80,5 @@ additionalArguments:
   # Enable more detailed logs
   - "--log.level=INFO"
   # Cert-manager handles all certificate operations
+  # Allow cross-namespace service references
+  - "--providers.kubernetescrd.allowCrossNamespace=true"

@@ -28,3 +28,8 @@ vault-vars.yml
   # Or both patterns combined
   *-secret.*
   secret.*
+  *secret*
+
+# Helm secret files
+helm/**/*secret*.yaml
+helm/**/*secret*.yml

@@ -22,8 +22,8 @@ spec:
         - name: api@internal  # Traefik's internal API service
           kind: TraefikService
       middlewares:
-        - name: traefik-dashboard-auth@kubernetescrd  # Still require login for security
-        - name: security-headers@kubernetescrd        # Add security headers
+        - name: traefik-dashboard-auth  # Reference middleware in same namespace
+        - name: security-headers        # Reference middleware in same namespace
   tls:
     secretName: traefik-dashboard-tls  # cert-manager will create this certificate
 

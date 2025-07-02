@@ -1,0 +1,24 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-cloudflare
+spec:
+  acme:
+    # The ACME server URL
+    server: https://acme-v02.api.letsencrypt.org/directory
+    
+    # Email address used for ACME registration
+    email: gauranshmathur1999@gmail.com
+    
+    # Name of a secret used to store the ACME account private key
+    privateKeySecretRef:
+      name: letsencrypt-cloudflare-private-key
+    
+    # Add a single challenge solver, DNS challenge using Cloudflare
+    solvers:
+    - dns01:
+        cloudflare:
+          # Reference to secret containing Cloudflare API token in traefik namespace
+          apiTokenSecretRef:
+            name: dns-secrets
+            key: cloudflare-token

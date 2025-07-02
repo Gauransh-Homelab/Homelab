@@ -1,0 +1,84 @@
+# Cert-Manager Helm Chart Values
+# Automatic certificate management for Kubernetes
+
+# Enable CRD installation  
+crds:
+  enabled: true
+  keep: true
+
+# Global settings
+global:
+  # Disable PodSecurityPolicy (deprecated in Kubernetes 1.21+)
+  podSecurityPolicy:
+    enabled: false
+  
+  # Leader election namespace - using traefik since we're installing there
+  leaderElection:
+    namespace: traefik
+
+# Override the namespace for storing DNS provider credentials for ClusterIssuer resources
+clusterResourceNamespace: traefik
+
+# Prometheus monitoring (disabled for now)
+prometheus:
+  enabled: false
+
+# Pod Security Context
+securityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+# Resource limits for homelab environment
+resources:
+  requests:
+    cpu: 10m
+    memory: 32Mi
+  limits:
+    cpu: 100m
+    memory: 128Mi
+
+# Node selector to run on Linux nodes
+nodeSelector:
+  kubernetes.io/os: linux
+
+# Webhook configuration
+webhook:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+  
+  nodeSelector:
+    kubernetes.io/os: linux
+
+# CA Injector configuration
+cainjector:
+  enabled: true
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+  
+  nodeSelector:
+    kubernetes.io/os: linux
+
+# Startup API Check
+startupapicheck:
+  enabled: true
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+  
+  nodeSelector:
+    kubernetes.io/os: linux

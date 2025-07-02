@@ -1,0 +1,29 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-duckdns
+spec:
+  acme:
+    # The ACME server URL
+    server: https://acme-v02.api.letsencrypt.org/directory
+    
+    # Email address used for ACME registration
+    email: gauranshmathur1999@gmail.com
+    
+    # Name of a secret used to store the ACME account private key
+    privateKeySecretRef:
+      name: letsencrypt-duckdns-private-key
+    
+    # Add a single challenge solver, DNS challenge using DuckDNS webhook
+    solvers:
+    - dns01:
+        webhook:
+          # This groupName needs to be configured to use your installed webhook
+          groupName: acme.duckdns
+          solverName: duckdns
+          config:
+            # Reference to secret containing DuckDNS token in traefik namespace
+            token:
+              secretKeyRef:
+                name: dns-secrets
+                key: duckdns-token

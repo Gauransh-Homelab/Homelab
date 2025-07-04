@@ -82,3 +82,5 @@ additionalArguments:
   # Cert-manager handles all certificate operations
   # Allow cross-namespace service references
   - "--providers.kubernetescrd.allowCrossNamespace=true"
+  # Allow ExternalName services
+  - "--providers.kubernetescrd.allowExternalNameServices=true"

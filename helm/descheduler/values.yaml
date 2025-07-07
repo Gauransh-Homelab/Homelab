@@ -1,0 +1,102 @@
+# Kubernetes Descheduler - Homelab Configuration
+# Runs 3 times daily to optimize pod placement across nodes
+
+# Run as CronJob with 3x daily schedule
+kind: CronJob
+
+# Schedule: 8 AM, 2 PM, 8 PM
+schedule: "0 8,14,20 * * *"
+
+# Keep minimal job history
+successfulJobsHistoryLimit: 1
+failedJobsHistoryLimit: 1
+
+# Image configuration
+image:
+  repository: registry.k8s.io/descheduler/descheduler
+  pullPolicy: IfNotPresent
+
+# Resource limits - minimal for homelab
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+# Priority for scheduling
+priorityClassName: system-cluster-critical
+
+# Create RBAC resources
+rbac:
+  create: true
+
+# Service account
+serviceAccount:
+  create: true
+
+# Command options
+cmdOptions:
+  # Set to true to test without actually evicting pods
+  dry-run: false
+  # Logging verbosity (0-5)
+  v: 3
+
+# Descheduler Policy Configuration
+deschedulerPolicy:
+  # Profile for homelab optimization
+  profiles:
+    - name: HomelabProfile
+      pluginConfig:
+        # Default evictor configuration
+        - name: "DefaultEvictor"
+          args:
+            evictSystemCriticalPods: false
+            evictFailedBarePods: true
+            evictLocalStoragePods: false
+            ignorePvcPods: true
+            nodeFit: true
+            # Minimum pod age before eviction (5 minutes)
+            minPodAge: "5m"
+        
+        # Low node utilization - balance between nodes
+        - name: "LowNodeUtilization"
+          args:
+            # Nodes are considered underutilized if below these thresholds
+            thresholds:
+              cpu: 20
+              memory: 20
+              pods: 20
+            # Nodes are considered overutilized if above these thresholds
+            targetThresholds:
+              cpu: 70
+              memory: 70
+              pods: 70
+        
+        # Remove pods with too many restarts
+        - name: "RemovePodsHavingTooManyRestarts"
+          args:
+            podRestartThreshold: 100
+            includingInitContainers: true
+        
+        # Remove failed pods
+        - name: "RemoveFailedPods"
+          args:
+            # Only remove pods that have been failed for at least 1 hour
+            minPodLifetimeSeconds: 3600
+            includingInitContainers: true
+            excludeOwnerKinds:
+              - "Job"
+              - "CronJob"
+      
+      plugins:
+        # Enable deschedule plugins
+        deschedule:
+          enabled:
+            - "RemovePodsHavingTooManyRestarts"
+            - "RemoveFailedPods"
+        # Enable balance plugins
+        balance:
+          enabled:
+            - "LowNodeUtilization"

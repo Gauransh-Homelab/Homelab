@@ -24,7 +24,7 @@ ports:
       default: true
     exposedPort: 443 # External HTTPS port
     tls:
-      enabled: true  # Enable SSL/TLS termination
+      enabled: false  # Let IngressRoutes handle TLS termination
 
 # MetalLB LoadBalancer Service - Gets external IP like arr-stack services
 service:
@@ -52,7 +52,7 @@ dashboard:
 # Logging Configuration
 logs:
   general:
-    level: INFO  # Change to DEBUG for troubleshooting
+    level: DEBUG  # Change to DEBUG for troubleshooting
   access:
     enabled: true  # Access logs for monitoring
 

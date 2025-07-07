@@ -33,3 +33,8 @@ vault-vars.yml
 # Helm secret files
 helm/**/*secret*.yaml
 helm/**/*secret*.yml
+
+# Claude and Serena folders
+CLAUDE.md
+.claude
+.serena

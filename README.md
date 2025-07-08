@@ -2,13 +2,13 @@
 
 <div align="center">
 
-![Kubernetes](https://img.shields.io/badge/Kubernetes-1.29-326CE5?logo=kubernetes&logoColor=white)
-![Talos](https://img.shields.io/badge/Talos_Linux-1.6-FF7300?logo=linux&logoColor=white)
-![Services](https://img.shields.io/badge/Services-15+-00ADD8?logo=docker&logoColor=white)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-1.32.3-326CE5?logo=kubernetes&logoColor=white)
+![Talos](https://img.shields.io/badge/Talos_Linux-1.10.5-FF7300?logo=linux&logoColor=white)
+![Services](https://img.shields.io/badge/Services-20+-00ADD8?logo=docker&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-Operational-brightgreen?logo=statuspage&logoColor=white)
-![Last Updated](https://img.shields.io/badge/Updated-January_2025-lightgrey?logo=github&logoColor=white)
+![Last Updated](https://img.shields.io/badge/Updated-July_2025-lightgrey?logo=github&logoColor=white)
 
-*A modern homelab running on Kubernetes with Talos Linux, migrated from Proxmox/Docker*
+_A modern homelab running on Kubernetes with Talos Linux, migrated from Proxmox/Docker_
 
 [Architecture](#-architecture) • [Services](#-whats-running) • [Infrastructure](#-infrastructure-details) • [Deployment](#-deployment-guide) • [Roadmap](#-roadmap)
 
@@ -34,30 +34,30 @@ graph TB
         CF[Cloudflare DNS]
         DD[DuckDNS]
     end
-    
+
     subgraph "Homelab Network"
         Router[Router<br/>192.168.10.1]
-        
+
         subgraph "Kubernetes Cluster"
             subgraph "Control Plane"
                 CP[beelink-1<br/>192.168.10.147<br/>Control Plane]
             end
-            
+
             subgraph "Worker Nodes"
                 W1[proxmox<br/>192.168.10.165<br/>Worker Node]
             end
-            
+
             subgraph "Network Layer"
                 MLB[MetalLB<br/>Load Balancer]
                 TRF[Traefik<br/>Ingress Controller]
             end
         end
-        
+
         subgraph "Storage"
             NAS[Synology DS423+<br/>24TB Raw / 10.9TB Usable<br/>NFS + iSCSI]
         end
     end
-    
+
     Internet --> CF
     Internet --> DD
     CF --> Router
@@ -69,12 +69,12 @@ graph TB
     CP -.-> W1
     W1 --> NAS
     CP --> NAS
-    
+
     classDef control fill:#326CE5,stroke:#fff,stroke-width:2px,color:#fff
     classDef worker fill:#00ADD8,stroke:#fff,stroke-width:2px,color:#fff
     classDef network fill:#FF7300,stroke:#fff,stroke-width:2px,color:#fff
     classDef storage fill:#40C463,stroke:#fff,stroke-width:2px,color:#fff
-    
+
     class CP control
     class W1 worker
     class MLB,TRF network
@@ -196,13 +196,13 @@ Cluster:
   OS: Talos Linux v1.6
   Kubernetes: v1.29
   CNI: Flannel
-  
+
 Nodes:
   - Name: beelink-1
     Role: Control Plane
     IP: 192.168.10.147
     Specs: Intel N100, 16GB RAM
-    
+
   - Name: proxmox
     Role: Worker
     IP: 192.168.10.165
@@ -257,6 +257,7 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 ```
 
 **Storage Classes:**
+
 - `nfs-client` - Dynamic NFS provisioning for general workloads
 - `synology-iscsi` - iSCSI LUNs for high-performance/database workloads
 - `syno-storage` - Synology CSI driver (alternative option)
@@ -278,13 +279,14 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 
 [![Live Roadmap](https://img.shields.io/badge/Live%20Roadmap-View%20on%20Obsidian-7c3aed?style=for-the-badge&logo=obsidian&logoColor=white)](https://publish.obsidian.md/gauranshmathur/Publish/Homelab)
 
-*Synced hourly from Obsidian*
+_Synced hourly from Obsidian_
 
 </div>
 
 ### 📌 Current Status
 
 #### 📋 To Do
+
 - [ ] Argo CD
 - [ ] Whitelist only cloudflare ip and local ip CIDR blocks
 - [ ] LGTM Stack
@@ -295,7 +297,14 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 - [ ] Jellyfin Stats
 - [ ] Authentik
 - [ ] HA PostgreSQL
+<<<<<<< Updated upstream
 - [ ] *arr Stack Migration (SQLite → PostgreSQL)
+=======
+- [ ] \*arr Stack Migration (SQLite → PostgreSQL)
+- [ ] MCP Server - Discord Media Bot
+- [ ] Karakeep - bookmarking system
+- [ ] [OPTIONAL]🔽 Add k8s cleaner to remove completed pods every hour
+>>>>>>> Stashed changes
 
 #### 🚧 In Progress
 
@@ -365,14 +374,14 @@ Homelab/
 
 ### What Changed?
 
-| Component | v1 (Proxmox/Docker) | v2 (Kubernetes) |
-|-----------|-------------------|-----------------|
-| **Platform** | Proxmox VE + LXC | Talos Linux bare-metal |
-| **Containers** | Docker Compose | Kubernetes deployments |
+| Component      | v1 (Proxmox/Docker) | v2 (Kubernetes)        |
+| -------------- | ------------------- | ---------------------- |
+| **Platform**   | Proxmox VE + LXC    | Talos Linux bare-metal |
+| **Containers** | Docker Compose      | Kubernetes deployments |
 | **Networking** | Manual port mapping | Service mesh + ingress |
-| **Storage** | Local volumes | Dynamic PVCs |
-| **Updates** | Manual per-service | Rolling updates |
-| **Backups** | Scripts | Persistent volumes |
+| **Storage**    | Local volumes       | Dynamic PVCs           |
+| **Updates**    | Manual per-service  | Rolling updates        |
+| **Backups**    | Scripts             | Persistent volumes     |
 
 ### Key Improvements
 
@@ -381,7 +390,7 @@ Homelab/
 ✅ **Easy Scaling** - Just update replica count  
 ✅ **Better Isolation** - Namespace separation  
 ✅ **Unified Ingress** - Single entry point  
-✅ **Automated SSL** - Cert-manager handles certificates  
+✅ **Automated SSL** - Cert-manager handles certificates
 
 ### Challenges Solved
 

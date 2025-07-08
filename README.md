@@ -296,23 +296,14 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 - [ ] Authentik
 - [ ] HA PostgreSQL
 - [ ] *arr Stack Migration (SQLite → PostgreSQL)
-- [ ] MCP Server - Discord Media Bot
-- [ ] Karakeep - bookmarking system
-- [ ] [OPTIONAL]🔽 Add k8s cleaner to remove completed pods every hour
 
 #### 🚧 In Progress
 
-- [ ] MCP Server - Discord Media Bot
-- [ ] Karakeep - bookmarking system
-- [ ] [OPTIONAL]🔽 Add k8s cleaner to remove completed pods every hour
+
 
 #### ✅ Recently Completed
 
 - [x] Create a pod deschedular so the pods run on the proper machine to split workload ✅ 2025-07-07
-- [x] librechat-migration ✅ 2025-07-02
-- [x] jellyfin-migration ✅ 2025-07-06
-- [x] talos-infrastructure ✅ 2025-07-06
-- [x] tailscale-migration ✅ 2025-07-05
 
 ### 🚀 Future Projects
 
@@ -321,7 +312,6 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 - [ ] [OPTIONAL]🔽 Add k8s cleaner to remove completed pods every hour
 
 ---
-
 ## 🛠️ Deployment Guide
 
 ### Prerequisites

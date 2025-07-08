@@ -282,22 +282,47 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 
 </div>
 
+### 📌 Current Status
+
+#### 📋 To Do
+
+- **ArgoCD** - GitOps continuous deployment for Kubernetes
+- **Cloudflare IP Whitelist** - Restrict access to only Cloudflare IPs and local CIDR blocks
+- **LGTM Stack** - Loki, Grafana, Tempo, Mimir for comprehensive monitoring
+- **Huntarr** - Media discovery and recommendation tool
+- **Homarr** - Modern homepage/dashboard for all services
+- **n8n** - Workflow automation platform
+- **Ghost Blog** - Self-hosted blogging platform
+- **Jellyfin Stats** - Analytics and statistics for media consumption
+- **Authentik** - Identity Provider / Single Sign-On solution
+- **HA PostgreSQL** - High-availability PostgreSQL cluster
+- ***arr Stack Migration** - Migrate from SQLite to PostgreSQL for better performance
+
+#### 🚧 In Progress
+
+*(Currently no items in progress)*
+
+#### ✅ Recently Completed
+
+- **Pod Descheduler** - Ensures workloads are distributed properly across nodes (2025-07-07)
+- **Kubernetes Migration** - Migrated from Proxmox/Docker to Talos/Kubernetes
+- **Traefik Setup** - Ingress controller with automatic SSL
+- **Jellyfin Migration** - Media server with GPU transcoding
+- **ARR Stack Migration** - Media automation suite
+- **Synology Integration** - NFS and iSCSI storage provisioning
+
+### 🚀 Future Projects
+
+- **MCP Server - Discord Media Bot** - Discord integration for media management
+- **Karakeep** - Self-hosted bookmarking system
+- **K8s Cleaner Enhancement** - Add automated cleanup for completed pods
+
 ### 🔗 Quick Links
 
-- 📊 **[Current Progress](https://publish.obsidian.md/gauranshmathur/Publish/Homelab)** - Live Kanban board
-- ✅ **[Completed Items](https://publish.obsidian.md/gauranshmathur/Publish/Homelab#archive)** - Archive of finished tasks
-- 🚀 **[Future Projects](https://publish.obsidian.md/gauranshmathur/Publish/Homelab#future-projects)** - Long-term plans
+- 📊 **[Full Kanban Board](https://publish.obsidian.md/gauranshmathur/Publish/Homelab)** - Detailed task tracking
+- 🗂️ **[Completed Archive](https://publish.obsidian.md/gauranshmathur/Publish/Homelab#archive)** - Full history of completed items
 
-### 📌 Current Focus Areas
-
-Based on the live roadmap, the main priorities are:
-
-1. **Infrastructure**: ArgoCD for GitOps, LGTM monitoring stack
-2. **Security**: Authentik SSO, Cloudflare IP whitelisting
-3. **Performance**: PostgreSQL HA, *arr stack database migration
-4. **User Experience**: Homarr dashboard, automation with n8n
-
-> 💡 **Note**: Check the [live roadmap](https://publish.obsidian.md/gauranshmathur/Publish/Homelab) for the most up-to-date task list and progress.
+> 💡 **Note**: This roadmap content is manually maintained. For automatic sync from Obsidian, the parser needs adjustment for the specific HTML structure.
 
 ---
 

@@ -297,7 +297,7 @@ Based on the live roadmap, the main priorities are:
 3. **Performance**: PostgreSQL HA, *arr stack database migration
 4. **User Experience**: Homarr dashboard, automation with n8n
 
-> 💡 **Note**: Check the [live roadmap](https://publish.obsidian.md/gauranshmathur/Publish/Homelab) for the most up-to-date task list and progress. This README links to the source of truth rather than duplicating information that may become outdated.
+> 💡 **Note**: Check the [live roadmap](https://publish.obsidian.md/gauranshmathur/Publish/Homelab) for the most up-to-date task list and progress.
 
 ---
 

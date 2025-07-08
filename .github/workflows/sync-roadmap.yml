@@ -1,51 +1,75 @@
-name: Sync Roadmap from Obsidian
+name: Sync Roadmap
 
 on:
   schedule:
-    # Run every hour
-    - cron: '0 * * * *'
-  workflow_dispatch: # Allow manual triggering
-  push:
-    branches:
-      - main
-    paths:
-      - '.github/workflows/sync-roadmap.yml'
+    - cron: '0 * * * *'  # Every hour
+  workflow_dispatch:
 
 jobs:
-  sync-roadmap:
+  sync:
     runs-on: ubuntu-latest
-    
     permissions:
       contents: write
     
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v4
       
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-      
-      - name: Install dependencies
+      - name: Update Roadmap
         run: |
-          pip install requests
+          # Fetch Obsidian markdown
+          curl -s "https://publish-01.obsidian.md/access/5d709373479c3fe55e2ee18eefb6ecc5/Publish/Homelab.md" > obsidian.md
+          
+          # Extract sections (simple grep, no complex parsing)
+          TODO=$(grep -A50 "^## To Do" obsidian.md | grep "^- \[ \]" | sed 's/\[\[//g;s/\]\]//g' || true)
+          PROGRESS=$(grep -A50 "^## In Progress" obsidian.md | grep "^- \[ \]" | sed 's/\[\[//g;s/\]\]//g' || true)
+          DONE=$(grep -A50 "^## Done" obsidian.md | grep "^- \[x\]" | sed 's/\[\[//g;s/\]\]//g' || true)
+          FUTURE=$(grep -A50 "^## Future Projects" obsidian.md | grep "^- \[ \]" | sed 's/\[\[//g;s/\]\]//g' || true)
+          
+          # Build new roadmap section
+          cat > roadmap.tmp << 'EOF'
+          ## 📋 Roadmap
+          
+          <div align="center">
+          
+          [![Live Roadmap](https://img.shields.io/badge/Live%20Roadmap-View%20on%20Obsidian-7c3aed?style=for-the-badge&logo=obsidian&logoColor=white)](https://publish.obsidian.md/gauranshmathur/Publish/Homelab)
+          
+          *Synced hourly from Obsidian*
+          
+          </div>
+          
+          ### 📌 Current Status
+          
+          #### 📋 To Do
+          EOF
+          
+          echo "$TODO" >> roadmap.tmp || echo "*(No items)*" >> roadmap.tmp
+          
+          echo -e "\n#### 🚧 In Progress\n" >> roadmap.tmp
+          echo "$PROGRESS" >> roadmap.tmp || echo "*(No items)*" >> roadmap.tmp
+          
+          echo -e "\n#### ✅ Recently Completed\n" >> roadmap.tmp
+          echo "$DONE" | head -5 >> roadmap.tmp || echo "*(No items)*" >> roadmap.tmp
+          
+          if [ -n "$FUTURE" ]; then
+            echo -e "\n### 🚀 Future Projects\n" >> roadmap.tmp
+            echo "$FUTURE" >> roadmap.tmp
+          fi
+          
+          echo -e "\n---" >> roadmap.tmp
+          
+          # Replace roadmap section in README
+          awk '/^## 📋 Roadmap$/{exit} 1' README.md > readme_before.tmp
+          awk '/^---$/{f=1} f && /^## /{print; exit} f' README.md > readme_after.tmp
+          
+          cat readme_before.tmp roadmap.tmp readme_after.tmp > README.md
+          
+          # Cleanup
+          rm -f *.tmp obsidian.md
       
-      - name: Sync Roadmap from Obsidian
-        run: python scripts/sync-obsidian-roadmap.py
-      
-      - name: Check for changes
-        id: verify-changed-files
+      - name: Commit changes
         run: |
-          git diff --exit-code README.md || echo "changed=true" >> $GITHUB_OUTPUT
-      
-      - name: Commit and push changes
-        if: steps.verify-changed-files.outputs.changed == 'true'
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add README.md .github/roadmap-sync-status.json
-          git commit -m "🔄 Sync roadmap from Obsidian [skip ci]"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git diff --staged --quiet || git commit -m "🔄 Sync roadmap [skip ci]"
           git push

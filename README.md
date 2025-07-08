@@ -279,7 +279,7 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 
 [![Live Roadmap](https://img.shields.io/badge/Live%20Roadmap-View%20on%20Obsidian-7c3aed?style=for-the-badge&logo=obsidian&logoColor=white)](https://publish.obsidian.md/gauranshmathur/Publish/Homelab)
 
-_Synced hourly from Obsidian_
+_Synced using Github Actions ~~FOR EVERY PUSH~~_
 
 </div>
 
@@ -297,18 +297,15 @@ _Synced hourly from Obsidian_
 - [ ] Jellyfin Stats
 - [ ] Authentik
 - [ ] HA PostgreSQL
-<<<<<<< Updated upstream
-- [ ] *arr Stack Migration (SQLite → PostgreSQL)
-=======
+      <<<<<<< Updated upstream
+- [ ] # \*arr Stack Migration (SQLite → PostgreSQL)
 - [ ] \*arr Stack Migration (SQLite → PostgreSQL)
 - [ ] MCP Server - Discord Media Bot
 - [ ] Karakeep - bookmarking system
 - [ ] [OPTIONAL]🔽 Add k8s cleaner to remove completed pods every hour
->>>>>>> Stashed changes
+  > > > > > > > Stashed changes
 
 #### 🚧 In Progress
-
-
 
 #### ✅ Recently Completed
 
@@ -321,6 +318,7 @@ _Synced hourly from Obsidian_
 - [ ] [OPTIONAL]🔽 Add k8s cleaner to remove completed pods every hour
 
 ---
+
 ## 🛠️ Deployment Guide
 
 ### Prerequisites

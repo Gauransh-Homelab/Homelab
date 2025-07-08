@@ -1,213 +1,405 @@
-# Homlab V2
-
-## You can see current progress with this link below
-<a>https://publish.obsidian.md/gauranshmathur</a>
-
-> v2 Is currently in progress, currently using a talos cluster and migrating all services,
-> the README will be updated once full migration is complete with details on the migration,
-> what services used etc. v1 README will still be available for reference
-
-# 🏠 Homelab v1 Setup
+# 🏠 Homelab v2 - Kubernetes Edition
 
 <div align="center">
 
-![Homelab Status](https://img.shields.io/badge/status-operational-brightgreen)
-![Proxmox](https://img.shields.io/badge/Proxmox-8.0-orange)
-![Services](https://img.shields.io/badge/Services-10+-blue)
-![Last Updated](https://img.shields.io/badge/Last%20Updated-May%182025-lightgrey)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-1.29-326CE5?logo=kubernetes&logoColor=white)
+![Talos](https://img.shields.io/badge/Talos_Linux-1.6-FF7300?logo=linux&logoColor=white)
+![Services](https://img.shields.io/badge/Services-15+-00ADD8?logo=docker&logoColor=white)
+![Status](https://img.shields.io/badge/Status-Operational-brightgreen?logo=statuspage&logoColor=white)
+![Last Updated](https://img.shields.io/badge/Updated-January_2025-lightgrey?logo=github&logoColor=white)
 
-*A personal homelab environment with virtualization, media services, and remote access*
+*A modern homelab running on Kubernetes with Talos Linux, migrated from Proxmox/Docker*
 
-[Hardware](#-hardware) • [Network](#-network) • [Services](#-services) • [Future Plans](#-future-plans)
+[Architecture](#-architecture) • [Services](#-whats-running) • [Infrastructure](#-infrastructure-details) • [Deployment](#-deployment-guide) • [Roadmap](#-roadmap)
 
 </div>
 
 ---
 
-## 🔍 Quick Overview
+## 📖 Quick Overview
 
-> **What**: Home server setup for media, development, and learning  
-> **Why**: Self-host services with full control and customization  
-> **How**: Proxmox VE + Docker + LXC Containers  
-
----
-
-## 💻 Hardware
-
-<table>
-  <tr>
-    <th width="40%">Component</th>
-    <th width="60%">Details</th>
-  </tr>
-  <tr>
-    <td><strong>Main Server</strong><br/><i>Acer XC-780</i></td>
-    <td>
-      • Intel i5-7400<br/>
-      • 16GB DDR4 RAM<br/>
-      • NVIDIA GT-730
-    </td>
-  </tr>
-  <tr>
-    <td><strong>Storage</strong><br/><i>Synology DS423+</i></td>
-    <td>
-      • 2x 12TB drives in SHR<br/>
-      • 1-drive fault tolerance<br/>
-      • Dual Ethernet connectivity
-    </td>
-  </tr>
-</table>
+> **What**: Production-grade Kubernetes homelab for self-hosted services  
+> **Why**: GitOps automation, better scalability, and learning cloud-native tech  
+> **How**: Talos Linux bare-metal cluster with declarative configuration  
+> **Docs**: [Detailed documentation on Obsidian](https://publish.obsidian.md/gauranshmathur)
 
 ---
 
-## 🌐 Network
+## 🏗️ Architecture
 
 ```mermaid
-graph TD
-    Internet((Internet)) --> Router
-    Router --> Switch[TP-Link 8-Port Switch]
-    Switch --> Server[Acer XC-780]
-    Switch --> NAS[Synology DS423+]
-    Switch --> OtherDevices[Other Devices]
+graph TB
+    subgraph "External Access"
+        Internet((Internet))
+        CF[Cloudflare DNS]
+        DD[DuckDNS]
+    end
     
-    class Server,NAS emphasis
+    subgraph "Homelab Network"
+        Router[Router<br/>192.168.10.1]
+        
+        subgraph "Kubernetes Cluster"
+            subgraph "Control Plane"
+                CP[beelink-1<br/>192.168.10.147<br/>Control Plane]
+            end
+            
+            subgraph "Worker Nodes"
+                W1[proxmox<br/>192.168.10.165<br/>Worker Node]
+            end
+            
+            subgraph "Network Layer"
+                MLB[MetalLB<br/>Load Balancer]
+                TRF[Traefik<br/>Ingress Controller]
+            end
+        end
+        
+        subgraph "Storage"
+            NAS[Synology DS423+<br/>24TB Raw / 10.9TB Usable<br/>NFS + iSCSI]
+        end
+    end
+    
+    Internet --> CF
+    Internet --> DD
+    CF --> Router
+    DD --> Router
+    Router --> MLB
+    MLB --> TRF
+    TRF --> CP
+    TRF --> W1
+    CP -.-> W1
+    W1 --> NAS
+    CP --> NAS
+    
+    classDef control fill:#326CE5,stroke:#fff,stroke-width:2px,color:#fff
+    classDef worker fill:#00ADD8,stroke:#fff,stroke-width:2px,color:#fff
+    classDef network fill:#FF7300,stroke:#fff,stroke-width:2px,color:#fff
+    classDef storage fill:#40C463,stroke:#fff,stroke-width:2px,color:#fff
+    
+    class CP control
+    class W1 worker
+    class MLB,TRF network
+    class NAS storage
 ```
 
-> **Switch**: TP-Link 8-Port Unmanaged Gigabit Switch  
-> **Connectivity**: All Ethernet (1Gbps)  
-> **NAS Feature**: Link aggregation with dual Ethernet ports  
-
 ---
 
-## 🧩 Software Architecture
+## ✅ What's Running
+
+### 🎬 Media Stack (`arr-stack` namespace)
 
 <table>
-  <tr>
-    <th>Layer</th>
-    <th>Component</th>
-    <th>Purpose</th>
-  </tr>
-  <tr>
-    <td rowspan="2"><strong>Base</strong></td>
-    <td>Proxmox VE</td>
-    <td>Hypervisor for VMs & LXC management</td>
-  </tr>
-  <tr>
-    <td>Tailscale</td>
-    <td>Secure remote access (exit node)</td>
-  </tr>
-  <tr>
-    <td rowspan="2"><strong>Network</strong></td>
-    <td>Nginx Proxy Manager</td>
-    <td>Reverse proxy for service access</td>
-  </tr>
-  <tr>
-    <td>DuckDNS</td>
-    <td>Dynamic DNS for domain management</td>
-  </tr>
+<tr>
+<th width="40%">Service</th>
+<th width="30%">Purpose</th>
+<th width="30%">Access</th>
+</tr>
+<tr>
+<td colspan="3"><strong>🔒 VPN Group (Gluetun Sidecar)</strong></td>
+</tr>
+<tr>
+<td>└─ qBittorrent</td>
+<td>Torrent downloads</td>
+<td>Port 8080</td>
+</tr>
+<tr>
+<td>└─ NZBGet</td>
+<td>Usenet downloads</td>
+<td>Port 6789</td>
+</tr>
+<tr>
+<td>└─ Prowlarr</td>
+<td>Indexer management</td>
+<td>Port 9696</td>
+</tr>
+<tr>
+<td colspan="3"><strong>📺 Media Management</strong></td>
+</tr>
+<tr>
+<td>Sonarr / Sonarr2</td>
+<td>TV show automation</td>
+<td>Ports 8989 / 8990</td>
+</tr>
+<tr>
+<td>Radarr / Radarr2</td>
+<td>Movie automation</td>
+<td>Ports 7878 / 7879</td>
+</tr>
+<tr>
+<td>Bazarr / Bazarr2</td>
+<td>Subtitle management</td>
+<td>Ports 6767 / 6768</td>
+</tr>
+<tr>
+<td>Notifiarr</td>
+<td>Discord notifications</td>
+<td>Port 5454</td>
+</tr>
 </table>
 
+### 🎭 Media Frontend (`jelly` namespace)
+
+- **Jellyfin** - Media streaming server with Intel GPU transcoding
+- **Jellyseerr** - Media request management
+
+### 🛠️ Infrastructure Services
+
+<table>
+<tr>
+<th>Service</th>
+<th>Namespace</th>
+<th>Purpose</th>
+</tr>
+<tr>
+<td>Traefik</td>
+<td>traefik</td>
+<td>Ingress controller & reverse proxy</td>
+</tr>
+<tr>
+<td>Cert-Manager</td>
+<td>traefik</td>
+<td>Automatic SSL certificates via DuckDNS</td>
+</tr>
+<tr>
+<td>MetalLB</td>
+<td>metallb</td>
+<td>Bare-metal load balancer</td>
+</tr>
+<tr>
+<td>K8s-Cleaner</td>
+<td>k8s-cleaner</td>
+<td>Cleanup completed pods/jobs</td>
+</tr>
+<tr>
+<td>Descheduler</td>
+<td>kube-system</td>
+<td>Workload distribution optimization</td>
+</tr>
+<tr>
+<td>NFS Provisioner</td>
+<td>synology-csi</td>
+<td>Dynamic volume provisioning</td>
+</tr>
+</table>
+
+### 🤖 Other Services
+
+- **LibreChat** (`ai-stuff` namespace) - Self-hosted AI chat interface with MongoDB backend
+
 ---
 
-## 🚀 Services
+## 🔧 Infrastructure Details
 
-### Development Tools
-- ⌨️ **Wastebin** - Code snippet sharing (LXC container)
+### Cluster Configuration
 
-### Media Stack
-<div align="center">
+```yaml
+Cluster:
+  OS: Talos Linux v1.6
+  Kubernetes: v1.29
+  CNI: Flannel
+  
+Nodes:
+  - Name: beelink-1
+    Role: Control Plane
+    IP: 192.168.10.147
+    Specs: Intel N100, 16GB RAM
+    
+  - Name: proxmox
+    Role: Worker
+    IP: 192.168.10.165
+    Specs: Intel i5-7400, 16GB RAM, NVIDIA GT-730
+```
 
-| Icon | Service | Type | Function | Container |
-|------|---------|------|----------|-----------|
-| <img src="icons/jellyfin.png" width="25" height="25" /> | **Jellyfin** | 📺 Media | Streaming server | Docker |
-| <img src="icons/qbittorrent.png" width="25" height="25" /> | **qBittorrent** | ⬇️ Downloader | Torrent client | Docker |
-| <img src="icons/sonarr.png" width="25" height="25" /> | **Sonarr** | 📺 Manager | TV Shows | Docker |
-| <img src="icons/radarr.png" width="25" height="25" /> | **Radarr** | 🎬 Manager | Movies | Docker |
-| <img src="icons/prowlarr.png" width="25" height="25" /> | **Prowlarr** | 🔍 Indexer | Content search | Docker |
-| <img src="icons/bazarr.png" width="25" height="25" /> | **Bazarr** | 💬 Subtitles | Subtitle management | Docker |
-| <img src="icons/nzbget.png" width="25" height="25" /> | **NZBGet** | ⬇️ Downloader | Usenet client | Docker |
-| <img src="icons/gluetun.png" width="25" height="25" /> | **Gluetun** | 🔒 VPN | ExpressVPN binding | Docker |
-| <img src="icons/jellyseer.png" width="25" height="25" /> | **Jellyseerr** | 🔍 Frontend | Media requests | Docker |
-| <img src="icons/notifiarr.png" width="25" height="25" /> | **Notifiarr** | 🔔 Notifications | Discord alerts | Docker |
-
-</div>
-
-### DNS
-- 🛜 **PI Hole** - Adblocking and DNS Sinkhole (running on nas) [ attached directly to router ]
-
-> 💡 **Note**: All media services managed via Portainer in a dedicated LXC container
->
-> ⚠️ **Current Issue**: Tdarr disabled due to GPU compatibility with Intel Arc A310
-
-### Quality Setup
-Sonarr and Radarr follow [TRaSH guides](https://trash-guides.info/) for optimal quality profiles.
-
----
-
-## 🗄️ Storage Architecture
+### Storage Architecture
 
 ```
 Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
-├── NAS
-│   ├── Movies
-│   ├── Shows
-│   ├── Music
-│   ├── Youtube
-│   └── Downloads
-│       └── Qbittorrent
-│           ├── Torrents
-│           ├── Completed
-│           └── Incomplete
-│       └── Nzbget
-│           ├── Queue
-│           ├── Nzb
-│           ├── Intermediate
-│           ├── Tmp
-│           └── Completed
+├── /volume1/
+│   ├── NAS/
+│   │   ├── Movies
+│   │   ├── Shows
+│   │   ├── Music
+│   │   ├── Youtube
+│   │   └── Downloads/
+│   │       ├── Qbittorrent/
+│   │       │   ├── Torrents
+│   │       │   ├── Completed
+│   │       │   └── Incomplete
+│   │       └── Nzbget/
+│   │           ├── Queue
+│   │           ├── Nzb
+│   │           ├── Intermediate
+│   │           ├── Tmp
+│   │           └── Completed
+│   │
+│   ├── kube/                    # NFS-based PVCs
+│   │   ├── jelly/
+│   │   │   └── jellyseerr-pvc
+│   │   ├── ai-stuff/
+│   │   │   └── mongodb-backup-pvc
+│   │   ├── default/
+│   │   │   └── test-pvc-worker
+│   │   └── test-nfs/
+│   │       └── test-nfs-pvc
+│   │
+│   ├── TimeMachine/             # Macbook Backups
+│   │
+│   └── Docker/                  # Legacy
+│       └── Pihole
 │
-├── TimeMachine ( Macbook Backups )
-│
-└── Docker
-    └── Pihole
+└── iSCSI LUNs (19 total)        # High-performance PVCs
+    ├── jellyfin-config          # Jellyfin configs (5Gi)
+    ├── jellyfin-data            # Jellyfin metadata
+    ├── jellyfin-cache           # Transcoding cache
+    ├── jellyfin-log             # Jellyfin logs
+    ├── arr-stack configs        # All *arr app configs
+    ├── librechat volumes        # AI app storage
+    └── ... (other service volumes)
+```
+
+**Storage Classes:**
+- `nfs-client` - Dynamic NFS provisioning for general workloads
+- `synology-iscsi` - iSCSI LUNs for high-performance/database workloads
+- `syno-storage` - Synology CSI driver (alternative option)
+
+### Network Configuration
+
+- **Load Balancer**: MetalLB with IP pool `192.168.10.200-192.168.10.250`
+- **Ingress**: Traefik v3 with automatic SSL
+- **Domains**:
+  - Local: `*.arkhaya.duckdns.org` (internal services)
+  - Public: `*.arkhaya.xyz` (external access)
+- **Security**: Cloudflare proxy for public services
+
+---
+
+## 📋 Roadmap
+
+<div align="center">
+
+[![Live Roadmap](https://img.shields.io/badge/Live%20Roadmap-View%20on%20Obsidian-7c3aed?style=for-the-badge&logo=obsidian&logoColor=white)](https://publish.obsidian.md/gauranshmathur/Publish/Homelab)
+
+*The roadmap is actively maintained in Obsidian for real-time updates*
+
+</div>
+
+### 🔗 Quick Links
+
+- 📊 **[Current Progress](https://publish.obsidian.md/gauranshmathur/Publish/Homelab)** - Live Kanban board
+- ✅ **[Completed Items](https://publish.obsidian.md/gauranshmathur/Publish/Homelab#archive)** - Archive of finished tasks
+- 🚀 **[Future Projects](https://publish.obsidian.md/gauranshmathur/Publish/Homelab#future-projects)** - Long-term plans
+
+### 📌 Current Focus Areas
+
+Based on the live roadmap, the main priorities are:
+
+1. **Infrastructure**: ArgoCD for GitOps, LGTM monitoring stack
+2. **Security**: Authentik SSO, Cloudflare IP whitelisting
+3. **Performance**: PostgreSQL HA, *arr stack database migration
+4. **User Experience**: Homarr dashboard, automation with n8n
+
+> 💡 **Note**: Check the [live roadmap](https://publish.obsidian.md/gauranshmathur/Publish/Homelab) for the most up-to-date task list and progress. This README links to the source of truth rather than duplicating information that may become outdated.
+
+---
+
+## 🛠️ Deployment Guide
+
+### Prerequisites
+
+1. **Hardware**: 2+ machines with 8GB+ RAM
+2. **Network**: Static IPs, router access for port forwarding
+3. **Storage**: NAS with NFS enabled
+4. **Tools**: `kubectl`, `helm`, `talosctl`
+
+### Quick Start
+
+```bash
+# 1. Apply Talos configuration
+talosctl apply-config --nodes 192.168.10.147 --file controlplane.yaml
+talosctl apply-config --nodes 192.168.10.165 --file worker.yaml
+
+# 2. Bootstrap cluster
+talosctl bootstrap --nodes 192.168.10.147
+
+# 3. Get kubeconfig
+talosctl kubeconfig --nodes 192.168.10.147
+
+# 4. Install core services
+kubectl apply -f kubernetes/namespaces/
+helm install metallb metallb/metallb -n metallb -f helm/metallb/values.yaml
+helm install traefik traefik/traefik -n traefik -f helm/traefik/values.yaml
+
+# 5. Deploy applications
+kubectl apply -k kubernetes/
+```
+
+### Directory Structure
+
+```
+Homelab/
+├── kubernetes/         # Raw Kubernetes manifests
+│   ├── arr-stack/     # Media automation stack
+│   ├── jellyfin/      # Media server configs
+│   └── ...
+├── helm/              # Helm charts and values
+│   ├── traefik/       # Ingress controller
+│   ├── cert-manager/  # SSL certificates
+│   └── ...
+├── ansible/           # Migration playbooks
+└── docs/             # Additional documentation
 ```
 
 ---
 
-## 🔮 Future Plans
+## 🔄 Migration from v1
 
-<div align="center">
+### What Changed?
 
-### Current vs Future Architecture
+| Component | v1 (Proxmox/Docker) | v2 (Kubernetes) |
+|-----------|-------------------|-----------------|
+| **Platform** | Proxmox VE + LXC | Talos Linux bare-metal |
+| **Containers** | Docker Compose | Kubernetes deployments |
+| **Networking** | Manual port mapping | Service mesh + ingress |
+| **Storage** | Local volumes | Dynamic PVCs |
+| **Updates** | Manual per-service | Rolling updates |
+| **Backups** | Scripts | Persistent volumes |
 
-| Component | Current | Planned |
-|-----------|---------|---------|
-| **Virtualization** | Proxmox VE | Talos Linux + K8s |
-| **Container Mgmt** | Docker/Portainer | Kubernetes |
-| **Cloud Integration** | None | Digital Ocean K8s |
-| **GPU Access** | Disabled | Direct K8s passthrough |
-| **Storage** | Direct mount | iSCSI for K8s |
+### Key Improvements
 
-</div>
+✅ **Declarative Configuration** - Everything as code  
+✅ **Self-Healing** - Automatic pod restarts  
+✅ **Easy Scaling** - Just update replica count  
+✅ **Better Isolation** - Namespace separation  
+✅ **Unified Ingress** - Single entry point  
+✅ **Automated SSL** - Cert-manager handles certificates  
 
-### Migration Path
-1. Set up Digital Ocean Kubernetes cluster
-2. Migrate Docker containers to cloud K8s
-3. Replace Proxmox with Talos Linux locally
-4. Configure GPU passthrough
-5. Implement iSCSI storage
+### Challenges Solved
 
-> 🚧 ~~**TODO**: Create detailed migration plan document with timeline~~
+1. **VPN Networking** → Gluetun sidecar pattern
+2. **GPU Transcoding** → Intel device plugin
+3. **Data Migration** → Ansible playbooks
+4. **Service Discovery** → CoreDNS + Traefik
+
+---
+
+## 📚 Resources
+
+- 📖 [Full Documentation](https://publish.obsidian.md/gauranshmathur)
+- 📜 [v1 README](README-v1.md) (Legacy setup)
+- 🏷️ [Talos Linux Docs](https://www.talos.dev/)
+- 🎯 [TRaSH Guides](https://trash-guides.info/) (Media quality settings)
+
+---
+
+## 🤝 Contributing
+
+This is a personal project, but suggestions and improvements are welcome! Feel free to open an issue.
+
+## 📄 License
+
+[MIT License](LICENSE) - Feel free to use this as inspiration for your own homelab!
 
 ---
 
 <div align="center">
-
-## 🤝 Contributing
-
-This is a personal project, but suggestions welcome via issues!
-
-## 📜 License
-
-[MIT License](LICENSE)
-
+<i>Built with ❤️ and lots of ☕</i>
 </div>
-

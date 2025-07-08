@@ -32,6 +32,7 @@ jobs:
           PROGRESS=$(sed -n '/^## In Progress$/,/^##/{//!p}' obsidian.md | grep "^- \[ \]" | sed 's/\[\[//g;s/\]\]//g' || true)
           DONE=$(sed -n '/^## Done$/,/^##/{//!p}' obsidian.md | grep "^- \[x\]" | sed 's/\[\[//g;s/\]\]//g' || true)
           FUTURE=$(sed -n '/^## Future Projects$/,/^##/{//!p}' obsidian.md | grep "^- \[ \]" | sed 's/\[\[//g;s/\]\]//g' || true)
+          ARCHIVE=$(sed -n '/^## Archive$/,/^%%/{//!p}' obsidian.md | grep "^- \[x\]" | sed 's/\[\[//g;s/\]\]//g' || true)
           
           # Build new roadmap section
           cat > roadmap.tmp << 'EOF'
@@ -41,7 +42,7 @@ jobs:
           
           [![Live Roadmap](https://img.shields.io/badge/Live%20Roadmap-View%20on%20Obsidian-7c3aed?style=for-the-badge&logo=obsidian&logoColor=white)](https://publish.obsidian.md/gauranshmathur/Publish/Homelab)
           
-          *Synced hourly from Obsidian*
+          *Synced from Obsidian on every push*
           
           </div>
           
@@ -58,10 +59,11 @@ jobs:
           echo -e "\n#### ✅ Recently Completed\n" >> roadmap.tmp
           echo "$DONE" | head -5 >> roadmap.tmp || echo "*(No items)*" >> roadmap.tmp
           
-          if [ -n "$FUTURE" ]; then
-            echo -e "\n### 🚀 Future Projects\n" >> roadmap.tmp
-            echo "$FUTURE" >> roadmap.tmp
-          fi
+          echo -e "\n### 🚀 Future Projects\n" >> roadmap.tmp
+          echo "$FUTURE" >> roadmap.tmp || echo "*(No items)*" >> roadmap.tmp
+          
+          echo -e "\n### 📦 Archive\n" >> roadmap.tmp
+          echo "$ARCHIVE" | head -10 >> roadmap.tmp || echo "*(No items)*" >> roadmap.tmp
           
           echo -e "\n---" >> roadmap.tmp
           

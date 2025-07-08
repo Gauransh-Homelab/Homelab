@@ -1,8 +1,10 @@
 name: Sync Roadmap
 
 on:
-  schedule:
-    - cron: '0 * * * *'  # Every hour
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'README.md'  # Prevent infinite loop
   workflow_dispatch:
 
 jobs:
@@ -13,6 +15,9 @@ jobs:
     
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for rebase
+          token: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Update Roadmap
         run: |
@@ -70,6 +75,17 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Check if there are changes
+          if git diff --quiet README.md; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          
+          # Pull latest changes first
+          git pull --rebase
+          
+          # Commit and push
           git add README.md
-          git diff --staged --quiet || git commit -m "🔄 Sync roadmap [skip ci]"
+          git commit -m "🔄 Sync roadmap [skip ci]"
           git push

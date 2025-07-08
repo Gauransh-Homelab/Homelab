@@ -321,6 +321,106 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 - [ ] [OPTIONAL]🔽 Add k8s cleaner to remove completed pods every hour
 
 ---
+
+## 🛠️ Deployment Guide
+
+### Prerequisites
+
+1. **Hardware**: 2+ machines with 8GB+ RAM
+2. **Network**: Static IPs, router access for port forwarding
+3. **Storage**: NAS with NFS enabled
+4. **Tools**: `kubectl`, `helm`, `talosctl`
+
+### Quick Start
+
+```bash
+# 1. Apply Talos configuration
+talosctl apply-config --nodes 192.168.10.147 --file controlplane.yaml
+talosctl apply-config --nodes 192.168.10.165 --file worker.yaml
+
+# 2. Bootstrap cluster
+talosctl bootstrap --nodes 192.168.10.147
+
+# 3. Get kubeconfig
+talosctl kubeconfig --nodes 192.168.10.147
+
+# 4. Install core services
+kubectl apply -f kubernetes/namespaces/
+helm install metallb metallb/metallb -n metallb -f helm/metallb/values.yaml
+helm install traefik traefik/traefik -n traefik -f helm/traefik/values.yaml
+
+# 5. Deploy applications
+kubectl apply -k kubernetes/
+```
+
+### Directory Structure
+
+```
+Homelab/
+├── kubernetes/         # Raw Kubernetes manifests
+│   ├── arr-stack/     # Media automation stack
+│   ├── jellyfin/      # Media server configs
+│   └── ...
+├── helm/              # Helm charts and values
+│   ├── traefik/       # Ingress controller
+│   ├── cert-manager/  # SSL certificates
+│   └── ...
+├── ansible/           # Migration playbooks
+└── docs/             # Additional documentation
+```
+
 ---
 
-## 📖 Quick Overview
+## 🔄 Migration from v1
+
+### What Changed?
+
+| Component | v1 (Proxmox/Docker) | v2 (Kubernetes) |
+|-----------|-------------------|-----------------|
+| **Platform** | Proxmox VE + LXC | Talos Linux bare-metal |
+| **Containers** | Docker Compose | Kubernetes deployments |
+| **Networking** | Manual port mapping | Service mesh + ingress |
+| **Storage** | Local volumes | Dynamic PVCs |
+| **Updates** | Manual per-service | Rolling updates |
+| **Backups** | Scripts | Persistent volumes |
+
+### Key Improvements
+
+✅ **Declarative Configuration** - Everything as code  
+✅ **Self-Healing** - Automatic pod restarts  
+✅ **Easy Scaling** - Just update replica count  
+✅ **Better Isolation** - Namespace separation  
+✅ **Unified Ingress** - Single entry point  
+✅ **Automated SSL** - Cert-manager handles certificates  
+
+### Challenges Solved
+
+1. **VPN Networking** → Gluetun sidecar pattern
+2. **GPU Transcoding** → Intel device plugin
+3. **Data Migration** → Ansible playbooks
+4. **Service Discovery** → CoreDNS + Traefik
+
+---
+
+## 📚 Resources
+
+- 📖 [Full Documentation](https://publish.obsidian.md/gauranshmathur)
+- 📜 [v1 README](README-v1.md) (Legacy setup)
+- 🏷️ [Talos Linux Docs](https://www.talos.dev/)
+- 🎯 [TRaSH Guides](https://trash-guides.info/) (Media quality settings)
+
+---
+
+## 🤝 Contributing
+
+This is a personal project, but suggestions and improvements are welcome! Feel free to open an issue.
+
+## 📄 License
+
+[MIT License](LICENSE) - Feel free to use this as inspiration for your own homelab!
+
+---
+
+<div align="center">
+<i>Built with ❤️ and lots of ☕</i>
+</div>

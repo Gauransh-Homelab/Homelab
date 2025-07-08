@@ -27,11 +27,11 @@ jobs:
           # Fetch Obsidian markdown
           curl -s "https://publish-01.obsidian.md/access/5d709373479c3fe55e2ee18eefb6ecc5/Publish/Homelab.md" > obsidian.md
           
-          # Extract sections (simple grep, no complex parsing)
-          TODO=$(grep -A50 "^## To Do" obsidian.md | grep "^- \[ \]" | sed 's/\[\[//g;s/\]\]//g' || true)
-          PROGRESS=$(grep -A50 "^## In Progress" obsidian.md | grep "^- \[ \]" | sed 's/\[\[//g;s/\]\]//g' || true)
-          DONE=$(grep -A50 "^## Done" obsidian.md | grep "^- \[x\]" | sed 's/\[\[//g;s/\]\]//g' || true)
-          FUTURE=$(grep -A50 "^## Future Projects" obsidian.md | grep "^- \[ \]" | sed 's/\[\[//g;s/\]\]//g' || true)
+          # Extract sections more precisely
+          TODO=$(sed -n '/^## To Do$/,/^##/{//!p}' obsidian.md | grep "^- \[ \]" | sed 's/\[\[//g;s/\]\]//g' || true)
+          PROGRESS=$(sed -n '/^## In Progress$/,/^##/{//!p}' obsidian.md | grep "^- \[ \]" | sed 's/\[\[//g;s/\]\]//g' || true)
+          DONE=$(sed -n '/^## Done$/,/^##/{//!p}' obsidian.md | grep "^- \[x\]" | sed 's/\[\[//g;s/\]\]//g' || true)
+          FUTURE=$(sed -n '/^## Future Projects$/,/^##/{//!p}' obsidian.md | grep "^- \[ \]" | sed 's/\[\[//g;s/\]\]//g' || true)
           
           # Build new roadmap section
           cat > roadmap.tmp << 'EOF'
@@ -65,10 +65,18 @@ jobs:
           
           echo -e "\n---" >> roadmap.tmp
           
-          # Replace roadmap section in README
+          # Save content before roadmap
           awk '/^## 📋 Roadmap$/{exit} 1' README.md > readme_before.tmp
-          awk '/^---$/{f=1} f && /^## /{print; exit} f' README.md > readme_after.tmp
           
+          # Save content after roadmap (find the --- after roadmap, then get everything after the next ## section)
+          awk '
+            /^## 📋 Roadmap$/ {in_roadmap=1}
+            in_roadmap && /^---$/ {found_end=1}
+            found_end && /^## / {capture=1}
+            capture {print}
+          ' README.md > readme_after.tmp
+          
+          # Combine all parts
           cat readme_before.tmp roadmap.tmp readme_after.tmp > README.md
           
           # Cleanup

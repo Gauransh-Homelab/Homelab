@@ -4,8 +4,8 @@
 # Run as CronJob with 3x daily schedule
 kind: CronJob
 
-# Schedule: 8 AM, 2 PM, 8 PM
-schedule: "0 8,14,20 * * *"
+# Schedule: Every 2 hours for more frequent rebalancing
+schedule: "0 */2 * * *"
 
 # Keep minimal job history
 successfulJobsHistoryLimit: 1
@@ -55,24 +55,53 @@ deschedulerPolicy:
             evictSystemCriticalPods: false
             evictFailedBarePods: true
             evictLocalStoragePods: false
-            ignorePvcPods: true
+            # Allow eviction of PVC pods for better distribution
+            ignorePvcPods: false
             nodeFit: true
-            # Minimum pod age before eviction (5 minutes)
-            minPodAge: "5m"
+            # Increased pod age to 30 minutes for stability
+            minPodAge: "30m"
         
         # Low node utilization - balance between nodes
         - name: "LowNodeUtilization"
           args:
-            # Nodes are considered underutilized if below these thresholds
+            # Increased thresholds to catch underutilized nodes
             thresholds:
-              cpu: 20
-              memory: 20
-              pods: 20
-            # Nodes are considered overutilized if above these thresholds
+              cpu: 30
+              memory: 30
+              pods: 30
+            # Lowered target thresholds for better distribution
             targetThresholds:
-              cpu: 70
-              memory: 70
-              pods: 70
+              cpu: 60
+              memory: 60
+              pods: 60
+            # Exclude critical namespaces
+            evictableNamespaces:
+              exclude:
+                - "kube-system"
+                - "synology-csi"
+                - "metallb"
+        
+        # Spread duplicate pods across nodes
+        - name: "RemoveDuplicates"
+          args:
+            # Don't evict pods managed by these controllers
+            excludeOwnerKinds:
+              - "DaemonSet"
+            namespaces:
+              exclude:
+                - "kube-system"
+        
+        # Remove old pods to allow rescheduling
+        - name: "PodLifeTime"
+          args:
+            # 7 days in seconds
+            maxPodLifeTimeSeconds: 604800
+            namespaces:
+              exclude:
+                - "kube-system"
+                - "synology-csi"
+                - "metallb"
+                - "cert-manager"
         
         # Remove pods with too many restarts
         - name: "RemovePodsHavingTooManyRestarts"
@@ -96,7 +125,9 @@ deschedulerPolicy:
           enabled:
             - "RemovePodsHavingTooManyRestarts"
             - "RemoveFailedPods"
+            - "PodLifeTime"
         # Enable balance plugins
         balance:
           enabled:
             - "LowNodeUtilization"
+            - "RemoveDuplicates"

@@ -278,128 +278,49 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 
 [![Live Roadmap](https://img.shields.io/badge/Live%20Roadmap-View%20on%20Obsidian-7c3aed?style=for-the-badge&logo=obsidian&logoColor=white)](https://publish.obsidian.md/gauranshmathur/Publish/Homelab)
 
-*The roadmap is actively maintained in Obsidian for real-time updates*
+*Synced hourly from Obsidian*
 
 </div>
 
-### 🔗 Quick Links
+### 📌 Current Status
 
-- 📊 **[Current Progress](https://publish.obsidian.md/gauranshmathur/Publish/Homelab)** - Live Kanban board
-- ✅ **[Completed Items](https://publish.obsidian.md/gauranshmathur/Publish/Homelab#archive)** - Archive of finished tasks
-- 🚀 **[Future Projects](https://publish.obsidian.md/gauranshmathur/Publish/Homelab#future-projects)** - Long-term plans
+#### 📋 To Do
+- [ ] Argo CD
+- [ ] Whitelist only cloudflare ip and local ip CIDR blocks
+- [ ] LGTM Stack
+- [ ] Huntarr
+- [ ] Homarr
+- [ ] n8n
+- [ ] Ghost Blog
+- [ ] Jellyfin Stats
+- [ ] Authentik
+- [ ] HA PostgreSQL
+- [ ] *arr Stack Migration (SQLite → PostgreSQL)
+- [ ] MCP Server - Discord Media Bot
+- [ ] Karakeep - bookmarking system
+- [ ] [OPTIONAL]🔽 Add k8s cleaner to remove completed pods every hour
 
-### 📌 Current Focus Areas
+#### 🚧 In Progress
 
-Based on the live roadmap, the main priorities are:
+- [ ] MCP Server - Discord Media Bot
+- [ ] Karakeep - bookmarking system
+- [ ] [OPTIONAL]🔽 Add k8s cleaner to remove completed pods every hour
 
-1. **Infrastructure**: ArgoCD for GitOps, LGTM monitoring stack
-2. **Security**: Authentik SSO, Cloudflare IP whitelisting
-3. **Performance**: PostgreSQL HA, *arr stack database migration
-4. **User Experience**: Homarr dashboard, automation with n8n
+#### ✅ Recently Completed
 
-> 💡 **Note**: Check the [live roadmap](https://publish.obsidian.md/gauranshmathur/Publish/Homelab) for the most up-to-date task list and progress.
+- [x] Create a pod deschedular so the pods run on the proper machine to split workload ✅ 2025-07-07
+- [x] librechat-migration ✅ 2025-07-02
+- [x] jellyfin-migration ✅ 2025-07-06
+- [x] talos-infrastructure ✅ 2025-07-06
+- [x] tailscale-migration ✅ 2025-07-05
 
----
+### 🚀 Future Projects
 
-## 🛠️ Deployment Guide
-
-### Prerequisites
-
-1. **Hardware**: 2+ machines with 8GB+ RAM
-2. **Network**: Static IPs, router access for port forwarding
-3. **Storage**: NAS with NFS enabled
-4. **Tools**: `kubectl`, `helm`, `talosctl`
-
-### Quick Start
-
-```bash
-# 1. Apply Talos configuration
-talosctl apply-config --nodes 192.168.10.147 --file controlplane.yaml
-talosctl apply-config --nodes 192.168.10.165 --file worker.yaml
-
-# 2. Bootstrap cluster
-talosctl bootstrap --nodes 192.168.10.147
-
-# 3. Get kubeconfig
-talosctl kubeconfig --nodes 192.168.10.147
-
-# 4. Install core services
-kubectl apply -f kubernetes/namespaces/
-helm install metallb metallb/metallb -n metallb -f helm/metallb/values.yaml
-helm install traefik traefik/traefik -n traefik -f helm/traefik/values.yaml
-
-# 5. Deploy applications
-kubectl apply -k kubernetes/
-```
-
-### Directory Structure
-
-```
-Homelab/
-├── kubernetes/         # Raw Kubernetes manifests
-│   ├── arr-stack/     # Media automation stack
-│   ├── jellyfin/      # Media server configs
-│   └── ...
-├── helm/              # Helm charts and values
-│   ├── traefik/       # Ingress controller
-│   ├── cert-manager/  # SSL certificates
-│   └── ...
-├── ansible/           # Migration playbooks
-└── docs/             # Additional documentation
-```
+- [ ] MCP Server - Discord Media Bot
+- [ ] Karakeep - bookmarking system
+- [ ] [OPTIONAL]🔽 Add k8s cleaner to remove completed pods every hour
 
 ---
-
-## 🔄 Migration from v1
-
-### What Changed?
-
-| Component | v1 (Proxmox/Docker) | v2 (Kubernetes) |
-|-----------|-------------------|-----------------|
-| **Platform** | Proxmox VE + LXC | Talos Linux bare-metal |
-| **Containers** | Docker Compose | Kubernetes deployments |
-| **Networking** | Manual port mapping | Service mesh + ingress |
-| **Storage** | Local volumes | Dynamic PVCs |
-| **Updates** | Manual per-service | Rolling updates |
-| **Backups** | Scripts | Persistent volumes |
-
-### Key Improvements
-
-✅ **Declarative Configuration** - Everything as code  
-✅ **Self-Healing** - Automatic pod restarts  
-✅ **Easy Scaling** - Just update replica count  
-✅ **Better Isolation** - Namespace separation  
-✅ **Unified Ingress** - Single entry point  
-✅ **Automated SSL** - Cert-manager handles certificates  
-
-### Challenges Solved
-
-1. **VPN Networking** → Gluetun sidecar pattern
-2. **GPU Transcoding** → Intel device plugin
-3. **Data Migration** → Ansible playbooks
-4. **Service Discovery** → CoreDNS + Traefik
-
 ---
 
-## 📚 Resources
-
-- 📖 [Full Documentation](https://publish.obsidian.md/gauranshmathur)
-- 📜 [v1 README](README-v1.md) (Legacy setup)
-- 🏷️ [Talos Linux Docs](https://www.talos.dev/)
-- 🎯 [TRaSH Guides](https://trash-guides.info/) (Media quality settings)
-
----
-
-## 🤝 Contributing
-
-This is a personal project, but suggestions and improvements are welcome! Feel free to open an issue.
-
-## 📄 License
-
-[MIT License](LICENSE) - Feel free to use this as inspiration for your own homelab!
-
----
-
-<div align="center">
-<i>Built with ❤️ and lots of ☕</i>
-</div>
+## 📖 Quick Overview

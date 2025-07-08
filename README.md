@@ -303,7 +303,6 @@ _Synced using Github Actions ~~FOR EVERY PUSH~~_
 - [ ] MCP Server - Discord Media Bot
 - [ ] Karakeep - bookmarking system
 - [ ] [OPTIONAL]🔽 Add k8s cleaner to remove completed pods every hour
-  > > > > > > > Stashed changes
 
 #### 🚧 In Progress
 

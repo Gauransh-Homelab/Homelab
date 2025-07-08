@@ -279,14 +279,13 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 
 [![Live Roadmap](https://img.shields.io/badge/Live%20Roadmap-View%20on%20Obsidian-7c3aed?style=for-the-badge&logo=obsidian&logoColor=white)](https://publish.obsidian.md/gauranshmathur/Publish/Homelab)
 
-_Synced using Github Actions ~~FOR EVERY PUSH~~_
+*Synced from Obsidian on every push*
 
 </div>
 
 ### 📌 Current Status
 
 #### 📋 To Do
-
 - [ ] Argo CD
 - [ ] Whitelist only cloudflare ip and local ip CIDR blocks
 - [ ] LGTM Stack
@@ -297,14 +296,11 @@ _Synced using Github Actions ~~FOR EVERY PUSH~~_
 - [ ] Jellyfin Stats
 - [ ] Authentik
 - [ ] HA PostgreSQL
-      <<<<<<< Updated upstream
-- [ ] # \*arr Stack Migration (SQLite → PostgreSQL)
-- [ ] \*arr Stack Migration (SQLite → PostgreSQL)
-- [ ] MCP Server - Discord Media Bot
-- [ ] Karakeep - bookmarking system
-- [ ] [OPTIONAL]🔽 Add k8s cleaner to remove completed pods every hour
+- [ ] *arr Stack Migration (SQLite → PostgreSQL)
 
 #### 🚧 In Progress
+
+
 
 #### ✅ Recently Completed
 
@@ -316,8 +312,19 @@ _Synced using Github Actions ~~FOR EVERY PUSH~~_
 - [ ] Karakeep - bookmarking system
 - [ ] [OPTIONAL]🔽 Add k8s cleaner to remove completed pods every hour
 
----
+### 📦 Archive
 
+- [x] librechat-migration ✅ 2025-07-02
+- [x] jellyfin-migration ✅ 2025-07-06
+- [x] talos-infrastructure ✅ 2025-07-06
+- [x] tailscale-migration ✅ 2025-07-05
+- [x] traefik-setup ✅ 2025-07-02
+- [x] Figure out how to host updatable markdown so can show the Kanbans ( ~~if no other way just use vercel~~) ✅ 2025-06-14
+- [x] arr-stack-migration ✅ 2025-07-02
+- [x] synology-integration ✅ 2025-05-29
+- [x] obsidian-setup ✅ 2025-05-29
+
+---
 ## 🛠️ Deployment Guide
 
 ### Prerequisites

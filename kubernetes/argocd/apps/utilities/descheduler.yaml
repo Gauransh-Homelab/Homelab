@@ -7,13 +7,16 @@ metadata:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
-  source:
-    repoURL: https://github.com/Gauransh-Homelab/Homelab.git
-    targetRevision: main
-    path: helm/descheduler
-    helm:
-      valueFiles:
-        - values.yaml
+  sources:
+    - repoURL: https://kubernetes-sigs.github.io/descheduler/
+      chart: descheduler
+      targetRevision: 0.33.0
+      helm:
+        valueFiles:
+          - $values/helm/descheduler/values.yaml
+    - repoURL: https://github.com/Gauransh-Homelab/Homelab.git
+      targetRevision: main
+      ref: values
   destination:
     server: https://kubernetes.default.svc
     namespace: kube-system

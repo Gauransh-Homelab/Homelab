@@ -17,8 +17,10 @@ spec:
       labels:
         app: vpn-group
     spec:
+      # NOTE: This manifest uses the native Kubernetes sidecar pattern,
+      # which requires Kubernetes v1.28+ (Beta in v1.28, GA in v1.29)
       initContainers:
-      # Note: gluetun runs as init container with restartPolicy: Always to keep VPN active
+      # Native sidecar: runs continuously alongside main containers
       - name: gluetun
         image: qmcgaw/gluetun:v3.38.0  # Pinned version
         restartPolicy: Always
@@ -58,15 +60,35 @@ spec:
           mountPath: /gluetun
         - name: nfs-nas
           mountPath: /NAS
-        # Add readiness probe to ensure VPN is up
+        # Probes for VPN health monitoring
+        # Startup probe: Allow up to 5 minutes for initial VPN connection
+        startupProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - "wget -O - -q http://localhost:8000/v1/openvpn/status | grep -q '\"status\":\"connected\"'"
+          failureThreshold: 30  # 30 * 10s = 5 minutes
+          periodSeconds: 10
+        # Readiness probe: VPN must be connected for pod to be ready
         readinessProbe:
           exec:
             command:
             - sh
             - -c
-            - "wget -q --spider http://localhost:8000/v1/openvpn/portforwarded || exit 1"
-          initialDelaySeconds: 30
-          periodSeconds: 10
+            - "wget -O - -q http://localhost:8000/v1/openvpn/status | grep -q '\"status\":\"connected\"'"
+          periodSeconds: 15
+          failureThreshold: 4  # Tolerate 1 minute of disconnection
+        # Liveness probe: Restart container if VPN is down for 2 minutes
+        livenessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - "wget -O - -q http://localhost:8000/v1/openvpn/status | grep -q '\"status\":\"connected\"'"
+          initialDelaySeconds: 180  # Wait 3 minutes before starting checks
+          periodSeconds: 60
+          failureThreshold: 2
       containers:
       - name: qbittorrent
         image: lscr.io/linuxserver/qbittorrent:4.6.7  # Pinned version

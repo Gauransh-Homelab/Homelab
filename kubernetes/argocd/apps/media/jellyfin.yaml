@@ -5,6 +5,13 @@ metadata:
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
+  annotations:
+    # Image updater configuration
+    argocd-image-updater.argoproj.io/image-list: jellyfin=jellyfin/jellyfin
+    argocd-image-updater.argoproj.io/jellyfin.update-strategy: semver
+    argocd-image-updater.argoproj.io/jellyfin.allow-tags: regexp:^[0-9]+\.[0-9]+\.[0-9]+$
+    argocd-image-updater.argoproj.io/write-back-method: git
+    argocd-image-updater.argoproj.io/git-branch: main
 spec:
   project: default
   source:

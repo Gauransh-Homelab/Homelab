@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: bazarr
-        image: lscr.io/linuxserver/bazarr:latest
+        image: lscr.io/linuxserver/bazarr:1.5.1.8917
         env:
         - name: PUID
           value: "1000"

@@ -29,7 +29,7 @@ metadata:
   namespace: jelly
 spec:
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   resources:
     requests:
       storage: 30Gi

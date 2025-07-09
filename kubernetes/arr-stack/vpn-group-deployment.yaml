@@ -67,7 +67,7 @@ spec:
             command:
             - sh
             - -c
-            - "wget -O - -q http://localhost:8000/v1/openvpn/status | grep -q '\"status\":\"connected\"'"
+            - "wget -O - -q http://localhost:8000/v1/openvpn/status | grep -q '\"status\":\"running\"'"
           failureThreshold: 30  # 30 * 10s = 5 minutes
           periodSeconds: 10
         # Readiness probe: VPN must be connected for pod to be ready
@@ -76,7 +76,7 @@ spec:
             command:
             - sh
             - -c
-            - "wget -O - -q http://localhost:8000/v1/openvpn/status | grep -q '\"status\":\"connected\"'"
+            - "wget -O - -q http://localhost:8000/v1/openvpn/status | grep -q '\"status\":\"running\"'"
           periodSeconds: 15
           failureThreshold: 4  # Tolerate 1 minute of disconnection
         # Liveness probe: Restart container if VPN is down for 2 minutes
@@ -85,7 +85,7 @@ spec:
             command:
             - sh
             - -c
-            - "wget -O - -q http://localhost:8000/v1/openvpn/status | grep -q '\"status\":\"connected\"'"
+            - "wget -O - -q http://localhost:8000/v1/openvpn/status | grep -q '\"status\":\"running\"'"
           initialDelaySeconds: 180  # Wait 3 minutes before starting checks
           periodSeconds: 60
           failureThreshold: 2

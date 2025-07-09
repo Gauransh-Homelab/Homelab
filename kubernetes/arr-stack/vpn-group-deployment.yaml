@@ -22,7 +22,7 @@ spec:
       initContainers:
       # Native sidecar: runs continuously alongside main containers
       - name: gluetun
-        image: qmcgaw/gluetun:v3.38.0  # Pinned version
+        image: qmcgaw/gluetun:v3.40.0  # Pinned version
         restartPolicy: Always
         env:
         - name: VPN_SERVICE_PROVIDER

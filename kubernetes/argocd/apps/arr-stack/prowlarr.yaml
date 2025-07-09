@@ -12,7 +12,7 @@ spec:
     targetRevision: main
     path: kubernetes/arr-stack
     directory:
-      include: "{prowlarr-deployment.yaml,services-individual.yaml}"
+      include: "prowlarr-deployment.yaml"
   destination:
     server: https://kubernetes.default.svc
     namespace: arr-stack

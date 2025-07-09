@@ -7,16 +7,25 @@ metadata:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
-  source:
-    repoURL: https://github.com/Gauransh-Homelab/Homelab.git
-    targetRevision: main
-    path: helm/nfs-subdir
-    helm:
-      valueFiles:
-        - values.yaml
+  ignoreDifferences:
+  - group: storage.k8s.io
+    kind: StorageClass
+    name: nfs-client
+    jsonPointers:
+    - /provisioner
+  sources:
+    - repoURL: https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/
+      chart: nfs-subdir-external-provisioner
+      targetRevision: 4.0.18
+      helm:
+        valueFiles:
+          - $values/helm/nfs-subdir/values.yaml
+    - repoURL: https://github.com/Gauransh-Homelab/Homelab.git
+      targetRevision: main
+      ref: values
   destination:
     server: https://kubernetes.default.svc
-    namespace: kube-system
+    namespace: synology-csi
   syncPolicy:
     automated:
       prune: true
@@ -25,6 +34,7 @@ spec:
     syncOptions:
     - CreateNamespace=false
     - PrunePropagationPolicy=foreground
+    - RespectIgnoreDifferences=true
     retry:
       limit: 5
       backoff:

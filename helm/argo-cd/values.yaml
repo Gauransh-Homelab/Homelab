@@ -1,0 +1,51 @@
+# ArgoCD Helm Values for Homelab
+global:
+  domain: argocd.arkhaya.duckdns.org
+
+configs:
+  params:
+    # Run in insecure mode since Traefik handles TLS
+    server.insecure: true
+  cm:
+    # URL for accessing ArgoCD
+    url: "https://argocd.arkhaya.duckdns.org"
+    # Check for updates every 3 minutes (default is 3m)
+    timeout.reconciliation: "180s"
+
+server:
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  ingress:
+    enabled: false
+
+controller:
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+
+repoServer:
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+redis:
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi

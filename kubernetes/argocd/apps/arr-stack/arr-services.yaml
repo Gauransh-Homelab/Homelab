@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: sonarr
+  name: arr-services
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
@@ -12,7 +12,7 @@ spec:
     targetRevision: main
     path: kubernetes/arr-stack
     directory:
-      include: "sonarr-single-deployment.yaml"
+      include: "services-individual.yaml"
   destination:
     server: https://kubernetes.default.svc
     namespace: arr-stack

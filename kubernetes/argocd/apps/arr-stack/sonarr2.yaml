@@ -12,7 +12,7 @@ spec:
     targetRevision: main
     path: kubernetes/arr-stack
     directory:
-      include: "{sonarr2-single-deployment.yaml,services-individual.yaml}"
+      include: "sonarr2-single-deployment.yaml"
   destination:
     server: https://kubernetes.default.svc
     namespace: arr-stack

@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: notifiarr
-        image: golift/notifiarr:0.9.2
+        image: golift/notifiarr:latest
         env:
         - name: PUID
           value: "1000"

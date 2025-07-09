@@ -12,12 +12,12 @@ global:
   podSecurityPolicy:
     enabled: false
   
-  # Leader election namespace - using traefik since we're installing there
+  # Leader election namespace - using cert-manager namespace
   leaderElection:
-    namespace: traefik
+    namespace: cert-manager
 
 # Override the namespace for storing DNS provider credentials for ClusterIssuer resources
-clusterResourceNamespace: traefik
+clusterResourceNamespace: cert-manager
 
 # Prometheus monitoring (disabled for now)
 prometheus:

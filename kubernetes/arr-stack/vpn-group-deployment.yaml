@@ -64,7 +64,7 @@ spec:
             command:
             - sh
             - -c
-            - "wget -q --spider http://localhost:8000/v1/publicip/ip || exit 1"
+            - "wget -q --spider http://localhost:8000/v1/openvpn/portforwarded || exit 1"
           initialDelaySeconds: 30
           periodSeconds: 10
       containers:

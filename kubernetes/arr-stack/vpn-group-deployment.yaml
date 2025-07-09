@@ -18,6 +18,7 @@ spec:
         app: vpn-group
     spec:
       initContainers:
+      # Note: gluetun runs as init container with restartPolicy: Always to keep VPN active
       - name: gluetun
         image: qmcgaw/gluetun:v3.38.0  # Pinned version
         restartPolicy: Always
@@ -63,7 +64,7 @@ spec:
             command:
             - sh
             - -c
-            - "wget -q --spider http://localhost:8000/v1/openvpn/status || exit 1"
+            - "wget -q --spider http://localhost:8000/v1/publicip/ip || exit 1"
           initialDelaySeconds: 30
           periodSeconds: 10
       containers:

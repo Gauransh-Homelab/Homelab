@@ -279,14 +279,13 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 
 [![Live Roadmap](https://img.shields.io/badge/Live%20Roadmap-View%20on%20Obsidian-7c3aed?style=for-the-badge&logo=obsidian&logoColor=white)](https://publish.obsidian.md/gauranshmathur/Publish/Homelab)
 
-_Synced from Obsidian on every push_
+*Synced from Obsidian on every push*
 
 </div>
 
 ### 📌 Current Status
 
 #### 📋 To Do
-
 - [ ] Whitelist only cloudflare ip and local ip CIDR blocks
 - [ ] LGTM Stack
 - [ ] Huntarr
@@ -296,13 +295,13 @@ _Synced from Obsidian on every push_
 - [ ] Jellyfin Stats
 - [ ] Authentik
 - [ ] HA PostgreSQL
-- [ ] \*arr Stack Migration (SQLite → PostgreSQL)
+- [ ] *arr Stack Migration (SQLite → PostgreSQL)
 
 #### 🚧 In Progress
 
-#### ✅ Recently Completed
+- [ ] Argo CD
 
-- [x] Argo CD ✅ 2025-07-09
+#### ✅ Recently Completed
 
 - [x] Create a pod deschedular so the pods run on the proper machine to split workload ✅ 2025-07-07
 
@@ -325,7 +324,6 @@ _Synced from Obsidian on every push_
 - [x] obsidian-setup ✅ 2025-05-29
 
 ---
-
 ## 🛠️ Deployment Guide
 
 ### Prerequisites

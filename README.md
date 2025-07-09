@@ -286,7 +286,6 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 ### 📌 Current Status
 
 #### 📋 To Do
-- [ ] Argo CD
 - [ ] Whitelist only cloudflare ip and local ip CIDR blocks
 - [ ] LGTM Stack
 - [ ] Huntarr
@@ -300,7 +299,7 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 
 #### 🚧 In Progress
 
-
+- [ ] Argo CD
 
 #### ✅ Recently Completed
 

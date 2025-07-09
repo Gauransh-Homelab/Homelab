@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: jellyfin
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Gauransh-Homelab/Homelab.git
+    targetRevision: main
+    path: kubernetes/jellyfin
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: jelly
+  syncPolicy:
+    automated:
+      prune: true      # Remove deleted resources
+      selfHeal: true   # Fix drift automatically
+    syncOptions:
+    - CreateNamespace=false
+    - PrunePropagationPolicy=foreground
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: vpn-group
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Gauransh-Homelab/Homelab.git
+    targetRevision: main
+    path: kubernetes/arr-stack
+    directory:
+      include: "{vpn-group-deployment.yaml,vpn-group-service.yaml}"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: arr-stack
+  syncPolicy:
+    # Manual sync for VPN - critical network component
+    syncOptions:
+    - CreateNamespace=false
+    - PrunePropagationPolicy=foreground
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

@@ -1,28 +1,46 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:base",
+    "config:recommended",
     ":dependencyDashboard",
     ":semanticCommitTypeAll(feat)"
   ],
   "timezone": "Asia/Singapore",
-  "labels": ["renovate", "dependencies"],
+  "labels": [
+    "renovate",
+    "dependencies"
+  ],
   "assigneesFromCodeOwners": true,
   "rebaseWhen": "behind-base-branch",
   "kubernetes": {
-    "fileMatch": ["\\.yaml$", "\\.yml$"]
+    "managerFilePatterns": [
+      "/\\.yaml$/",
+      "/\\.yml$/"
+    ]
   },
   "packageRules": [
     {
+      "matchCategories": [
+        "docker"
+      ],
+      "pinDigests": false
+    },
+    {
       "description": "Auto-merge stable container updates",
-      "matchDatasources": ["docker"],
-      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "digest"
+      ],
       "automerge": true,
       "automergeType": "pr",
       "platformAutomerge": true,
       "matchPackageNames": [
         "lscr.io/linuxserver/sonarr",
-        "lscr.io/linuxserver/radarr", 
+        "lscr.io/linuxserver/radarr",
         "lscr.io/linuxserver/bazarr",
         "lscr.io/linuxserver/prowlarr",
         "lscr.io/linuxserver/qbittorrent",
@@ -36,10 +54,15 @@
     },
     {
       "description": "Auto-merge k8s infrastructure updates",
-      "matchDatasources": ["docker"],
-      "matchUpdateTypes": ["minor", "patch"],
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
       "automerge": true,
-      "automergeType": "pr", 
+      "automergeType": "pr",
       "platformAutomerge": true,
       "matchPackageNames": [
         "registry.k8s.io/descheduler/descheduler",
@@ -52,22 +75,36 @@
     },
     {
       "description": "Group ArgoCD updates",
-      "matchDatasources": ["docker", "helm"],
-      "matchPackagePatterns": ["argo-cd", "argocd"],
+      "matchDatasources": [
+        "docker",
+        "helm"
+      ],
       "groupName": "ArgoCD",
-      "automerge": false
+      "automerge": false,
+      "matchPackageNames": [
+        "/argo-cd/",
+        "/argocd/"
+      ]
     },
     {
       "description": "Disable major updates by default",
-      "matchDatasources": ["docker"],
-      "matchUpdateTypes": ["major"],
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
       "enabled": false
     }
   ],
-  "regexManagers": [
+  "customManagers": [
     {
+      "customType": "regex",
       "description": "Process container images in Kubernetes files",
-      "fileMatch": ["\\.yaml$", "\\.yml$"],
+      "managerFilePatterns": [
+        "/\\.yaml$/",
+        "/\\.yml$/"
+      ],
       "matchStrings": [
         "image:\\s+(?<depName>[^:]+):(?<currentValue>[^\\s]+)"
       ],
@@ -75,12 +112,10 @@
       "versioningTemplate": "docker"
     }
   ],
-  "docker": {
-    "pinDigests": false
-  },
-  "ignorePresets": [":prHourlyLimit2"],
-  "allowedPostUpgradeCommands": [],
-  "allowPostUpgradeCommandTemplating": false,
+  "ignorePresets": [
+    ":prHourlyLimit2"
+  ],
+  "allowedCommands": [],
   "allowedVersions": "!/^.*-(alpha|beta|rc|dev|canary|unstable|preview|pre|test|experimental).*$/",
   "commitMessagePrefix": "feat({{packageFileDir}}):",
   "commitMessageTopic": "update {{depName}} to {{newVersion}}",

@@ -287,7 +287,7 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 
 #### 📋 To Do
 - [ ] Whitelist only cloudflare ip and local ip CIDR blocks
-- [ ] LGTM Stack
+- [ ] LGM Stack with alloy
 - [ ] Huntarr
 - [ ] Homarr
 - [ ] n8n

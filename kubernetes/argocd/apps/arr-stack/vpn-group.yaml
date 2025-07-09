@@ -17,7 +17,10 @@ spec:
     server: https://kubernetes.default.svc
     namespace: arr-stack
   syncPolicy:
-    # Manual sync for VPN - critical network component
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
     syncOptions:
     - CreateNamespace=false
     - PrunePropagationPolicy=foreground

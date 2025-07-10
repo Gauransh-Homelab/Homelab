@@ -53,7 +53,7 @@ prometheus:
         action: drop
       # Drop TargetDown alerts for prometheus.scrape.* jobs (Alloy internal)
       - source_labels: [alertname, job]
-        regex: 'TargetDown;prometheus\.scrape\..*'
+        regex: 'TargetDown;prometheus.scrape..*'
         action: drop
       # Drop TargetDown alerts for kubelet in kube-system (Talos managed)
       - source_labels: [alertname, job, namespace]

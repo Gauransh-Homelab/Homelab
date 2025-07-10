@@ -8,11 +8,11 @@ metadata:
 spec:
   groups:
     - name: homelab.status
-      interval: 1h  # Evaluate exactly every hour
+      interval: 1m  # Check every minute
       rules:
-        # Hourly status report
+        # Hourly status report - fires at :00 of each hour
         - alert: HomelabStatusReport
-          expr: vector(1)  # Always true - fires based on interval
+          expr: minute() >= 0 and minute() < 1  # Fire during the first minute of each hour
           for: 0m
           labels:
             severity: info

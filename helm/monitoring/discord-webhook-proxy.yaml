@@ -1,0 +1,132 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: discord-webhook-proxy
+  namespace: monitoring
+data:
+  webhook-proxy.py: |
+    from flask import Flask, request, jsonify
+    import requests
+    import json
+    import os
+    
+    app = Flask(__name__)
+    
+    DISCORD_WEBHOOKS = {
+        'critical': os.environ.get('DISCORD_CRITICAL_WEBHOOK'),
+        'warning': os.environ.get('DISCORD_WARNING_WEBHOOK'),
+        'status': os.environ.get('DISCORD_STATUS_WEBHOOK')
+    }
+    
+    @app.route('/webhook/<severity>', methods=['POST'])
+    def webhook_proxy(severity):
+        webhook_url = DISCORD_WEBHOOKS.get(severity)
+        if not webhook_url:
+            return jsonify({'error': 'Unknown severity'}), 404
+        
+        try:
+            alertmanager_data = request.json
+            
+            # Build Discord payload
+            discord_payload = {}
+            
+            # For critical alerts, add ping outside embed
+            if severity == 'critical':
+                discord_payload['content'] = '<@474581341581606912> **CRITICAL ALERT!**'
+            
+            # Build embeds
+            embeds = []
+            for alert in alertmanager_data.get('alerts', [])[:10]:  # Discord limit is 10 embeds
+                embed = {
+                    'title': f"{'🚨' if severity == 'critical' else '⚠️'} {alert['labels'].get('alertname', 'Alert')}",
+                    'color': 15158332 if severity == 'critical' else 16776960,
+                    'fields': []
+                }
+                
+                # Add fields
+                if 'namespace' in alert['labels']:
+                    embed['fields'].append({'name': 'Namespace', 'value': alert['labels']['namespace'], 'inline': True})
+                if 'pod' in alert['labels']:
+                    embed['fields'].append({'name': 'Pod', 'value': alert['labels']['pod'], 'inline': True})
+                if 'summary' in alert['annotations']:
+                    embed['fields'].append({'name': 'Summary', 'value': alert['annotations']['summary'], 'inline': False})
+                if 'description' in alert['annotations']:
+                    desc = alert['annotations']['description'][:1024]  # Discord limit
+                    embed['fields'].append({'name': 'Details', 'value': desc, 'inline': False})
+                
+                embeds.append(embed)
+            
+            discord_payload['embeds'] = embeds
+            
+            # Send to Discord
+            response = requests.post(webhook_url, json=discord_payload)
+            response.raise_for_status()
+            
+            return jsonify({'success': True})
+        
+        except Exception as e:
+            print(f"Error: {str(e)}")
+            return jsonify({'error': str(e)}), 500
+    
+    if __name__ == '__main__':
+        app.run(host='0.0.0.0', port=8080)
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: discord-webhook-proxy
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: discord-webhook-proxy
+  template:
+    metadata:
+      labels:
+        app: discord-webhook-proxy
+    spec:
+      containers:
+      - name: proxy
+        image: python:3.11-slim
+        command: 
+        - sh
+        - -c
+        - |
+          pip install flask requests
+          python /app/webhook-proxy.py
+        env:
+        - name: DISCORD_CRITICAL_WEBHOOK
+          value: "https://discord.com/api/webhooks/1392851349871263794/OnlF2OAVJ9HTfr35M-vb-I4BFevFRWJLaNRCJAPGk3Mt8y3ZUIh3ggKvZ1OJkZqeAwuw"
+        - name: DISCORD_WARNING_WEBHOOK
+          value: "https://discord.com/api/webhooks/1392851349871263794/OnlF2OAVJ9HTfr35M-vb-I4BFevFRWJLaNRCJAPGk3Mt8y3ZUIh3ggKvZ1OJkZqeAwuw"
+        - name: DISCORD_STATUS_WEBHOOK
+          value: "https://discord.com/api/webhooks/1392852477656956978/67Pi89pq7wN-Os0HmDF6iBgthJ1uGO9sD3zuKC9EuqVmfpNBkRlo86aUeLoMJk2lFP-d"
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: app
+          mountPath: /app
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+      volumes:
+      - name: app
+        configMap:
+          name: discord-webhook-proxy
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: discord-webhook-proxy
+  namespace: monitoring
+spec:
+  selector:
+    app: discord-webhook-proxy
+  ports:
+  - port: 8080
+    targetPort: 8080

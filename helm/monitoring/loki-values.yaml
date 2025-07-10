@@ -1,58 +1,33 @@
-# Loki values for LGTM homelab deployment
-# Single binary mode with filesystem backend and persistent storage
+# Loki values for Talos Linux homelab
+# Optimized for 7-day retention with self-monitoring enabled
 
-# Namespace configuration
-namespaceOverride: monitoring
-
-# Enable single binary deployment mode for simplicity
+# Deployment mode
 deploymentMode: SingleBinary
 
-# Single binary configuration
-singleBinary:
-  # Enable persistent storage
-  persistence:
-    enabled: true
-    storageClass: nfs-client
-    size: 20Gi
-    accessModes:
-      - ReadWriteOnce
-  
-  # Resource limits for homelab environment
-  resources:
-    limits:
-      cpu: 500m
-      memory: 1Gi
-    requests:
-      cpu: 100m
-      memory: 512Mi
-  
-  # Single replica for homelab setup
-  replicas: 1
-  
-  # Enable service monitor for Prometheus scraping
-  serviceMonitor:
-    enabled: true
-    interval: 60s
-    scrapeTimeout: 10s
-
-# Loki configuration
+# Single binary mode for simplicity
 loki:
-  # Authentication configuration (disabled for homelab)
+  # No authentication needed for homelab
   auth_enabled: false
   
-  # Common configuration
+  # Server configuration
+  server:
+    grpc_server_max_recv_msg_size: 8388608  # 8MB
+    grpc_server_max_send_msg_size: 8388608  # 8MB
+    http_server_read_timeout: 600s
+    http_server_write_timeout: 600s
+    http_listen_port: 3100
+    grpc_listen_port: 9095
+  
+  # Common storage config
   commonConfig:
     path_prefix: /var/loki
     replication_factor: 1
+    storage:
+      filesystem:
+        chunks_directory: /var/loki/chunks
+        rules_directory: /var/loki/rules
   
-  # Storage configuration - using filesystem backend
-  storage:
-    type: filesystem
-    filesystem:
-      chunks_directory: /var/loki/chunks
-      rules_directory: /var/loki/rules
-  
-  # Schema configuration for log storage
+  # Schema configuration
   schemaConfig:
     configs:
       - from: 2024-01-01
@@ -60,176 +35,170 @@ loki:
         object_store: filesystem
         schema: v13
         index:
-          prefix: loki_index_
+          prefix: index_
           period: 24h
   
-  # Server configuration
-  server:
-    http_listen_port: 3100
-    grpc_listen_port: 9095
-    log_level: info
+  # Storage configuration
+  storage:
+    type: filesystem
+    filesystem:
+      directory: /var/loki/chunks
+    # Added tsdb_shipper config to use the persistent volume
+    tsdb_shipper:
+      active_index_directory: /var/loki/tsdb-index
+      cache_location: /var/loki/tsdb-cache
   
-  # Chunk store configuration
-  chunk_store_config:
-    chunk_cache_config:
-      embedded_cache:
-        enabled: true
-        max_size_mb: 500
-  
-  # Query range configuration
-  query_range:
-    cache_results: true
-    results_cache:
-      cache:
-        embedded_cache:
-          enabled: true
-          max_size_mb: 500
-  
-  # Limits configuration for homelab
+  # Limits configuration
   limits_config:
-    # Retention period (7 days)
-    retention_period: 168h
-    
-    # Ingestion limits
-    ingestion_rate_mb: 32
-    ingestion_burst_size_mb: 64
-    per_stream_rate_limit: 32MB
-    per_stream_rate_limit_burst: 64MB
-    
-    # Query limits
-    max_query_length: 12000h
-    max_query_parallelism: 8
-    max_streams_per_user: 0
-    max_global_streams_per_user: 5000
-    
-    # Split queries by interval
-    split_queries_by_interval: 30m
-    
-    # Enable structured metadata and JSON parsing
-    structured_metadata:
-      enabled: true
-      max_entries_per_log: 128
-    
-    # Cardinality limits
-    max_label_name_length: 1024
-    max_label_value_length: 4096
-    max_label_names_per_series: 30
+    retention_period: 168h  # 7 days
+    reject_old_samples: true
+    reject_old_samples_max_age: 168h
+    max_cache_freshness_per_query: 10m
+    split_queries_by_interval: 24h
+    ingestion_rate_mb: 10
+    ingestion_burst_size_mb: 20
+    max_streams_per_user: 10000
+    max_global_streams_per_user: 10000
+    max_chunks_per_query: 2000000
+    max_query_parallelism: 32
   
-  # Table manager configuration for retention
-  table_manager:
-    retention_deletes_enabled: true
-    retention_period: 168h
-  
-  # Compactor configuration for cleanup
+  # Compactor for retention
   compactor:
-    working_directory: /var/loki/compactor
-    shared_store: filesystem
-    compaction_interval: 10m
     retention_enabled: true
+    compaction_interval: 10m
     retention_delete_delay: 2h
     retention_delete_worker_count: 150
+    working_directory: /var/loki/compactor
+    delete_request_store: filesystem
+  
+  # Ruler configuration (for future alerting rules)
+  ruler:
+    enable_api: true
+    storage:
+      type: local
+      local:
+        directory: /var/loki/rules
+    ring:
+      kvstore:
+        store: inmemory
+    rule_path: /var/loki/rules-temp
+
+# Single binary deployment
+singleBinary:
+  replicas: 1
+  
+  # Persistence configuration
+  persistence:
+    enabled: true
+    storageClass: synology-iscsi
+    size: 30Gi
+    enableStatefulSetAutoDeletePVC: false
+  
+  # Resource allocation
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+  
+  # Node selector if needed
+  nodeSelector: {}
+  
+  # Tolerations if needed
+  tolerations: []
+  
+  # Pod annotations
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "3100"
+    prometheus.io/path: "/metrics"
 
 # Service configuration
 service:
   type: ClusterIP
   port: 3100
-  targetPort: 3100
 
-# Service account configuration
-serviceAccount:
-  create: true
-  automount: true
+# Service monitor for Prometheus scraping
+serviceMonitor:
+  enabled: true
+  interval: 30s
+  labels:
+    prometheus: kube-prometheus
+  scrapeTimeout: 10s
 
-# Gateway configuration (disabled for single binary)
-gateway:
-  enabled: false
+# Self-monitoring configuration
+monitoring:
+  dashboards:
+    enabled: true
+    namespace: monitoring
+    labels:
+      grafana_dashboard: "1"
+  rules:
+    enabled: true
+    namespace: monitoring
+    labels:
+      prometheus: kube-prometheus
+  serviceMonitor:
+    enabled: true
+    namespace: monitoring
+    labels:
+      prometheus: kube-prometheus
+    interval: 30s
+    metricsInstance:
+      enabled: true
+  selfMonitoring:
+    enabled: false  # Disable to avoid GrafanaAgent CRD requirements
+    grafanaAgent:
+      installOperator: false
+      enabled: false
+    lokiCanary:
+      enabled: false  # Not needed for homelab
 
-# Test configuration
+# Disable components we don't need
 test:
   enabled: false
 
-# Monitoring configuration
-monitoring:
-  # Enable self-monitoring
-  selfMonitoring:
-    enabled: true
-    grafanaAgent:
-      installOperator: false
-  
-  # Service monitor for Prometheus
-  serviceMonitor:
-    enabled: true
-    interval: 60s
-    path: /metrics
-    port: http-metrics
-    scheme: http
-    scrapeTimeout: 10s
-    
-    # Additional labels for service monitor
-    labels:
-      release: kube-prometheus-stack
-  
-  # Prometheus rules for alerting
-  prometheusRule:
-    enabled: true
-    
-    # Alert rules for Loki
-    rules:
-      - alert: LokiProcessTooManyRestarts
-        expr: changes(process_start_time_seconds{job=~"loki"}[15m]) > 2
-        for: 0m
-        labels:
-          severity: warning
-        annotations:
-          summary: Loki process too many restarts
-          description: "A loki process had too many restarts (target {{ $labels.instance }})"
-      
-      - alert: LokiRequestErrors
-        expr: 100 * sum(rate(loki_request_duration_seconds_count{status_code=~"5.."}[1m])) by (namespace, job, route) / sum(rate(loki_request_duration_seconds_count[1m])) by (namespace, job, route) > 10
-        for: 15m
-        labels:
-          severity: critical
-        annotations:
-          summary: Loki request errors
-          description: "The {{ $labels.job }} and {{ $labels.route }} are experiencing errors"
+gateway:
+  enabled: false
 
-# Write ahead log configuration
+# Disable distributed mode components (using single binary)
 write:
-  persistence:
-    size: 5Gi
-    storageClass: synology-iscsi
+  enabled: false
+  replicas: 0
 
-# Read configuration
 read:
-  persistence:
-    size: 5Gi
-    storageClass: synology-iscsi
+  enabled: false
+  replicas: 0
 
-# Backend configuration  
 backend:
-  persistence:
-    size: 5Gi
-    storageClass: synology-iscsi
-
-# Chunk cache configuration
-chunksCache:
   enabled: false
+  replicas: 0
 
-# Results cache configuration
-resultsCache:
-  enabled: false
-
-# Ruler configuration (disabled for single binary)
 ruler:
   enabled: false
+  replicas: 0
 
-# Index gateway configuration (disabled for single binary)
 indexGateway:
   enabled: false
+  replicas: 0
 
-# Bloom compactor and gateway (disabled for single binary)
 bloomCompactor:
   enabled: false
+  replicas: 0
 
 bloomGateway:
   enabled: false
+  replicas: 0
+
+chunksCache:
+  enabled: false
+  replicas: 0
+
+resultsCache:
+  enabled: false
+  replicas: 0
+
+# Grafana data source configuration
+# This will be handled by kube-prometheus-stack's Grafana config

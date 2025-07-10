@@ -1,18 +1,22 @@
-# kube-prometheus-stack values for LGTM homelab deployment
-# This includes Prometheus, Grafana, and Alertmanager with persistent storage
+# Enhanced kube-prometheus-stack values for Talos Linux homelab
+# Optimized for 2-node cluster with room to grow
+# Control plane IPs: 192.168.10.147 (master), 192.168.10.165 (worker)
 
-# Global configuration
-global:
-  # Use nfs-client storage class for all persistent volumes
-  storageClass: nfs-client
-
-# Namespace configuration
 namespaceOverride: monitoring
 
-# Prometheus configuration
+# Global settings
+global:
+  rbac:
+    create: true
+    createAggregateClusterRoles: true
+
+# Prometheus configuration - production-ready
 prometheus:
   prometheusSpec:
-    # Storage configuration for Prometheus
+    replicas: 1  # Will increase to 2 when cluster grows
+    retention: 15d
+    retentionSize: 45GB
+    
     storageSpec:
       volumeClaimTemplate:
         spec:
@@ -20,221 +24,253 @@ prometheus:
           accessModes: ["ReadWriteOnce"]
           resources:
             requests:
-              storage: 30Gi
+              storage: 50Gi
     
-    # Data retention policy
-    retention: 15d
-    retentionSize: 45GB
-    
-    # Resource limits for homelab environment
     resources:
-      limits:
-        cpu: 1000m
-        memory: 2Gi
       requests:
-        cpu: 200m
-        memory: 1Gi
+        cpu: 500m
+        memory: 2Gi
+      limits:
+        cpu: 2000m
+        memory: 4Gi
     
-    # Replicas for HA (can be reduced to 1 for single node)
-    replicas: 1
+    # Enable features for modern monitoring
+    enableFeatures:
+      - memory-snapshot-on-shutdown
     
-    # Additional scrape configs for the LGTM stack
+    # Enable remote write receiver endpoint
+    enableRemoteWriteReceiver: true
+    
+    # Additional alert relabel configs to suppress false positives
+    additionalAlertRelabelConfigs:
+      # Drop alerts for Talos control plane components that aren't exposed
+      - source_labels: [alertname]
+        regex: '(KubeControllerManagerDown|KubeSchedulerDown|etcdInsufficientMembers|etcdMembersDown)'
+        action: drop
+      # Drop TargetDown alerts for known Talos limitations
+      - source_labels: [alertname, job]
+        regex: 'TargetDown;(kube-controller-manager|kube-scheduler|kube-etcd)'
+        action: drop
+      # Drop TargetDown alerts for prometheus.scrape.* jobs (Alloy internal)
+      - source_labels: [alertname, job]
+        regex: 'TargetDown;prometheus\.scrape\..*'
+        action: drop
+    
+    # Additional scrape configs for Talos nodes
     additionalScrapeConfigs:
-      - job_name: 'loki'
+      - job_name: 'talos-nodes'
         static_configs:
-          - targets: ['loki:3100']
-      - job_name: 'tempo'
-        static_configs:
-          - targets: ['tempo:3100']
+          - targets: ['192.168.10.147:9100', '192.168.10.165:9100']
+    
+    # Pod and service monitors
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    ruleSelectorNilUsesHelmValues: false
 
-# Grafana configuration
+# Grafana - feature-rich configuration
 grafana:
-  # Enable persistence for Grafana
+  enabled: true
+  replicas: 1
+  
   persistence:
     enabled: true
     storageClassName: synology-iscsi
-    size: 5Gi
-    accessModes:
-      - ReadWriteOnce
+    size: 10Gi
   
-  # Service configuration - LoadBalancer for MetalLB
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  
   service:
     type: LoadBalancer
-    port: 3000
-    annotations:
-      metallb.universe.tf/address-pool: default
   
-  # Resource limits for homelab
-  resources:
-    limits:
-      cpu: 200m
-      memory: 512Mi
-    requests:
-      cpu: 50m
-      memory: 256Mi
+  # Enable useful plugins
+  plugins:
+    - grafana-piechart-panel
+    - grafana-clock-panel
+    - natel-discrete-panel
   
-  # Admin credentials - password will be auto-generated on first install
-  adminUser: admin
-  
-  # Preconfigure data sources for LGTM stack
-  datasources:
-    datasources.yaml:
-      apiVersion: 1
-      datasources:
-        # Prometheus data source
-        - name: Prometheus
-          type: prometheus
-          access: proxy
-          url: http://kube-prometheus-stack-prometheus:9090
-          isDefault: true
-          editable: true
-        
-        # Loki data source for logs
-        - name: Loki
-          type: loki
-          access: proxy
-          url: http://loki:3100
-          editable: true
-          jsonData:
-            derivedFields:
-              - datasourceUid: tempo
-                matcherRegex: "traceID=(\\w+)"
-                name: TraceID
-                url: "$${__value.raw}"
-        
-        # Tempo data source for traces
-        - name: Tempo
-          type: tempo
-          access: proxy
-          url: http://tempo:3100
-          editable: true
-          jsonData:
-            tracesToLogs:
-              datasourceUid: loki
-              filterByTraceID: true
-              filterBySpanID: false
-              tags: ['job', 'instance', 'pod', 'namespace']
-            nodeGraph:
-              enabled: true
-  
-  # Enable dashboard providers for integrated dashboards
+  # Pre-configure data sources
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      url: http://loki:3100
+      isDefault: false
+    - name: AlertManager
+      type: alertmanager
+      url: http://kube-prometheus-stack-alertmanager:9093
+      access: proxy
+
+  # Pre-load dashboards
   dashboardProviders:
     dashboardproviders.yaml:
       apiVersion: 1
       providers:
-        - name: 'default'
-          orgId: 1
-          folder: ''
-          type: file
-          disableDeletion: false
-          editable: true
-          options:
-            path: /var/lib/grafana/dashboards/default
+      - name: 'kubernetes'
+        orgId: 1
+        folder: 'Kubernetes'
+        type: file
+        disableDeletion: false
+        updateIntervalSeconds: 30
+        options:
+          path: /var/lib/grafana/dashboards/kubernetes
+      - name: 'talos'
+        orgId: 1
+        folder: 'Talos'
+        type: file
+        disableDeletion: false
+        updateIntervalSeconds: 30
+        options:
+          path: /var/lib/grafana/dashboards/talos
   
-  # Import common dashboards
   dashboards:
-    default:
-      # Kubernetes cluster monitoring
-      kubernetes-cluster:
+    kubernetes:
+      k8s-cluster:
         gnetId: 7249
         revision: 1
         datasource: Prometheus
-      
-      # Node exporter dashboard
-      node-exporter:
-        gnetId: 1860
-        revision: 29
+      k8s-nodes:
+        gnetId: 15520
         datasource: Prometheus
-      
-      # Loki dashboard
-      loki-dashboard:
-        gnetId: 13639
-        revision: 2
-        datasource: Loki
-      
-      # Tempo dashboard
-      tempo-dashboard:
-        gnetId: 16698
-        revision: 1
-        datasource: Tempo
+      k8s-resources:
+        gnetId: 13332
+        datasource: Prometheus
+    talos:
+      talos-linux:
+        gnetId: 19122
+        datasource: Prometheus
 
-# Alertmanager configuration
+# AlertManager - enabled for future use
 alertmanager:
+  enabled: true
+  config:
+    existingSecret: alertmanager-config
+    existingSecretKey: alertmanager.yaml
   alertmanagerSpec:
-    # Storage for Alertmanager
+    replicas: 1
     storage:
       volumeClaimTemplate:
         spec:
           storageClassName: synology-iscsi
-          accessModes: ["ReadWriteOnce"]
           resources:
             requests:
               storage: 2Gi
-    
-    # Resource limits for homelab
     resources:
-      limits:
-        cpu: 200m
-        memory: 512Mi
       requests:
         cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 200m
         memory: 256Mi
-    
-    # Single replica for homelab
-    replicas: 1
 
-# Node exporter configuration
+# Prometheus Operator
+prometheusOperator:
+  enabled: true
+  admissionWebhooks:
+    enabled: false  # Skip for simplicity
+    failurePolicy: Ignore
+    createSecretJob: false  # Also disable secret creation job
+    patch:
+      enabled: false  # Disable patching webhooks
+    certManager:
+      enabled: false  # Not using cert-manager
+  # Disable TLS for the operator
+  tls:
+    enabled: false
+  # Don't use admission webhook port
+  hostNetwork: false
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  
+  # Monitor the operator itself
+  serviceMonitor:
+    selfMonitor: true
+    # Disable TLS for service monitor
+    metricRelabelings: []
+    relabelings: []
+    scheme: http
+    tlsConfig:
+      insecureSkipVerify: true
+
+# ENABLE: Node exporter for comprehensive node metrics
 nodeExporter:
   enabled: true
   resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
     limits:
       cpu: 200m
-      memory: 200Mi
-    requests:
-      cpu: 25m
-      memory: 50Mi
+      memory: 128Mi
 
-# Kube-state-metrics configuration
+# ENABLE: kube-state-metrics for rich K8s object metrics
 kubeStateMetrics:
   enabled: true
   resources:
-    limits:
-      cpu: 200m
-      memory: 200Mi
     requests:
-      cpu: 25m
-      memory: 50Mi
-
-# Prometheus operator configuration
-prometheusOperator:
-  resources:
+      cpu: 100m
+      memory: 128Mi
     limits:
-      cpu: 200m
-      memory: 200Mi
-    requests:
-      cpu: 25m
-      memory: 50Mi
-  
-  # Enable creation of PrometheusRules for LGTM stack
-  prometheusConfigReloader:
-    resources:
-      limits:
-        cpu: 200m
-        memory: 200Mi
-      requests:
-        cpu: 25m
-        memory: 50Mi
+      cpu: 300m
+      memory: 256Mi
 
-# Default rules for alerting
+# ENABLE: Talos control plane monitoring (API server only)
+kubeApiServer:
+  enabled: true
+  serviceMonitor:
+    metricRelabelings:
+      - sourceLabels: [__name__]
+        regex: 'apiserver_request_duration_seconds.*'
+        action: keep
+
+# DISABLE: Not accessible in Talos Linux
+kubeControllerManager:
+  enabled: false
+
+kubeScheduler:
+  enabled: false
+
+kubeEtcd:
+  enabled: false
+
+# ENABLE: CoreDNS monitoring
+coreDns:
+  enabled: true
+  service:
+    enabled: true
+
+# ENABLE: Kubelet monitoring on all nodes
+kubelet:
+  enabled: true
+  serviceMonitor:
+    cAdvisor: true
+    probes: true
+    resource: true
+
+# DISABLE: Talos uses cilium, not kube-proxy
+kubeProxy:
+  enabled: false
+
+# Default recording rules and alerts
 defaultRules:
   create: true
   rules:
     alertmanager: true
-    etcd: true
+    etcd: false  # Disable - Talos manages etcd internally
     general: true
     k8s: true
     kubeApiserver: true
     kubeApiserverAvailability: true
+    kubeApiserverError: true
     kubeApiserverSlos: true
     kubelet: true
     kubePrometheusGeneral: true
@@ -243,6 +279,19 @@ defaultRules:
     kubernetesResources: true
     kubernetesStorage: true
     kubernetesSystem: true
+    kubeScheduler: false  # Disable - Talos scheduler not directly accessible
+    kubeStateMetrics: true
+    network: true
     node: true
+    nodeExporterAlerting: true
+    nodeExporterRecording: true
     prometheus: true
-    prometheusOperator: true
+  
+  # Disable specific alerts that don't apply to Talos
+  disabled:
+    KubeControllerManagerDown: true
+    KubeSchedulerDown: true
+    etcdInsufficientMembers: true
+    etcdMembersDown: true
+    KubeCPUOvercommit: true  # Normal for homelab
+    KubeMemoryOvercommit: true  # Normal for homelab

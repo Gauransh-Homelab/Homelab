@@ -1,23 +1,23 @@
-# LGTM Stack Installation Guide
+# Monitoring Stack Installation Guide
 
-This guide provides step-by-step instructions to deploy the complete LGTM (Loki, Grafana, Tempo, Prometheus) observability stack on your Kubernetes homelab.
+This guide provides step-by-step instructions to deploy the complete monitoring stack on your Talos Linux Kubernetes homelab using kube-prometheus-stack, Loki, and Grafana Alloy.
+
+## Architecture Overview
+
+- **kube-prometheus-stack**: Provides Prometheus, Grafana, and AlertManager in one package
+- **Loki**: Log aggregation system with 7-day retention
+- **Grafana Alloy**: Unified collection agent for both metrics and logs
 
 ## Prerequisites
 
-- kubectl configured and connected to your cluster
+- kubectl configured and connected to your Talos Linux cluster
 - Helm 3 installed
-- MetalLB configured and running
 - `synology-iscsi` StorageClass available
+- Minimum 6GB RAM available for monitoring stack
 
 ## Installation Steps
 
-### 1. Create Namespace
-
-```bash
-kubectl create namespace monitoring
-```
-
-### 2. Add Helm Repositories
+### 1. Add Helm Repositories
 
 ```bash
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
@@ -25,9 +25,15 @@ helm repo add grafana https://grafana.github.io/helm-charts
 helm repo update
 ```
 
+### 2. Create Namespace
+
+```bash
+kubectl create namespace monitoring
+```
+
 ### 3. Install kube-prometheus-stack
 
-Installs Prometheus, Grafana, and Alertmanager with all exporters:
+This installs Prometheus, Grafana, AlertManager, and various exporters:
 
 ```bash
 helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
@@ -39,6 +45,8 @@ helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
 
 ### 4. Install Loki
 
+Deploy Loki for log aggregation:
+
 ```bash
 helm install loki grafana/loki \
   --namespace monitoring \
@@ -47,23 +55,37 @@ helm install loki grafana/loki \
   --timeout 10m
 ```
 
-### 5. Install Tempo
+### 5. Install Grafana Alloy
+
+Deploy Alloy as the unified collection agent:
 
 ```bash
-helm install tempo grafana/tempo \
+helm install alloy grafana/alloy \
   --namespace monitoring \
-  --values tempo-values.yaml \
+  --values alloy-values.yaml \
   --wait \
-  --timeout 10m
+  --timeout 5m
 ```
 
 ## Verification
 
 ### Check Pod Status
 
+All pods should be running:
+
 ```bash
 kubectl get pods -n monitoring
 ```
+
+Expected pods:
+- `kube-prometheus-stack-prometheus-*` (1 pod)
+- `kube-prometheus-stack-grafana-*` (1 pod)
+- `kube-prometheus-stack-operator-*` (1 pod)
+- `kube-prometheus-stack-alertmanager-*` (1 pod)
+- `kube-prometheus-stack-kube-state-metrics-*` (1 pod)
+- `prometheus-node-exporter-*` (1 per node)
+- `loki-*` (1 pod)
+- `alloy-*` (1 per node)
 
 ### Check Services
 
@@ -77,37 +99,97 @@ kubectl get svc -n monitoring
 kubectl get pvc -n monitoring
 ```
 
-### Get Grafana LoadBalancer IP
+## Access Information
+
+### Grafana
+
+Get the LoadBalancer IP:
 
 ```bash
 kubectl get svc kube-prometheus-stack-grafana -n monitoring
 ```
 
-## Access Information
+Default credentials:
+- Username: `admin`
+- Password: Get the auto-generated password:
+  ```bash
+  kubectl get secret kube-prometheus-stack-grafana -n monitoring \
+    -o jsonpath="{.data.admin-password}" | base64 --decode
+  ```
 
-- **Grafana**: Available via LoadBalancer IP on port 3000
-  - Default username: `admin`
-  - Get auto-generated password: `kubectl get secret kube-prometheus-stack-grafana -n monitoring -o jsonpath="{.data.admin-password}" | base64 --decode`
-- **Prometheus**: Port-forward with `kubectl port-forward svc/kube-prometheus-stack-prometheus 9090:9090 -n monitoring`
-- **AlertManager**: Port-forward with `kubectl port-forward svc/kube-prometheus-stack-alertmanager 9093:9093 -n monitoring`
+### Prometheus
 
-### Pre-configured Data Sources
+Access via port-forward:
 
-Grafana comes pre-configured with:
-- **Prometheus**: Default data source for metrics
-- **Loki**: Log aggregation with trace correlation
-- **Tempo**: Distributed tracing with log correlation
+```bash
+kubectl port-forward -n monitoring svc/kube-prometheus-stack-prometheus 9090:9090
+```
+
+Then visit: http://localhost:9090
+
+### AlertManager
+
+Access via port-forward:
+
+```bash
+kubectl port-forward -n monitoring svc/kube-prometheus-stack-alertmanager 9093:9093
+```
+
+Then visit: http://localhost:9093
+
+## Pre-configured Components
+
+### Data Sources in Grafana
+
+- **Prometheus**: Default metrics data source
+- **Loki**: Log aggregation with label correlation
+- **AlertManager**: For alert visualization
 
 ### Pre-installed Dashboards
 
 - Kubernetes Cluster Overview (ID: 7249)
-- Node Exporter Dashboard (ID: 1860) 
-- Loki Dashboard (ID: 13639)
-- Tempo Dashboard (ID: 16698)
+- Kubernetes Nodes (ID: 15520)
+- Kubernetes Resources (ID: 13332)
+- Talos Linux (ID: 19122)
+- Loki Dashboard (auto-installed with self-monitoring)
+
+### Metrics Collection
+
+Alloy collects:
+- Node metrics (CPU, memory, disk, network)
+- Container metrics (cAdvisor)
+- Kubernetes metrics (API server, etcd, scheduler, controller-manager)
+- Pod metrics (with Prometheus annotations)
+- Talos-specific metrics
+
+### Log Collection
+
+Alloy collects:
+- All pod logs from all namespaces
+- System logs (if accessible)
+- Automatic parsing of JSON logs
+- Label extraction for filtering
+
+## Resource Usage
+
+### Expected Resource Consumption
+
+- **Prometheus**: 2-4GB RAM, 50GB disk
+- **Loki**: 0.5-2GB RAM, 30GB disk
+- **Grafana**: 256-512MB RAM, 10GB disk
+- **Alloy**: 256-512MB RAM per node
+- **Other components**: ~1GB RAM total
+- **Total**: ~6-8GB RAM, ~92GB disk
+
+### Retention Policies
+
+- **Prometheus**: 15 days metrics retention
+- **Loki**: 7 days log retention
+- **AlertManager**: 2GB storage for alerts
 
 ## Upgrade Commands
 
-### Update Repositories
+### Update Helm Repositories
 
 ```bash
 helm repo update
@@ -126,61 +208,61 @@ helm upgrade loki grafana/loki \
   --namespace monitoring \
   --values loki-values.yaml
 
-# Tempo
-helm upgrade tempo grafana/tempo \
+# Alloy
+helm upgrade alloy grafana/alloy \
   --namespace monitoring \
-  --values tempo-values.yaml
+  --values alloy-values.yaml
 ```
 
 ## Uninstall (if needed)
 
 ```bash
-helm uninstall tempo -n monitoring
+# Remove Helm releases
+helm uninstall alloy -n monitoring
 helm uninstall loki -n monitoring
 helm uninstall kube-prometheus-stack -n monitoring
+
+# Clean up PVCs (data will be lost!)
+kubectl delete pvc -n monitoring --all
+
+# Remove namespace
 kubectl delete namespace monitoring
 ```
 
-## Resource Summary
+## Troubleshooting
 
-**Expected Pod Count**: 10-15 pods
+### Pods not starting
 
-**Storage Usage**:
-- Prometheus: 30Gi (15d retention, 45GB limit)
-- Loki: 20Gi main + 5Gi WAL/read/backend = 35Gi total (7d retention)
-- Tempo: 10Gi (3d retention)
-- Grafana: 5Gi
-- Alertmanager: 2Gi
-- **Total**: ~72Gi
+Check pod logs:
+```bash
+kubectl logs -n monitoring <pod-name>
+```
 
-**Memory Usage**:
-- Prometheus: 1-2Gi (1Gi request, 2Gi limit)
-- Loki: 512Mi-1Gi (512Mi request, 1Gi limit)
-- Tempo: 512Mi-1Gi (512Mi request, 1Gi limit)
-- Grafana: 256-512Mi (256Mi request, 512Mi limit)
-- Other components: ~1Gi
-- **Total**: ~4-7Gi
+### High memory usage
 
-**CPU Usage**:
-- Prometheus: 200m-1000m
-- Loki: 100-500m
-- Tempo: 100-500m
-- Grafana: 50-200m
-- Other components: ~300m
-- **Total**: ~750m-2.5 cores
+Reduce retention or adjust resource limits in values files.
 
-## Post-Installation Notes
+### Grafana not accessible
 
-1. **Security**: Change auto-generated Grafana password via UI after first login
-2. **Monitoring**: Prometheus rules and service monitors are pre-configured for all components
-3. **Retention**: 
-   - Prometheus: 15 days
-   - Loki: 7 days  
-   - Tempo: 3 days
-4. **Ingestion Protocols**: Tempo accepts multiple formats:
-   - OpenTelemetry (gRPC: 4317, HTTP: 4318)
-   - Jaeger (gRPC: 14250, HTTP: 14268, UDP: 6831/6832)
-   - Zipkin (HTTP: 9411)
-   - OpenCensus (gRPC: 55678)
-5. **Storage Class**: All components use `synology-iscsi` storage class
-6. **Namespace**: All components deployed to `monitoring` namespace via override
+Check LoadBalancer status:
+```bash
+kubectl describe svc kube-prometheus-stack-grafana -n monitoring
+```
+
+### Missing metrics
+
+Verify Alloy is running on all nodes:
+```bash
+kubectl get pods -n monitoring -l app.kubernetes.io/name=alloy
+```
+
+## Next Steps
+
+1. **Configure Alerts**: Add custom PrometheusRule resources
+2. **Add Dashboards**: Import community dashboards from grafana.com
+3. **Set up Notifications**: Configure AlertManager receivers
+4. **Monitor Applications**: Add Prometheus annotations to your pods
+
+## Notes for ArgoCD Integration
+
+Once the stack is tested and working, it can be managed by ArgoCD. The values files are already configured for GitOps deployment.

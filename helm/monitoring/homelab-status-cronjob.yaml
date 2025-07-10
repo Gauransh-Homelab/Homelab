@@ -1,0 +1,30 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: homelab-status-reporter
+  namespace: monitoring
+spec:
+  schedule: "0 * * * *"  # Every hour at minute 0
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: status-reporter
+            image: curlimages/curl:latest
+            command:
+            - /bin/sh
+            - -c
+            - |
+              # Query Prometheus metrics
+              NODES=$(curl -s "http://prometheus-kube-prometheus-stack-prometheus:9090/api/v1/query?query=count(up{job='node-exporter'})" | grep -o '"value":\[[0-9.]*,"[0-9.]*"\]' | sed 's/.*\[\([0-9.]*\),.*/\1/')
+              CPU=$(curl -s "http://prometheus-kube-prometheus-stack-prometheus:9090/api/v1/query?query=avg(100-avg%20by(instance)(rate(node_cpu_seconds_total{mode='idle'}[5m]))*100)" | grep -o '"value":\[[0-9.]*,"[0-9.]*"\]' | sed 's/.*,"\([0-9.]*\)".*/\1/' | xargs printf "%.1f")
+              MEMORY=$(curl -s "http://prometheus-kube-prometheus-stack-prometheus:9090/api/v1/query?query=avg((1-(node_memory_MemAvailable_bytes/node_memory_MemTotal_bytes))*100)" | grep -o '"value":\[[0-9.]*,"[0-9.]*"\]' | sed 's/.*,"\([0-9.]*\)".*/\1/' | xargs printf "%.1f")
+              PODS=$(curl -s "http://prometheus-kube-prometheus-stack-prometheus:9090/api/v1/query?query=count(kube_pod_status_phase{phase='Running'})" | grep -o '"value":\[[0-9.]*,"[0-9.]*"\]' | sed 's/.*,"\([0-9.]*\)".*/\1/')
+              
+              # Send to Discord
+              curl -H "Content-Type: application/json" \
+                -X POST \
+                -d "{\"embeds\":[{\"title\":\"📊 Homelab Status\",\"description\":\"**Nodes:** ${NODES}\\n**CPU Usage:** ${CPU}%\\n**Memory Usage:** ${MEMORY}%\\n**Pods Running:** ${PODS}\",\"color\":3066993}]}" \
+                https://discord.com/api/webhooks/1392852477656956978/67Pi89pq7wN-Os0HmDF6iBgthJ1uGO9sD3zuKC9EuqVmfpNBkRlo86aUeLoMJk2lFP-d
+          restartPolicy: OnFailure

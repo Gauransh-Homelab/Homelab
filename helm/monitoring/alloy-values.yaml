@@ -1,0 +1,436 @@
+# Grafana Alloy values for Talos Linux homelab
+# Unified collection agent for metrics and logs
+
+controller:
+  type: daemonset
+  
+  # Resource allocation with room to grow
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  
+  # Required for node-level metrics
+  hostNetwork: true
+  hostPID: true
+  dnsPolicy: ClusterFirstWithHostNet
+  
+  # Security context for system access
+  podSecurityContext:
+    runAsUser: 0
+    runAsGroup: 0
+    fsGroup: 0
+
+alloy:
+  clustering:
+    enabled: false  # Enable when cluster reaches 3+ nodes
+  
+  configMap:
+    content: |
+      // Logging configuration
+      logging {
+        level = "info"
+        format = "logfmt"
+      }
+      
+      // ============= METRICS COLLECTION =============
+      
+      // 1. Kubernetes service discovery
+      discovery.kubernetes "pods" {
+        role = "pod"
+      }
+      
+      discovery.kubernetes "services" {
+        role = "service"
+      }
+      
+      discovery.kubernetes "endpoints" {
+        role = "endpoints"
+      }
+      
+      discovery.kubernetes "nodes" {
+        role = "node"
+      }
+      
+      // 2. Node metrics with Alloy's Unix exporter
+      prometheus.exporter.unix "node" {
+        // Comprehensive collectors for homelab monitoring
+        enable_collectors = [
+          "cpu",
+          "diskstats",
+          "filesystem",
+          "loadavg",
+          "meminfo",
+          "netdev",
+          "stat",
+          "time",
+          "uname",
+          "vmstat",
+          "processes",
+          "systemd",
+          "pressure",
+          "thermal_zone",
+          "zfs",  // If using ZFS on Synology
+        ]
+        
+        // Use filesystem block for mount exclusions
+        filesystem {
+          mount_points_exclude = "^/(dev|proc|sys|var/lib/docker/.+|var/lib/kubelet/.+)($|/)"
+          fs_types_exclude = "^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$"
+        }
+      }
+      
+      prometheus.scrape "node" {
+        targets = prometheus.exporter.unix.node.targets
+        forward_to = [prometheus.relabel.node.receiver]
+        scrape_interval = "30s"
+      }
+      
+      // Add node-specific labels
+      prometheus.relabel "node" {
+        forward_to = [prometheus.remote_write.prom.receiver]
+        
+        rule {
+          target_label = "job"
+          replacement = "node-alloy"
+        }
+        
+        rule {
+          source_labels = ["__address__"]
+          target_label = "instance"
+          regex = "(.+)"
+          replacement = "${1}"
+        }
+      }
+      
+      // 3. Kubernetes pod metrics
+      discovery.relabel "kubernetes_pods" {
+        targets = discovery.kubernetes.pods.targets
+        
+        // Keep only pods with Prometheus scrape annotation
+        rule {
+          source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_scrape"]
+          regex = "true"
+          action = "keep"
+        }
+        
+        // Only running pods
+        rule {
+          source_labels = ["__meta_kubernetes_pod_phase"]
+          regex = "Running"
+          action = "keep"
+        }
+        
+        // Get metrics path from annotation
+        rule {
+          source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_path"]
+          target_label = "__metrics_path__"
+          regex = "(.+)"
+        }
+        
+        // Get port from annotation
+        rule {
+          source_labels = ["__address__", "__meta_kubernetes_pod_annotation_prometheus_io_port"]
+          regex = "(.+?)(?::\\d+)?;(\\d+)"
+          replacement = "$1:$2"
+          target_label = "__address__"
+        }
+        
+        // Add pod labels
+        rule {
+          source_labels = ["__meta_kubernetes_pod_name"]
+          target_label = "pod"
+        }
+        
+        rule {
+          source_labels = ["__meta_kubernetes_namespace"]
+          target_label = "namespace"
+        }
+      }
+      
+      prometheus.scrape "kubernetes_pods" {
+        targets = discovery.relabel.kubernetes_pods.output
+        forward_to = [prometheus.remote_write.prom.receiver]
+        scrape_interval = "30s"
+      }
+      
+      // 4. cAdvisor metrics for container monitoring
+      discovery.relabel "cadvisor" {
+        targets = discovery.kubernetes.nodes.targets
+        
+        rule {
+          replacement = "/metrics/cadvisor"
+          target_label = "__metrics_path__"
+        }
+        
+        rule {
+          source_labels = ["__meta_kubernetes_node_name"]
+          target_label = "node"
+        }
+      }
+      
+      prometheus.scrape "cadvisor" {
+        targets = discovery.relabel.cadvisor.output
+        forward_to = [prometheus.remote_write.prom.receiver]
+        bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+        tls_config {
+          ca_file = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+          insecure_skip_verify = true
+        }
+        scrape_interval = "30s"
+      }
+      
+      // 5. Kubelet metrics
+      discovery.relabel "kubelet" {
+        targets = discovery.kubernetes.nodes.targets
+        
+        rule {
+          replacement = "/metrics"
+          target_label = "__metrics_path__"
+        }
+        
+        rule {
+          source_labels = ["__meta_kubernetes_node_name"]
+          target_label = "node"
+        }
+      }
+      
+      prometheus.scrape "kubelet" {
+        targets = discovery.relabel.kubelet.output
+        forward_to = [prometheus.remote_write.prom.receiver]
+        bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+        tls_config {
+          ca_file = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+          insecure_skip_verify = true
+        }
+        scrape_interval = "30s"
+      }
+      
+      // 6. Talos-specific metrics (if exposed)
+      prometheus.scrape "talos_api" {
+        targets = [
+          {"__address__" = "192.168.10.147:50000", "node" = "controlplane"},
+          {"__address__" = "192.168.10.165:50000", "node" = "worker"},
+        ]
+        forward_to = [prometheus.remote_write.prom.receiver]
+        metrics_path = "/metrics"
+        scrape_interval = "30s"
+      }
+      
+      // Remote write to Prometheus
+      prometheus.remote_write "prom" {
+        endpoint {
+          url = "http://kube-prometheus-stack-prometheus:9090/api/v1/write"
+          
+          // Tuned for homelab
+          queue_config {
+            capacity = 10000
+            max_shards = 5
+            min_shards = 1
+            max_samples_per_send = 2000
+            batch_send_deadline = "5s"
+            min_backoff = "30ms"
+            max_backoff = "5s"
+          }
+        }
+      }
+      
+      // ============= LOGS COLLECTION =============
+      
+      // Collect logs from all pods
+      discovery.kubernetes "pod_logs" {
+        role = "pod"
+      }
+      
+      // Filter and relabel pod logs
+      discovery.relabel "pod_logs" {
+        targets = discovery.kubernetes.pod_logs.targets
+        
+        // Add namespace label
+        rule {
+          source_labels = ["__meta_kubernetes_namespace"]
+          target_label = "namespace"
+        }
+        
+        // Add pod name
+        rule {
+          source_labels = ["__meta_kubernetes_pod_name"]
+          target_label = "pod"
+        }
+        
+        // Add container name
+        rule {
+          source_labels = ["__meta_kubernetes_pod_container_name"]
+          target_label = "container"
+        }
+        
+        // Add node name
+        rule {
+          source_labels = ["__meta_kubernetes_pod_node_name"]
+          target_label = "node"
+        }
+        
+        // Add app labels
+        rule {
+          source_labels = ["__meta_kubernetes_pod_label_app"]
+          target_label = "app"
+        }
+        
+        rule {
+          source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name"]
+          target_label = "app_name"
+        }
+      }
+      
+      loki.source.kubernetes "pods" {
+        targets = discovery.relabel.pod_logs.output
+        forward_to = [loki.process.pod_logs.receiver]
+      }
+      
+      // Talos system logs (if accessible via hostPath)
+      loki.source.file "talos_logs" {
+        targets = [
+          {__path__ = "/var/log/pods/*/*.log", "job" = "talos-pods"},
+        ]
+        forward_to = [loki.process.system_logs.receiver]
+      }
+      
+      // Process pod logs
+      loki.process "pod_logs" {
+        forward_to = [loki.write.default.receiver]
+        
+        // Parse JSON logs if present
+        stage.json {
+          expressions = {
+            timestamp = "timestamp",
+            level = "level",
+            msg = "msg",
+          }
+        }
+        
+        // Extract level from message if not in JSON
+        stage.regex {
+          expression = "(?P<level>DEBUG|INFO|WARN|ERROR|FATAL)"
+        }
+        
+        // Set level label
+        stage.labels {
+          values = {
+            level = "",
+          }
+        }
+        
+        // Drop health check logs
+        stage.drop {
+          expression = ".*(health|healthz|readyz|livez|metrics).*"
+          drop_counter_reason = "healthcheck"
+        }
+        
+        // Limit very long lines
+        stage.limit {
+          rate = 10
+          burst = 20
+          by_label_name = "namespace"
+          drop = true
+        }
+      }
+      
+      // Process system logs
+      loki.process "system_logs" {
+        forward_to = [loki.write.default.receiver]
+        
+        stage.static_labels {
+          values = {
+            job = "talos-system",
+          }
+        }
+        
+        // Parse syslog format
+        stage.regex {
+          expression = "^(?P<timestamp>\\S+ \\S+ \\S+) (?P<hostname>\\S+) (?P<service>\\S+): (?P<message>.*)$"
+        }
+        
+        stage.labels {
+          values = {
+            hostname = "",
+            service = "",
+          }
+        }
+      }
+      
+      // Write logs to Loki
+      loki.write "default" {
+        endpoint {
+          url = "http://loki:3100/loki/api/v1/push"
+          
+          // Optimize for homelab bandwidth
+          batch_wait = "1s"
+          
+          tls_config {
+            insecure_skip_verify = true
+          }
+        }
+        
+        // External labels for all logs
+        external_labels = {
+          cluster = "homelab",
+          environment = "production",
+        }
+      }
+
+rbac:
+  create: true
+  
+serviceAccount:
+  create: true
+  name: alloy
+  
+# Extra permissions for node metrics
+clusterRole:
+  create: true
+  rules:
+    - apiGroups: [""]
+      resources:
+        - nodes
+        - nodes/proxy
+        - nodes/metrics
+        - services
+        - endpoints
+        - pods
+        - events
+        - namespaces
+      verbs: ["get", "list", "watch"]
+    - apiGroups: [""]
+      resources:
+        - configmaps
+      verbs: ["get"]
+    - nonResourceURLs:
+        - /metrics
+        - /metrics/cadvisor
+      verbs: ["get"]
+
+# Volume mounts for system access
+extraVolumes:
+  - name: hostfs
+    hostPath:
+      path: /
+  - name: varlog
+    hostPath:
+      path: /var/log
+  - name: varlibdockercontainers
+    hostPath:
+      path: /var/lib/docker/containers
+      
+extraVolumeMounts:
+  - name: hostfs
+    mountPath: /host
+    readOnly: true
+  - name: varlog
+    mountPath: /var/log
+    readOnly: true
+  - name: varlibdockercontainers
+    mountPath: /var/lib/docker/containers
+    readOnly: true

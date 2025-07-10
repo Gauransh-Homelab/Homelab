@@ -1,0 +1,71 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: homelab-status
+  namespace: monitoring
+  labels:
+    prometheus: kube-prometheus
+spec:
+  groups:
+    - name: homelab.status
+      interval: 1h  # Evaluate exactly every hour
+      rules:
+        # Hourly status report
+        - alert: HomelabStatusReport
+          expr: vector(1)  # Always true - fires based on interval
+          for: 0m
+          labels:
+            severity: info
+            alert_type: status_report
+          annotations:
+            summary: "Homelab Status Report"
+            description: |
+              📊 **Hourly Homelab Status**
+              
+              **Nodes:** {{ query "count(up{job='node-exporter'})" }}
+              **CPU Usage:** {{ query "avg(100 - avg by (instance) (rate(node_cpu_seconds_total{mode='idle'}[5m])) * 100)" | printf "%.1f" }}%
+              **Memory Usage:** {{ query "avg((1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100)" | printf "%.1f" }}%
+              **Pods Running:** {{ query "count(kube_pod_status_phase{phase='Running'})" }}
+              **Disk Usage:** {{ query "avg(100 - ((node_filesystem_avail_bytes{mountpoint='/',fstype!='tmpfs'} * 100) / node_filesystem_size_bytes{mountpoint='/',fstype!='tmpfs'}))" | printf "%.1f" }}%
+    
+    - name: homelab.critical
+      rules:
+        # Node down
+        - alert: NodeDown
+          expr: up{job="node-exporter"} == 0
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Node {{ $labels.instance }} is DOWN!"
+            description: "CRITICAL: Node {{ $labels.instance }} has been unreachable for more than 2 minutes."
+        
+        # High memory usage
+        - alert: HighMemoryUsage
+          expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 90
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Critical memory usage on {{ $labels.instance }}"
+            description: "Memory usage is above 90% (current: {{ $value | printf \"%.1f\" }}%)"
+        
+        # Disk almost full
+        - alert: DiskAlmostFull
+          expr: (node_filesystem_avail_bytes{mountpoint="/",fstype!="tmpfs"} / node_filesystem_size_bytes{mountpoint="/",fstype!="tmpfs"}) * 100 < 10
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Disk almost full on {{ $labels.instance }}"
+            description: "Disk has less than 10% free space ({{ $value | printf \"%.1f\" }}% free)"
+        
+        # Pod crash looping
+        - alert: PodCrashLooping
+          expr: rate(kube_pod_container_status_restarts_total[15m]) > 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Pod {{ $labels.namespace }}/{{ $labels.pod }} is crash looping"
+            description: "Pod has restarted {{ $value }} times in the last 15 minutes"

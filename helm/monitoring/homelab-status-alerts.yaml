@@ -8,11 +8,11 @@ metadata:
 spec:
   groups:
     - name: homelab.status
-      interval: 1m  # Check every minute
+      interval: 30m  # Check every 30 minutes
       rules:
-        # Hourly status report - fires at :00 of each hour
+        # Status report every 30 minutes
         - alert: HomelabStatusReport
-          expr: minute() >= 0 and minute() < 1  # Fire during the first minute of each hour
+          expr: vector(1)  # Always true
           for: 0m
           labels:
             severity: info
@@ -20,7 +20,7 @@ spec:
           annotations:
             summary: "Homelab Status Report"
             description: |
-              📊 **Hourly Homelab Status**
+              📊 **Homelab Status Report**
               
               **Nodes:** {{ query "count(up{job='node-exporter'})" }}
               **CPU Usage:** {{ query "avg(100 - avg by (instance) (rate(node_cpu_seconds_total{mode='idle'}[5m])) * 100)" | printf "%.1f" }}%

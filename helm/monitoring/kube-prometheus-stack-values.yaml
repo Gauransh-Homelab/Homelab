@@ -55,6 +55,18 @@ prometheus:
       - source_labels: [alertname, job]
         regex: 'TargetDown;prometheus\.scrape\..*'
         action: drop
+      # Drop TargetDown alerts for kubelet in kube-system (Talos managed)
+      - source_labels: [alertname, job, namespace]
+        regex: 'TargetDown;kubelet;kube-system'
+        action: drop
+      # Drop KubeDeploymentReplicasMismatch for synology-csi (expected behavior)
+      - source_labels: [alertname, namespace]
+        regex: 'KubeDeploymentReplicasMismatch;synology-csi'
+        action: drop
+      # Drop CPUThrottlingHigh for info severity (not critical)
+      - source_labels: [alertname, severity]
+        regex: 'CPUThrottlingHigh;info'
+        action: drop
     
     # Additional scrape configs for Talos nodes
     additionalScrapeConfigs:

@@ -4,11 +4,10 @@ metadata:
   name: completed-job-pods
   namespace: k8s-cleaner
 spec:
-  schedule: "*/20 * * * *"  # Every 20 minutes
+  schedule: "0 * * * *"  # Every hour
   resourcePolicySet:
     resourceSelectors:
-    - namespace: jelly
-      kind: Pod
+    - kind: Pod
       group: ""
       version: v1
       evaluate: |

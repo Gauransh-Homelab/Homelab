@@ -22,11 +22,11 @@ spec:
             description: |
               📊 **Homelab Status Report**
               
-              **Nodes:** {{ query "count(up{job='node-exporter'})" }}
-              **CPU Usage:** {{ query "avg(100 - avg by (instance) (rate(node_cpu_seconds_total{mode='idle'}[5m])) * 100)" | printf "%.1f" }}%
-              **Memory Usage:** {{ query "avg((1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100)" | printf "%.1f" }}%
-              **Pods Running:** {{ query "count(kube_pod_status_phase{phase='Running'})" }}
-              **Disk Usage:** {{ query "avg(100 - ((node_filesystem_avail_bytes{mountpoint='/',fstype!='tmpfs'} * 100) / node_filesystem_size_bytes{mountpoint='/',fstype!='tmpfs'}))" | printf "%.1f" }}%
+              **Nodes:** {{ $nodes := query "count(up{job=\"node-exporter\"})" }}{{ if $nodes }}{{ (index $nodes 0).Value }}{{ else }}0{{ end }}
+              **CPU Usage:** {{ $cpu := query "avg(100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100))" }}{{ if $cpu }}{{ printf "%.1f" (index $cpu 0).Value }}{{ else }}0{{ end }}%
+              **Memory Usage:** {{ $mem := query "avg((1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100)" }}{{ if $mem }}{{ printf "%.1f" (index $mem 0).Value }}{{ else }}0{{ end }}%
+              **Pods Running:** {{ $pods := query "count(kube_pod_status_phase{phase=\"Running\"})" }}{{ if $pods }}{{ (index $pods 0).Value }}{{ else }}0{{ end }}
+              **Disk Usage:** {{ $disk := query "avg(100 - ((node_filesystem_avail_bytes{mountpoint=\"/\",fstype!=\"tmpfs\"} * 100) / node_filesystem_size_bytes{mountpoint=\"/\",fstype!=\"tmpfs\"}))" }}{{ if $disk }}{{ printf "%.1f" (index $disk 0).Value }}{{ else }}N/A{{ end }}%
     
     - name: homelab.critical
       rules:

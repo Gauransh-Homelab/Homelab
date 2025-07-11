@@ -286,9 +286,7 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 ### 📌 Current Status
 
 #### 📋 To Do
-- [ ] Whitelist only cloudflare ip and local ip CIDR blocks
-- [ ] LGM Stack with alloy
-- [ ] Huntarr
+- [ ] Huntarr + cleanuparr
 - [ ] Homarr
 - [ ] n8n
 - [ ] Ghost Blog
@@ -300,9 +298,11 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 #### 🚧 In Progress
 
 - [ ] Argo CD
+- [ ] LGM Stack with alloy
 
 #### ✅ Recently Completed
 
+- [x] Whitelist only cloudflare ip and local ip CIDR blocks ✅ 2025-07-11
 - [x] Create a pod deschedular so the pods run on the proper machine to split workload ✅ 2025-07-07
 
 ### 🚀 Future Projects
@@ -310,6 +310,7 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 - [ ] MCP Server - Discord Media Bot
 - [ ] Karakeep - bookmarking system
 - [ ] [OPTIONAL]🔽 Add k8s cleaner to remove completed pods every hour
+- [ ] Tdarr running on beelink cause we can have using iGPU and its quite decent
 
 ### 📦 Archive
 

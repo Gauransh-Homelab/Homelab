@@ -1,0 +1,144 @@
+# FluentBit values for collecting Talos logs
+# Based on Talos documentation recommendations
+
+podAnnotations:
+  fluentbit.io/exclude: 'true'
+
+# DaemonSet configuration
+kind: DaemonSet
+
+# Extra ports for Talos logs
+extraPorts:
+  - port: 6050
+    containerPort: 6050
+    protocol: UDP
+    name: talos-kernel
+  - port: 6051
+    containerPort: 6051
+    protocol: UDP
+    name: talos-service
+
+# Resources
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+# FluentBit configuration
+config:
+  service: |
+    [SERVICE]
+      Flush         5
+      Daemon        Off
+      Log_Level     info
+      Parsers_File  custom_parsers.conf
+      HTTP_Server   On
+      HTTP_Listen   0.0.0.0
+      HTTP_Port     2020
+
+  inputs: |
+    [INPUT]
+      Name          udp
+      Listen        0.0.0.0
+      Port          6050
+      Format        json
+      Tag           talos.kernel
+      Chunk_Size    512000
+      Buffer_Size   512000
+
+    [INPUT]
+      Name          udp
+      Listen        0.0.0.0
+      Port          6051
+      Format        json
+      Tag           talos.service
+      Chunk_Size    512000
+      Buffer_Size   512000
+
+    [INPUT]
+      Name          tail
+      Alias         kubernetes
+      Path          /var/log/containers/*.log
+      Parser        containerd
+      Tag           kubernetes.*
+      Skip_Long_Lines On
+
+  filters: |
+    [FILTER]
+      Name                kubernetes
+      Alias               kubernetes
+      Match               kubernetes.*
+      Kube_Tag_Prefix     kubernetes.var.log.containers.
+      Use_Kubelet         Off
+      Merge_Log           On
+      Merge_Log_Trim      On
+      Keep_Log            Off
+      K8S-Logging.Parser  Off
+      K8S-Logging.Exclude On
+      Annotations         Off
+      Labels              On
+
+    [FILTER]
+      Name          modify
+      Match         kubernetes.*
+      Add           source kubernetes
+      Remove        logtag
+
+    [FILTER]
+      Name          modify
+      Match         talos.*
+      Add           cluster homelab
+
+  customParsers: |
+    [PARSER]
+      Name          containerd
+      Format        regex
+      Regex         ^(?<time>[^ ]+) (?<stream>stdout|stderr) (?<logtag>[^ ]*) (?<log>.*)$
+      Time_Key      time
+      Time_Format   %Y-%m-%dT%H:%M:%S.%L%z
+
+  outputs: |
+    [OUTPUT]
+      Name          loki
+      Match         talos.*
+      Host          loki.monitoring.svc.cluster.local
+      Port          3100
+      Labels        job=$TAG[1], cluster=homelab
+      Label_Keys    $hostname,$facility,$priority
+      Remove_Keys   talos-time
+      Line_Format   json
+      
+    [OUTPUT]
+      Name          loki
+      Match         kubernetes.*
+      Host          loki.monitoring.svc.cluster.local
+      Port          3100
+      Labels        job=fluentbit-k8s
+      Auto_Kubernetes_Labels on
+
+# Volume mounts for container logs
+daemonSetVolumes:
+  - name: varlog
+    hostPath:
+      path: /var/log
+
+daemonSetVolumeMounts:
+  - name: varlog
+    mountPath: /var/log
+    readOnly: true
+
+# Tolerations to run on all nodes
+tolerations:
+  - operator: Exists
+    effect: NoSchedule
+
+# Service account
+serviceAccount:
+  create: true
+
+# Network policy
+hostNetwork: true
+dnsPolicy: ClusterFirstWithHostNet

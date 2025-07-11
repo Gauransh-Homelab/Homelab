@@ -1,0 +1,14 @@
+# Talos machine configuration patch for log forwarding
+# Apply this to both control plane and worker nodes
+machine:
+  logging:
+    destinations:
+      # Send service logs to Alloy on each node via UDP
+      - endpoint: "udp://127.0.0.1:6051/"
+        format: "json_lines"
+        extraTags:
+          node: "${HOSTNAME}"
+  # Kernel logs require a separate configuration
+  install:
+    extraKernelArgs:
+      - "talos.logging.kernel=udp://127.0.0.1:6050/"

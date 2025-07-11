@@ -23,6 +23,7 @@ controller:
     runAsUser: 0
     runAsGroup: 0
     fsGroup: 0
+  
 
 alloy:
   clustering:
@@ -290,13 +291,8 @@ alloy:
         forward_to = [loki.process.pod_logs.receiver]
       }
       
-      // Talos system logs (if accessible via hostPath)
-      loki.source.file "talos_logs" {
-        targets = [
-          {__path__ = "/var/log/pods/*/*.log", "job" = "talos-pods"},
-        ]
-        forward_to = [loki.process.system_logs.receiver]
-      }
+      // Talos logs will be collected by FluentBit instead
+      // FluentBit handles JSON over UDP better than Alloy
       
       // Process pod logs
       loki.process "pod_logs" {
@@ -360,6 +356,7 @@ alloy:
           }
         }
       }
+      
       
       // Write logs to Loki
       loki.write "default" {

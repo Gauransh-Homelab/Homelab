@@ -22,7 +22,7 @@ spec:
       initContainers:
       # Native sidecar: runs continuously alongside main containers
       - name: gluetun
-        image: qmcgaw/gluetun:v3.39.0  # Try older version
+        image: qmcgaw/gluetun:latest
         restartPolicy: Always
         env:
         - name: VPN_SERVICE_PROVIDER
@@ -38,12 +38,18 @@ spec:
               name: arr-stack-secrets
               key: expressvpn-password
         - name: SERVER_COUNTRIES
-          value: "Singapore,Malaysia,Thailand,Indonesia,Hong Kong,Taiwan,Philippines"
-        # CRITICAL: Kubernetes-specific configurations
+          value: "Singapore"
+        # Try to work around firewall issues
+        - name: FIREWALL
+          value: "off"
+        - name: FIREWALL_OUTBOUND_SUBNETS
+          value: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
         - name: DNS_KEEP_NAMESERVER
-          value: "on"  # Required for cluster communication
+          value: "on"
         - name: TZ
           value: "Asia/Singapore"
+        - name: LOG_LEVEL
+          value: "info"
         securityContext:
           capabilities:
             add:

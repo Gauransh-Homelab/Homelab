@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vpn-test
+  namespace: arr-stack
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vpn-test
+  template:
+    metadata:
+      labels:
+        app: vpn-test
+    spec:
+      containers:
+      - name: gluetun
+        image: qmcgaw/gluetun:v3.40.0
+        env:
+        - name: VPN_SERVICE_PROVIDER
+          value: "protonvpn"
+        - name: VPN_TYPE
+          value: "openvpn"
+        - name: OPENVPN_USER
+          value: "freeopenvpn"
+        - name: OPENVPN_PASSWORD
+          value: "378264"
+        - name: SERVER_COUNTRIES
+          value: "Netherlands"
+        - name: FREE_ONLY
+          value: "on"
+        - name: FIREWALL_OUTBOUND_SUBNETS
+          value: "10.96.0.0/12,10.244.0.0/16"
+        securityContext:
+          capabilities:
+            add:
+              - NET_ADMIN
+              - NET_RAW
+          seccompProfile:
+            type: Unconfined
+        volumeMounts:
+        - name: dev-net-tun
+          mountPath: /dev/net/tun
+      volumes:
+      - name: dev-net-tun
+        hostPath:
+          path: /dev/net/tun
+          type: CharDevice

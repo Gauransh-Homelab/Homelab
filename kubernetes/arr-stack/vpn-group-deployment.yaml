@@ -38,7 +38,9 @@ spec:
               name: arr-stack-secrets
               key: expressvpn-password
         - name: SERVER_COUNTRIES
-          value: "Singapore"
+          value: "Singapore,Malaysia,Thailand,Indonesia,Hong Kong,Taiwan,Philippines"
+        - name: OPENVPN_PROTOCOL
+          value: "tcp"
         # CRITICAL: Kubernetes-specific configurations
         - name: DNS_KEEP_NAMESERVER
           value: "on"  # Required for cluster communication

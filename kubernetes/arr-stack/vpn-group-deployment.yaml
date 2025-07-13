@@ -17,13 +17,10 @@ spec:
       labels:
         app: vpn-group
     spec:
-      # NOTE: This manifest uses the native Kubernetes sidecar pattern,
-      # which requires Kubernetes v1.28+ (Beta in v1.28, GA in v1.29)
-      initContainers:
-      # Native sidecar: runs continuously alongside main containers
+      containers:
+      # Gluetun VPN container - simple pattern like Docker
       - name: gluetun
-        image: qmcgaw/gluetun:latest
-        restartPolicy: Always
+        image: qmcgaw/gluetun:v3.39.0
         env:
         - name: VPN_SERVICE_PROVIDER
           value: "expressvpn"
@@ -38,63 +35,28 @@ spec:
               name: arr-stack-secrets
               key: expressvpn-password
         - name: SERVER_COUNTRIES
-          value: "Singapore,Malaysia,Hong Kong,Japan,Australia"
-        # Firewall configuration - keep basic settings
-        - name: FIREWALL_OUTBOUND_SUBNETS
-          value: "10.244.0.0/16,10.96.0.0/12"
-        - name: DNS_KEEP_NAMESERVER
-          value: "on"
-        - name: TZ
-          value: "Asia/Singapore"
-        - name: LOG_LEVEL
-          value: "info"
+          value: "Singapore,Hong Kong,Japan,South Korea"
         securityContext:
+          privileged: true
           capabilities:
             add:
-              - NET_ADMIN  # Minimal required capability
-              - NET_RAW    # Required for raw socket operations
-          seccompProfile:
-            type: Unconfined  # Temporary fix for VPN connectivity
-        # CRITICAL: TUN device access  
+              - NET_ADMIN
         volumeMounts:
         - name: dev-net-tun
           mountPath: /dev/net/tun
         - name: gluetun-config
           mountPath: /gluetun
-        - name: custom-firewall-rules
-          mountPath: /iptables
         - name: nfs-nas
           mountPath: /NAS
-        # Probes for VPN health monitoring
-        # Startup probe: Allow up to 5 minutes for initial VPN connection
-        startupProbe:
-          exec:
-            command:
-            - sh
-            - -c
-            - "wget -O - -q http://localhost:8000/v1/openvpn/status | grep -q '\"status\":\"running\"'"
-          failureThreshold: 30  # 30 * 10s = 5 minutes
-          periodSeconds: 10
-        # Readiness probe: VPN must be connected for pod to be ready
-        readinessProbe:
-          exec:
-            command:
-            - sh
-            - -c
-            - "wget -O - -q http://localhost:8000/v1/openvpn/status | grep -q '\"status\":\"running\"'"
-          periodSeconds: 15
-          failureThreshold: 4  # Tolerate 1 minute of disconnection
-        # Liveness probe: Restart container if VPN is down for 2 minutes
         livenessProbe:
           exec:
             command:
             - sh
             - -c
             - "wget -O - -q http://localhost:8000/v1/openvpn/status | grep -q '\"status\":\"running\"'"
-          initialDelaySeconds: 180  # Wait 3 minutes before starting checks
+          initialDelaySeconds: 120
           periodSeconds: 60
           failureThreshold: 2
-      containers:
       - name: qbittorrent
         image: lscr.io/linuxserver/qbittorrent:4.6.7  # Pinned version
         env:
@@ -126,7 +88,8 @@ spec:
           periodSeconds: 30
 
       - name: nzbget
-        image: lscr.io/linuxserver/nzbget:latest  # Use latest as specific versions are discontinued
+        image: lscr.io/linuxserver/nzbget:latest
+        imagePullPolicy: IfNotPresent
         env:
         - name: PUID
           value: "1000"
@@ -145,8 +108,8 @@ spec:
         livenessProbe:
           tcpSocket:
             port: 6789
-          initialDelaySeconds: 60
-          periodSeconds: 30
+          initialDelaySeconds: 120
+          periodSeconds: 60
 
       volumes:
       # CRITICAL: TUN device volume
@@ -157,9 +120,6 @@ spec:
       - name: gluetun-config
         persistentVolumeClaim:
           claimName: gluetun-config
-      - name: custom-firewall-rules
-        configMap:
-          name: vpn-firewall-rules
       - name: qbittorrent-config
         persistentVolumeClaim:
           claimName: qbittorrent-config

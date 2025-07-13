@@ -36,10 +36,8 @@ spec:
               key: expressvpn-password
         - name: SERVER_COUNTRIES
           value: "Singapore,Hong Kong,Japan,South Korea"
-        - name: DNS_KEEP_NAMESERVER
-          value: "on"
-        - name: FIREWALL_OUTBOUND_SUBNETS
-          value: "10.244.0.0/16,10.96.0.0/12"
+        - name: FIREWALL
+          value: "off"
         securityContext:
           privileged: true
           capabilities:

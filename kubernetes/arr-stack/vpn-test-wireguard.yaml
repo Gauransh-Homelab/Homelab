@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vpn-test-wireguard
+  namespace: arr-stack
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vpn-test-wireguard
+  template:
+    metadata:
+      labels:
+        app: vpn-test-wireguard
+    spec:
+      containers:
+      - name: gluetun
+        image: qmcgaw/gluetun:v3.39.0
+        env:
+        - name: VPN_SERVICE_PROVIDER
+          value: "expressvpn"
+        - name: VPN_TYPE
+          value: "wireguard"
+        - name: WIREGUARD_PRIVATE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: arr-stack-secrets
+              key: expressvpn-username  # Using as placeholder
+        - name: WIREGUARD_ADDRESSES
+          value: "10.2.0.2/32"
+        - name: SERVER_COUNTRIES
+          value: "Singapore"
+        - name: DNS_KEEP_NAMESERVER
+          value: "on"
+        - name: TZ
+          value: "Asia/Singapore"
+        - name: LOG_LEVEL
+          value: "debug"
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: dev-net-tun
+          mountPath: /dev/net/tun
+      volumes:
+      - name: dev-net-tun
+        hostPath:
+          path: /dev/net/tun
+          type: CharDevice

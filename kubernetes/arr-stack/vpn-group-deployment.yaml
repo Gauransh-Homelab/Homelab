@@ -38,12 +38,10 @@ spec:
               name: arr-stack-secrets
               key: expressvpn-password
         - name: SERVER_COUNTRIES
-          value: "Singapore"
-        # Try to work around firewall issues
-        - name: FIREWALL
-          value: "off"
+          value: "Singapore,Malaysia,Hong Kong,Japan,Australia"
+        # Firewall configuration - keep basic settings
         - name: FIREWALL_OUTBOUND_SUBNETS
-          value: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+          value: "10.244.0.0/16,10.96.0.0/12"
         - name: DNS_KEEP_NAMESERVER
           value: "on"
         - name: TZ
@@ -63,6 +61,8 @@ spec:
           mountPath: /dev/net/tun
         - name: gluetun-config
           mountPath: /gluetun
+        - name: custom-firewall-rules
+          mountPath: /iptables
         - name: nfs-nas
           mountPath: /NAS
         # Probes for VPN health monitoring
@@ -157,6 +157,9 @@ spec:
       - name: gluetun-config
         persistentVolumeClaim:
           claimName: gluetun-config
+      - name: custom-firewall-rules
+        configMap:
+          name: vpn-firewall-rules
       - name: qbittorrent-config
         persistentVolumeClaim:
           claimName: qbittorrent-config

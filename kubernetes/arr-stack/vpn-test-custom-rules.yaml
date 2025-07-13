@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: iptables-custom-rules
+  namespace: arr-stack
+data:
+  post-rules.txt: |
+    # Allow all outbound traffic to override Gluetun's restrictive firewall
+    --policy OUTPUT ACCEPT
+    # Alternative: Allow all ExpressVPN IP ranges
+    --append OUTPUT -d 45.0.0.0/8 -j ACCEPT
+    --append OUTPUT -d 185.0.0.0/8 -j ACCEPT
+    --append OUTPUT -d 194.0.0.0/8 -j ACCEPT
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vpn-test-custom-rules
+  namespace: arr-stack
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vpn-test-custom-rules
+  template:
+    metadata:
+      labels:
+        app: vpn-test-custom-rules
+    spec:
+      containers:
+      - name: gluetun
+        image: qmcgaw/gluetun:v3.39.0
+        env:
+        - name: VPN_SERVICE_PROVIDER
+          value: "expressvpn"
+        - name: OPENVPN_USER
+          valueFrom:
+            secretKeyRef:
+              name: arr-stack-secrets
+              key: expressvpn-username
+        - name: OPENVPN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: arr-stack-secrets
+              key: expressvpn-password
+        - name: SERVER_COUNTRIES
+          value: "Singapore"
+        - name: FIREWALL_DEBUG
+          value: "on"
+        - name: DNS_KEEP_NAMESERVER
+          value: "on"
+        - name: TZ
+          value: "Asia/Singapore"
+        - name: LOG_LEVEL
+          value: "debug"
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: dev-net-tun
+          mountPath: /dev/net/tun
+        - name: custom-rules
+          mountPath: /iptables
+      volumes:
+      - name: dev-net-tun
+        hostPath:
+          path: /dev/net/tun
+          type: CharDevice
+      - name: custom-rules
+        configMap:
+          name: iptables-custom-rules

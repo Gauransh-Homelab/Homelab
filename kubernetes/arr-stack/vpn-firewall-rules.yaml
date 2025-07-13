@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vpn-firewall-rules
+  namespace: arr-stack
+data:
+  post-rules.txt: |
+    # Custom iptables rules to allow ExpressVPN server ranges
+    # These rules are applied after Gluetun's built-in firewall rules
+    --append OUTPUT -d 45.0.0.0/8 -j ACCEPT
+    --append OUTPUT -d 185.0.0.0/8 -j ACCEPT
+    --append OUTPUT -d 194.0.0.0/8 -j ACCEPT
+    --append OUTPUT -d 103.0.0.0/8 -j ACCEPT

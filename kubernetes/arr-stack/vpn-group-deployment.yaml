@@ -48,6 +48,8 @@ spec:
           value: "8080,6789"
         - name: TZ
           value: "Asia/Singapore"
+        - name: FIREWALL
+          value: "off"  # Temporary debug - disable firewall
         securityContext:
           capabilities:
             add:

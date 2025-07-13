@@ -36,8 +36,6 @@ spec:
               key: expressvpn-password
         - name: SERVER_COUNTRIES
           value: "Singapore"
-        - name: FIREWALL
-          value: "off"
         securityContext:
           privileged: true
           capabilities:

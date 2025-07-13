@@ -44,6 +44,8 @@ spec:
           value: "on"  # Required for cluster communication
         - name: TZ
           value: "Asia/Singapore"
+        - name: FIREWALL_OUTBOUND_SUBNETS
+          value: "0.0.0.0/0"  # Allow all outbound traffic to fix VPN connectivity
         securityContext:
           capabilities:
             add:

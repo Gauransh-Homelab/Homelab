@@ -42,14 +42,8 @@ spec:
         # CRITICAL: Kubernetes-specific configurations
         - name: DNS_KEEP_NAMESERVER
           value: "on"  # Required for cluster communication
-        - name: FIREWALL_OUTBOUND_SUBNETS
-          value: "192.168.0.0/16,10.0.0.0/8,10.42.0.0/15"  # Include cluster networks
-        - name: FIREWALL_VPN_INPUT_PORTS
-          value: "8080,6789"
         - name: TZ
           value: "Asia/Singapore"
-        - name: FIREWALL
-          value: "off"  # Temporary debug - disable firewall
         securityContext:
           capabilities:
             add:

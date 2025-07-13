@@ -34,8 +34,8 @@ spec:
             secretKeyRef:
               name: arr-stack-secrets
               key: expressvpn-password
-        - name: SERVER_COUNTRIES
-          value: "Singapore,Hong Kong,Japan,South Korea"
+        - name: SERVER_CITIES
+          value: "Singapore"
         - name: DNS_KEEP_NAMESERVER
           value: "on"
         - name: FIREWALL_OUTBOUND_SUBNETS

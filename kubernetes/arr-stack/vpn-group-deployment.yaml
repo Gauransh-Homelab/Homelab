@@ -52,6 +52,7 @@ spec:
           capabilities:
             add:
               - NET_ADMIN  # Minimal required capability
+              - NET_RAW    # Required for raw socket operations
           seccompProfile:
             type: Unconfined  # Temporary fix for VPN connectivity
         # CRITICAL: TUN device access  

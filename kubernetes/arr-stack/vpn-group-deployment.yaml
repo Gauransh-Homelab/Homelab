@@ -44,8 +44,6 @@ spec:
           value: "on"  # Required for cluster communication
         - name: TZ
           value: "Asia/Singapore"
-        - name: FIREWALL_OUTBOUND_SUBNETS
-          value: "10.96.0.0/12,10.244.0.0/16"  # Allow cluster DNS and pod network
         securityContext:
           capabilities:
             add:

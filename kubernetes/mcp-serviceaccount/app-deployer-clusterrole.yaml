@@ -30,3 +30,6 @@ rules:
 - apiGroups: [""]
   resources: ["events"]
   verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["metallb.io"]
+  resources: ["ipaddresspools"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]

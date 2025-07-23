@@ -31,5 +31,46 @@ rules:
   resources: ["events"]
   verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
 - apiGroups: ["metallb.io"]
-  resources: ["ipaddresspools"]
+  resources: ["ipaddresspools", "l2advertisements"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+# Debugging permissions - endpoints and networking
+- apiGroups: [""]
+  resources: ["endpoints"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["discovery.k8s.io"]
+  resources: ["endpointslices"]
+  verbs: ["get", "list"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["networkpolicies"]
+  verbs: ["get", "list"]
+# Traefik CRDs
+- apiGroups: ["traefik.containo.us"]
+  resources: ["ingressroutes", "middlewares", "ingressroutetcps", "ingressrouteudps"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+# Cert-manager resources
+- apiGroups: ["cert-manager.io"]
+  resources: ["certificates", "certificaterequests", "issuers"]
+  verbs: ["get", "list", "watch"]
+# ArgoCD application management
+- apiGroups: ["argoproj.io"]
+  resources: ["applications"]
+  verbs: ["get", "list", "watch", "update", "patch"]
+- apiGroups: ["argoproj.io"]
+  resources: ["applicationsets"]
+  verbs: ["get", "list"]
+# Monitoring
+- apiGroups: ["monitoring.coreos.com"]
+  resources: ["servicemonitors", "podmonitors"]
+  verbs: ["get", "list", "watch"]
+# Resource management
+- apiGroups: [""]
+  resources: ["resourcequotas", "limitranges"]
+  verbs: ["get", "list"]
+# Helm/Flux resources
+- apiGroups: ["helm.toolkit.fluxcd.io"]
+  resources: ["helmreleases", "helmcharts"]
+  verbs: ["get", "list"]
+# Policy resources
+- apiGroups: ["policy"]
+  resources: ["poddisruptionbudgets"]
   verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]

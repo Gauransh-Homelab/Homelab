@@ -12,3 +12,41 @@ rules:
 - apiGroups: [""]
   resources: ["persistentvolumes"]
   verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+# Global debugging permissions (read-only)
+- apiGroups: [""]
+  resources: ["endpoints", "events"]
+  verbs: ["get", "list"]
+- apiGroups: ["discovery.k8s.io"]
+  resources: ["endpointslices"]
+  verbs: ["get", "list"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["networkpolicies", "ingresses"]
+  verbs: ["get", "list"]
+# Storage debugging
+- apiGroups: ["storage.k8s.io"]
+  resources: ["volumeattachments", "csinodes", "csidrivers"]
+  verbs: ["get", "list"]
+# Cilium resources (if using Cilium CNI)
+- apiGroups: ["cilium.io"]
+  resources: ["ciliumnetworkpolicies", "ciliumendpoints"]
+  verbs: ["get", "list"]
+# MetalLB resources
+- apiGroups: ["metallb.io"]
+  resources: ["ipaddresspools", "l2advertisements", "bgppeers"]
+  verbs: ["get", "list"]
+# Metrics
+- apiGroups: ["metrics.k8s.io"]
+  resources: ["pods", "nodes"]
+  verbs: ["get", "list"]
+# Security and RBAC
+- apiGroups: ["policy"]
+  resources: ["podsecuritypolicies"]
+  verbs: ["get", "list"]
+- apiGroups: ["scheduling.k8s.io"]
+  resources: ["priorityclasses"]
+  verbs: ["get", "list"]
+# ConfigMaps in kube-system (for CNI debugging)
+- apiGroups: [""]
+  resources: ["configmaps"]
+  resourceNames: ["*"]
+  verbs: ["get", "list"]

@@ -9,6 +9,8 @@ spec:
   resources:
     requests:
       storage: 5Gi
+  storageClassName: ""  # Empty to bind to our specific PV
+  volumeName: jellyfin-config-pv  # Bind to specific PV
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -21,6 +23,8 @@ spec:
   resources:
     requests:
       storage: 30Gi
+  storageClassName: ""  # Empty to bind to our specific PV
+  volumeName: jellyfin-data-pv  # Bind to specific PV
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -33,6 +37,8 @@ spec:
   resources:
     requests:
       storage: 30Gi
+  storageClassName: ""  # Empty to bind to our specific PV
+  volumeName: jellyfin-cache-pv  # Bind to specific PV
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -45,3 +51,5 @@ spec:
   resources:
     requests:
       storage: 2Gi
+  storageClassName: ""  # Empty to bind to our specific PV
+  volumeName: jellyfin-log-pv  # Bind to specific PV

@@ -1,0 +1,77 @@
+# PersistentVolumes for existing Jellyfin iSCSI LUNs on Synology NAS using CSI driver
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: jellyfin-config-pv
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain  # Important: Don't delete data
+  storageClassName: ""  # Empty to prevent dynamic provisioning
+  csi:
+    driver: csi.san.synology.com
+    fsType: btrfs
+    volumeHandle: c0ff8a7c-6935-487e-aa59-f4114f7c9cb4  # LUN 1 UUID
+    volumeAttributes:
+      dsm: "192.168.10.101"
+      protocol: "iscsi"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: jellyfin-cache-pv
+spec:
+  capacity:
+    storage: 30Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  csi:
+    driver: csi.san.synology.com
+    fsType: btrfs
+    volumeHandle: d4421002-0177-4a84-8b73-f679c8184f83  # LUN 2 UUID
+    volumeAttributes:
+      dsm: "192.168.10.101"
+      protocol: "iscsi"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: jellyfin-log-pv
+spec:
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  csi:
+    driver: csi.san.synology.com
+    fsType: btrfs
+    volumeHandle: 501f379e-eaaf-4e58-b9df-2d4c7f1a42dc  # LUN 3 UUID
+    volumeAttributes:
+      dsm: "192.168.10.101"
+      protocol: "iscsi"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: jellyfin-data-pv
+spec:
+  capacity:
+    storage: 30Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  csi:
+    driver: csi.san.synology.com
+    fsType: btrfs
+    volumeHandle: a086bbf7-fb7b-4a5a-9ced-746ca40f1d21  # LUN 4 UUID
+    volumeAttributes:
+      dsm: "192.168.10.101"
+      protocol: "iscsi"

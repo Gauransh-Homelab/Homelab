@@ -31,17 +31,13 @@ spec:
         - name: jellyfin
           image: jellyfin/jellyfin:10.10.7
           imagePullPolicy: IfNotPresent
-          securityContext:
-            privileged: true
           resources:
             limits:
-              gpu.intel.com/i915: 1 # Optional GPU - only in limits, not requests
               memory: "4Gi"
               cpu: "2"
             requests:
               memory: "2Gi"
               cpu: "500m"
-              # NO GPU in requests - this makes it optional!
           env:
             - name: JELLYFIN_CACHE_DIR
               value: "/var/cache/jellyfin"
@@ -68,8 +64,6 @@ spec:
               mountPath: /var/log/jellyfin # Matches JELLYFIN_LOG_DIR
             - name: media
               mountPath: /NAS
-            - name: dri
-              mountPath: /dev/dri
 
       volumes:
         - name: config-volume
@@ -89,7 +83,3 @@ spec:
             server: 192.168.10.101
             path: /volume1/NAS
             readOnly: false
-        - name: dri
-          hostPath:
-            path: /dev/dri
-            type: Directory

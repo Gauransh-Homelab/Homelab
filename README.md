@@ -299,9 +299,6 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 
 - [ ] Argo CD
 - [ ] LGM Stack with alloy
-- [ ] Etcd backup to s3 via omni ui
-- [ ] velero backup install to s3
-- [ ] cilium install to replace flannel
 - [ ] Check node interconectivity
 - [ ] Attach all pod pvcs as pv by matching IQN for iscsi blocks and paths for nfs
 
@@ -309,7 +306,9 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 
 - [x] Whitelist only cloudflare ip and local ip CIDR blocks ✅ 2025-07-11
 - [x] Create a pod deschedular so the pods run on the proper machine to split workload ✅ 2025-07-07
+- [x] Create special kubeconfig for claude code that prevents it from fucking anything up again ✅ 2025-07-23
 - [x] Omni migration ✅ 2025-07-20
+- [x] Etcd backup to s3 via omni ui ✅ 2025-07-21
 
 ### 🚀 Future Projects
 

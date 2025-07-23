@@ -1,0 +1,139 @@
+replicas: 1
+
+image:
+  repository: registry.k8s.io/metrics-server/metrics-server
+  tag: v0.8.0
+  pullPolicy: IfNotPresent
+
+args:
+  - --cert-dir=/tmp
+  - --secure-port=10250
+  - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
+  - --kubelet-use-node-status-port
+  - --metric-resolution=15s
+  - --kubelet-insecure-tls
+
+hostNetwork:
+  enabled: false
+
+containerPort: 10250
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 200Mi
+  limits:
+    cpu: 500m
+    memory: 500Mi
+
+service:
+  type: ClusterIP
+  port: 443
+  annotations: {}
+  labels: {}
+
+rbac:
+  create: true
+  pspEnabled: false
+
+serviceAccount:
+  create: true
+  name:
+  annotations: {}
+  labels: {}
+
+apiService:
+  create: true
+  annotations: {}
+  labels: {}
+
+podDisruptionBudget:
+  enabled: false
+  minAvailable:
+  maxUnavailable:
+
+defaultArgs:
+  - --cert-dir=/tmp
+  - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
+  - --kubelet-use-node-status-port
+  - --metric-resolution=15s
+
+metrics:
+  enabled: false
+
+serviceMonitor:
+  enabled: false
+  additionalLabels: {}
+  interval: 1m
+  scrapeTimeout: 10s
+  metricRelabelings: []
+  relabelings: []
+
+addonResizer:
+  enabled: false
+
+podAnnotations: {}
+
+podLabels: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+topologySpreadConstraints: []
+
+dnsConfig: {}
+
+priorityClassName: system-cluster-critical
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  seccompProfile:
+    type: RuntimeDefault
+
+livenessProbe:
+  httpGet:
+    path: /livez
+    port: https
+    scheme: HTTPS
+  initialDelaySeconds: 0
+  periodSeconds: 10
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /readyz
+    port: https
+    scheme: HTTPS
+  initialDelaySeconds: 20
+  periodSeconds: 10
+  failureThreshold: 3
+
+volumes: []
+
+volumeMounts: []
+
+extraContainers: []
+
+clusterRoleMetricsServer:
+  annotations: {}
+  labels: {}
+
+clusterRoleAggregatedMetricsReader:
+  annotations: {}
+  labels: {}

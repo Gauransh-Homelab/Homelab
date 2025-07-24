@@ -30,7 +30,7 @@ ports:
 service:
   type: LoadBalancer
   externalTrafficPolicy: Local  # Preserves real client IP addresses (important for logs/security)
-  loadBalancerIP: "192.168.10.22"  # Request specific IP from MetalLB pool
+  loadBalancerIP: "192.168.10.11"  # Request specific IP from MetalLB pool
 
 # Certificate management now handled by cert-manager
 # Use ClusterIssuers: letsencrypt-cloudflare or letsencrypt-duckdns

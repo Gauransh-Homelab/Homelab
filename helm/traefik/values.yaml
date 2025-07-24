@@ -4,12 +4,12 @@
 # High Availability Deployment
 deployment:
   kind: Deployment
-  replicas: 2  # HA setup - one pod can fail without service interruption
+  replicas: 2 # HA setup - one pod can fail without service interruption
 
 # Entry Points - Where Traefik listens for traffic
 ports:
   web:
-    port: 8000      # Internal container port
+    port: 8000 # Internal container port
     expose:
       default: true
     exposedPort: 80 # External HTTP port
@@ -19,18 +19,18 @@ ports:
         scheme: https
         permanent: true
   websecure:
-    port: 8443      # Internal container port  
+    port: 8443 # Internal container port
     expose:
       default: true
     exposedPort: 443 # External HTTPS port
     tls:
-      enabled: false  # Let IngressRoutes handle TLS termination
+      enabled: false # Let IngressRoutes handle TLS termination
 
 # MetalLB LoadBalancer Service - Gets external IP like arr-stack services
 service:
   type: LoadBalancer
-  externalTrafficPolicy: Local  # Preserves real client IP addresses (important for logs/security)
-  loadBalancerIP: "192.168.10.11"  # Request specific IP from MetalLB pool
+  externalTrafficPolicy: Local # Preserves real client IP addresses (important for logs/security)
+  loadBalancerIP: "192.168.10.22" # Request specific IP from MetalLB pool
 
 # Certificate management now handled by cert-manager
 # Use ClusterIssuers: letsencrypt-cloudflare or letsencrypt-duckdns
@@ -52,9 +52,9 @@ dashboard:
 # Logging Configuration
 logs:
   general:
-    level: DEBUG  # Change to DEBUG for troubleshooting
+    level: DEBUG # Change to DEBUG for troubleshooting
   access:
-    enabled: true  # Access logs for monitoring
+    enabled: true # Access logs for monitoring
 
 # Prometheus Metrics - Optional monitoring integration
 metrics:
@@ -68,12 +68,12 @@ resources:
     cpu: "100m"
     memory: "50Mi"
   limits:
-    cpu: "750m"     # Generous for SSL processing
+    cpu: "750m" # Generous for SSL processing
     memory: "250Mi"
 
 # Security: Disable unnecessary endpoints
 ping:
-  enabled: false    # Disable public ping endpoint
+  enabled: false # Disable public ping endpoint
 
 # Additional Arguments - Basic configuration for cert-manager integration
 additionalArguments:
@@ -84,3 +84,4 @@ additionalArguments:
   - "--providers.kubernetescrd.allowCrossNamespace=true"
   # Allow ExternalName services
   - "--providers.kubernetescrd.allowExternalNameServices=true"
+

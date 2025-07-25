@@ -54,7 +54,7 @@ graph TB
         end
 
         subgraph "Storage"
-            NAS[Synology DS423+<br/>36TB Raw / 24TB Usable<br/>3x 12TB SHR (1 Drive Redundancy)<br/>NFS + iSCSI]
+            NAS[Synology DS423+<br/>36TB Raw / 24TB Usable<br/>3x 12TB SHR - 1 Drive Redundancy<br/>NFS + iSCSI]
         end
     end
 

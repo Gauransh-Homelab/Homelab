@@ -50,3 +50,10 @@ rules:
   resources: ["configmaps"]
   resourceNames: ["*"]
   verbs: ["get", "list"]
+# GPU debugging permissions
+- apiGroups: [""]
+  resources: ["pods", "events"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["daemonsets", "deployments", "replicasets"]
+  verbs: ["get", "list", "watch"]

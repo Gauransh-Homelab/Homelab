@@ -57,3 +57,11 @@ rules:
 - apiGroups: ["apps"]
   resources: ["daemonsets", "deployments", "replicasets"]
   verbs: ["get", "list", "watch"]
+# Traefik CRDs (traefik.io API group)
+- apiGroups: ["traefik.io"]
+  resources: ["ingressroutes", "middlewares", "ingressroutetcps", "ingressrouteudps", "tlsstores", "tlsoptions", "serverstransports", "traefikservices"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+# Cert-manager resources
+- apiGroups: ["cert-manager.io"]
+  resources: ["certificates", "certificaterequests", "issuers", "clusterissuers"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]

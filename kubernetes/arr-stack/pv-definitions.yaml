@@ -1,0 +1,210 @@
+# PersistentVolumes for existing ARR Stack iSCSI LUNs on Synology NAS using CSI driver
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-gluetun-config
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain  # Important: Don't delete data
+  storageClassName: ""  # Empty to prevent dynamic provisioning
+  csi:
+    driver: csi.san.synology.com
+    fsType: btrfs
+    volumeHandle: 18e4d584-b80b-49f9-a733-b22de586a2dd  # LUN 9 UUID - gluetun
+    volumeAttributes:
+      dsm: "192.168.10.101"
+      protocol: "iscsi"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-qbittorrent-config
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  csi:
+    driver: csi.san.synology.com
+    fsType: btrfs
+    volumeHandle: 5f334118-5b3f-40a7-85ee-3fdd936d2216  # LUN 13 UUID - qbittorrent
+    volumeAttributes:
+      dsm: "192.168.10.101"
+      protocol: "iscsi"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-nzbget-config
+spec:
+  capacity:
+    storage: 3Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  csi:
+    driver: csi.san.synology.com
+    fsType: btrfs
+    volumeHandle: 213c699f-2940-4f2b-b0cd-59220a7457b7  # LUN 15 UUID - nzbget
+    volumeAttributes:
+      dsm: "192.168.10.101"
+      protocol: "iscsi"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-prowlarr-config
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  csi:
+    driver: csi.san.synology.com
+    fsType: btrfs
+    volumeHandle: 52258199-1aa5-4119-ada5-4f1c6baf8c81  # LUN 11 UUID - prowlarr
+    volumeAttributes:
+      dsm: "192.168.10.101"
+      protocol: "iscsi"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-sonarr-config
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  csi:
+    driver: csi.san.synology.com
+    fsType: btrfs
+    volumeHandle: 91e2fde6-d91e-48b9-827f-6a65011139c9  # LUN 10 UUID - sonarr
+    volumeAttributes:
+      dsm: "192.168.10.101"
+      protocol: "iscsi"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-sonarr2-config
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  csi:
+    driver: csi.san.synology.com
+    fsType: btrfs
+    volumeHandle: 7b32142c-e4b6-4609-8f89-38d47d82d9fb  # LUN 8 UUID - sonarr2
+    volumeAttributes:
+      dsm: "192.168.10.101"
+      protocol: "iscsi"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-radarr-config
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  csi:
+    driver: csi.san.synology.com
+    fsType: btrfs
+    volumeHandle: d15a0b3c-9b6a-4188-a878-6566a58043be  # LUN 16 UUID - radarr
+    volumeAttributes:
+      dsm: "192.168.10.101"
+      protocol: "iscsi"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-radarr2-config
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  csi:
+    driver: csi.san.synology.com
+    fsType: btrfs
+    volumeHandle: b77fa0cc-bdcd-4c78-a284-d3887b3a3953  # LUN 18 UUID - radarr2
+    volumeAttributes:
+      dsm: "192.168.10.101"
+      protocol: "iscsi"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-bazarr-config
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  csi:
+    driver: csi.san.synology.com
+    fsType: btrfs
+    volumeHandle: da6257d1-e23f-4844-9fe9-30ad842997c4  # LUN 12 UUID - bazarr
+    volumeAttributes:
+      dsm: "192.168.10.101"
+      protocol: "iscsi"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-bazarr2-config
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  csi:
+    driver: csi.san.synology.com
+    fsType: btrfs
+    volumeHandle: ea9b4df2-666f-4721-9ca2-a7edf8fb5523  # LUN 17 UUID - bazarr2
+    volumeAttributes:
+      dsm: "192.168.10.101"
+      protocol: "iscsi"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-notifiarr-config
+spec:
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  csi:
+    driver: csi.san.synology.com
+    fsType: btrfs
+    volumeHandle: 851d7f32-ca7a-4d1d-a2af-4405e38516e8  # LUN 14 UUID - notifiarr
+    volumeAttributes:
+      dsm: "192.168.10.101"
+      protocol: "iscsi"

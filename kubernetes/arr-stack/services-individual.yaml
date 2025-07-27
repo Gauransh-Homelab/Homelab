@@ -2,6 +2,21 @@
 apiVersion: v1
 kind: Service
 metadata:
+  name: prowlarr-service
+  namespace: arr-stack
+spec:
+  selector:
+    app: prowlarr
+  ports:
+    - port: 9696
+      targetPort: 9696
+      name: http
+  type: LoadBalancer
+
+---
+apiVersion: v1
+kind: Service
+metadata:
   name: sonarr-service
   namespace: arr-stack
 spec:
@@ -85,6 +100,21 @@ spec:
   ports:
     - port: 6767
       targetPort: 6767
+      name: http
+  type: LoadBalancer
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notifiarr-service
+  namespace: arr-stack
+spec:
+  selector:
+    app: notifiarr
+  ports:
+    - port: 5454
+      targetPort: 5454
       name: http
   type: LoadBalancer
 

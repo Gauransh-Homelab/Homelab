@@ -6,7 +6,8 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: synology-iscsi
+  storageClassName: ""  # Empty to bind to specific PV
+  volumeName: pv-gluetun-config  # Bind to specific PV
   resources:
     requests:
       storage: 1Gi
@@ -19,7 +20,8 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: synology-iscsi
+  storageClassName: ""
+  volumeName: pv-qbittorrent-config
   resources:
     requests:
       storage: 5Gi
@@ -32,7 +34,8 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: synology-iscsi
+  storageClassName: ""
+  volumeName: pv-nzbget-config
   resources:
     requests:
       storage: 3Gi
@@ -45,7 +48,8 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: synology-iscsi
+  storageClassName: ""
+  volumeName: pv-prowlarr-config
   resources:
     requests:
       storage: 5Gi
@@ -58,7 +62,8 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: synology-iscsi
+  storageClassName: ""
+  volumeName: pv-radarr-config
   resources:
     requests:
       storage: 10Gi
@@ -71,7 +76,8 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: synology-iscsi
+  storageClassName: ""
+  volumeName: pv-radarr2-config
   resources:
     requests:
       storage: 10Gi
@@ -84,7 +90,8 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: synology-iscsi
+  storageClassName: ""
+  volumeName: pv-sonarr-config
   resources:
     requests:
       storage: 10Gi
@@ -97,7 +104,8 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: synology-iscsi
+  storageClassName: ""
+  volumeName: pv-sonarr2-config
   resources:
     requests:
       storage: 10Gi
@@ -110,7 +118,8 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: synology-iscsi
+  storageClassName: ""
+  volumeName: pv-bazarr-config
   resources:
     requests:
       storage: 5Gi
@@ -123,7 +132,8 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: synology-iscsi
+  storageClassName: ""
+  volumeName: pv-bazarr2-config
   resources:
     requests:
       storage: 5Gi
@@ -136,7 +146,8 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: synology-iscsi
+  storageClassName: ""
+  volumeName: pv-notifiarr-config
   resources:
     requests:
       storage: 2Gi

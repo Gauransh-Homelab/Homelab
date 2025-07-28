@@ -292,8 +292,6 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 - [ ] Ghost Blog
 - [ ] Jellyfin Stats
 - [ ] Authentik
-- [ ] HA PostgreSQL
-- [ ] *arr Stack Migration (SQLite → PostgreSQL)
 
 #### 🚧 In Progress
 
@@ -311,6 +309,8 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 
 ### 🚀 Future Projects
 
+- [ ] *arr Stack Migration (SQLite → PostgreSQL)
+- [ ] HA PostgreSQL
 - [ ] MCP Server - Discord Media Bot
 - [ ] Karakeep - bookmarking system
 - [ ] [OPTIONAL]🔽 Add k8s cleaner to remove completed pods every hour
@@ -329,7 +329,6 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 - [x] obsidian-setup ✅ 2025-05-29
 
 ---
-
 ## 🔧 Troubleshooting
 
 ### Cert-Manager DuckDNS Issues

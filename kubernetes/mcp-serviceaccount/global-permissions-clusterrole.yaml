@@ -73,3 +73,7 @@ rules:
 - apiGroups: [""]
   resources: ["serviceaccounts"]
   verbs: ["get", "list", "watch"]
+# Descheduler CronJob read-only permissions
+- apiGroups: ["batch"]
+  resources: ["cronjobs"]
+  verbs: ["get", "list", "watch"]

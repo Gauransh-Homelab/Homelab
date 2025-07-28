@@ -35,7 +35,14 @@ spec:
               name: arr-stack-secrets
               key: expressvpn-password
         - name: SERVER_COUNTRIES
-          value: "Singapore"
+          value: "USA,UK,Netherlands,Canada"
+        - name: FIREWALL_INPUT_PORTS
+          value: "8080,6789"  # Allow LoadBalancer access to web UIs
+        # Kubernetes-specific settings from research
+        - name: DNS_KEEP_NAMESERVER
+          value: "on"  # Keep Kubernetes DNS for service discovery
+        - name: FIREWALL_OUTBOUND_SUBNETS
+          value: "10.244.0.0/16"  # Your cluster's pod CIDR (adjust if needed)
         securityContext:
           privileged: true
           capabilities:
@@ -88,7 +95,7 @@ spec:
           periodSeconds: 30
 
       - name: nzbget
-        image: lscr.io/linuxserver/nzbget:latest
+        image: lscr.io/linuxserver/nzbget:25.2.20250718
         imagePullPolicy: IfNotPresent
         env:
         - name: PUID

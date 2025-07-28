@@ -65,3 +65,11 @@ rules:
 - apiGroups: ["cert-manager.io"]
   resources: ["certificates", "certificaterequests", "issuers", "clusterissuers"]
   verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+# Cert-manager ACME resources
+- apiGroups: ["acme.cert-manager.io"]
+  resources: ["orders", "challenges"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+# ServiceAccounts
+- apiGroups: [""]
+  resources: ["serviceaccounts"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]

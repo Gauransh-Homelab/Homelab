@@ -72,4 +72,4 @@ rules:
 # ServiceAccounts
 - apiGroups: [""]
   resources: ["serviceaccounts"]
-  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  verbs: ["get", "list", "watch"]

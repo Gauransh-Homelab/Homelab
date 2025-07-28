@@ -329,6 +329,47 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 - [x] obsidian-setup ✅ 2025-05-29
 
 ---
+
+## 🔧 Troubleshooting
+
+### Cert-Manager DuckDNS Issues
+
+When using cert-manager with DuckDNS webhook for wildcard certificates, you may encounter issues:
+
+#### Common Problems:
+1. **"no api token secret provided"** - The ClusterIssuer is looking for a secret in the wrong namespace
+2. **DNS propagation timeouts** - DuckDNS can take 5-10 minutes to propagate DNS changes
+3. **Wrong ClusterIssuer references** - Ensure you're using the Helm-deployed issuer
+
+#### Solution:
+If you installed the webhook via Helm:
+```bash
+helm install cert-manager-webhook-duckdns cert-manager-webhook-duckdns/cert-manager-webhook-duckdns \
+  --namespace cert-manager \
+  --set duckdns.token=$DUCKDNS_TOKEN \
+  --set clusterIssuer.production.create=true \
+  --set clusterIssuer.staging.create=true \
+  --set clusterIssuer.email=gauranshmathur1999@gmail.com
+```
+
+Then use the Helm-created ClusterIssuer in your Certificate resources:
+```yaml
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: duckdns-wildcard-cert
+  namespace: traefik
+spec:
+  secretName: duckdns-wildcard-tls
+  issuerRef:
+    name: cert-manager-webhook-duckdns-production  # Helm-created issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - "arkhaya.duckdns.org"
+    - "*.arkhaya.duckdns.org"
+```
+
+---
 ## 🛠️ Deployment Guide
 
 ### Prerequisites

@@ -6,7 +6,7 @@ metadata:
 spec:
   secretName: duckdns-wildcard-tls
   issuerRef:
-    name: letsencrypt-duckdns
+    name: cert-manager-webhook-duckdns-production
     kind: ClusterIssuer
   dnsNames:
     - "arkhaya.duckdns.org"

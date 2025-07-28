@@ -9,6 +9,7 @@ spec:
   selector:
     app: vpn-group
   type: LoadBalancer  # Use LoadBalancer for external access
+  loadBalancerIP: 192.168.10.20
   ports:
   - name: qbittorrent-webui
     protocol: TCP

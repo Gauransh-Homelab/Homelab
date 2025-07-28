@@ -16,7 +16,7 @@ spec:
             config:
               token:
                 secretKeyRef:
-                  name: dns-secrets
-                  key: duckdns-token
-                  namespace: traefik
+                  name: cert-manager-webhook-duckdns
+                  key: token
+                  namespace: cert-manager
 

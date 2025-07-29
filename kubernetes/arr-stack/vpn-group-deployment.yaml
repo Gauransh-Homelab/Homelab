@@ -20,7 +20,7 @@ spec:
       containers:
       # Gluetun VPN container - simple pattern like Docker
       - name: gluetun
-        image: qmcgaw/gluetun:v3.39.0
+        image: qmcgaw/gluetun:v3.40.0
         env:
         - name: VPN_SERVICE_PROVIDER
           value: "expressvpn"

@@ -37,7 +37,7 @@ spec:
         - name: SERVER_COUNTRIES
           value: "USA,UK,Netherlands,Canada"
         - name: FIREWALL_INPUT_PORTS
-          value: "8080,6789"  # Allow LoadBalancer access to web UIs
+          value: "8080"  # Allow LoadBalancer access to web UIs
         # Kubernetes-specific settings from research
         - name: DNS_KEEP_NAMESERVER
           value: "on"  # Keep Kubernetes DNS for service discovery
@@ -94,29 +94,6 @@ spec:
           initialDelaySeconds: 60
           periodSeconds: 30
 
-      - name: nzbget
-        image: lscr.io/linuxserver/nzbget:25.2.20250718
-        imagePullPolicy: IfNotPresent
-        env:
-        - name: PUID
-          value: "1000"
-        - name: PGID
-          value: "1000"
-        - name: TZ
-          value: "Asia/Singapore"
-        ports:
-        - containerPort: 6789
-          name: nzbget-webui
-        volumeMounts:
-        - name: nzbget-config
-          mountPath: /config
-        - name: nfs-nas
-          mountPath: /NAS
-        livenessProbe:
-          tcpSocket:
-            port: 6789
-          initialDelaySeconds: 120
-          periodSeconds: 60
 
       volumes:
       # CRITICAL: TUN device volume
@@ -130,9 +107,6 @@ spec:
       - name: qbittorrent-config
         persistentVolumeClaim:
           claimName: qbittorrent-config
-      - name: nzbget-config
-        persistentVolumeClaim:
-          claimName: nzbget-config
       - name: nfs-nas
         nfs:
           server: 192.168.10.101

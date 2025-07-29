@@ -15,10 +15,6 @@ spec:
     protocol: TCP
     port: 8080
     targetPort: qb-webui
-  - name: nzbget-webui
-    protocol: TCP
-    port: 6789
-    targetPort: nzbget-webui
   - name: qbittorrent-torrent
     protocol: TCP
     port: 6881

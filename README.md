@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Kubernetes](https://img.shields.io/badge/Kubernetes-1.33.2-326CE5?logo=kubernetes&logoColor=white)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-1.33.3-326CE5?logo=kubernetes&logoColor=white)
 ![Talos](https://img.shields.io/badge/Talos_Linux-1.10.5-FF7300?logo=linux&logoColor=white)
 ![Services](https://img.shields.io/badge/Services-20+-00ADD8?logo=docker&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-Operational-brightgreen?logo=statuspage&logoColor=white)
@@ -279,13 +279,14 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 
 [![Live Roadmap](https://img.shields.io/badge/Live%20Roadmap-View%20on%20Obsidian-7c3aed?style=for-the-badge&logo=obsidian&logoColor=white)](https://publish.obsidian.md/gauranshmathur/Publish/Homelab)
 
-*Synced from Obsidian on every push*
+_Synced from Obsidian on every push_
 
 </div>
 
 ### 📌 Current Status
 
 #### 📋 To Do
+
 - [ ] Huntarr + cleanuparr
 - [ ] Homarr
 - [ ] n8n
@@ -309,7 +310,7 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 
 ### 🚀 Future Projects
 
-- [ ] *arr Stack Migration (SQLite → PostgreSQL)
+- [ ] \*arr Stack Migration (SQLite → PostgreSQL)
 - [ ] HA PostgreSQL
 - [ ] MCP Server - Discord Media Bot
 - [ ] Karakeep - bookmarking system
@@ -329,6 +330,7 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 - [x] obsidian-setup ✅ 2025-05-29
 
 ---
+
 ## 🔧 Troubleshooting
 
 ### Cert-Manager DuckDNS Issues
@@ -336,12 +338,15 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 When using cert-manager with DuckDNS webhook for wildcard certificates, you may encounter issues:
 
 #### Common Problems:
+
 1. **"no api token secret provided"** - The ClusterIssuer is looking for a secret in the wrong namespace
 2. **DNS propagation timeouts** - DuckDNS can take 5-10 minutes to propagate DNS changes
 3. **Wrong ClusterIssuer references** - Ensure you're using the Helm-deployed issuer
 
 #### Solution:
+
 If you installed the webhook via Helm:
+
 ```bash
 helm install cert-manager-webhook-duckdns cert-manager-webhook-duckdns/cert-manager-webhook-duckdns \
   --namespace cert-manager \
@@ -352,6 +357,7 @@ helm install cert-manager-webhook-duckdns cert-manager-webhook-duckdns/cert-mana
 ```
 
 Then use the Helm-created ClusterIssuer in your Certificate resources:
+
 ```yaml
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -361,7 +367,7 @@ metadata:
 spec:
   secretName: duckdns-wildcard-tls
   issuerRef:
-    name: cert-manager-webhook-duckdns-production  # Helm-created issuer
+    name: cert-manager-webhook-duckdns-production # Helm-created issuer
     kind: ClusterIssuer
   dnsNames:
     - "arkhaya.duckdns.org"
@@ -369,6 +375,7 @@ spec:
 ```
 
 ---
+
 ## 🛠️ Deployment Guide
 
 ### Prerequisites

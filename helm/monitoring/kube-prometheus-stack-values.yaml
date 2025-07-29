@@ -20,7 +20,8 @@ prometheus:
     storageSpec:
       volumeClaimTemplate:
         spec:
-          storageClassName: synology-iscsi
+          storageClassName: ""
+          volumeName: pv-prometheus
           accessModes: ["ReadWriteOnce"]
           resources:
             requests:
@@ -86,8 +87,7 @@ grafana:
   
   persistence:
     enabled: true
-    storageClassName: synology-iscsi
-    size: 10Gi
+    existingClaim: kube-prometheus-stack-grafana
   
   resources:
     requests:
@@ -167,7 +167,9 @@ alertmanager:
     storage:
       volumeClaimTemplate:
         spec:
-          storageClassName: synology-iscsi
+          storageClassName: ""
+          volumeName: pv-alertmanager
+          accessModes: ["ReadWriteOnce"]
           resources:
             requests:
               storage: 2Gi

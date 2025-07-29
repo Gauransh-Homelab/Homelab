@@ -90,8 +90,7 @@ singleBinary:
   # Persistence configuration
   persistence:
     enabled: true
-    storageClass: synology-iscsi
-    size: 30Gi
+    existingClaim: loki
     enableStatefulSetAutoDeletePVC: false
   
   # Resource allocation

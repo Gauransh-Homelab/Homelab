@@ -1,0 +1,98 @@
+# Monitoring Stack PV Definitions for iSCSI Reattachment
+# Creates PVs for existing Synology iSCSI LUNs to preserve monitoring data
+
+---
+# Prometheus PV - 50GB
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-prometheus
+  labels:
+    app: prometheus
+    component: monitoring
+spec:
+  capacity:
+    storage: 50Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  csi:
+    driver: csi.san.synology.com
+    fsType: btrfs
+    volumeHandle: 1dd7a7e3-fd1c-4926-a082-d8c4cc302e47
+    volumeAttributes:
+      dsm: "192.168.10.101"
+      protocol: "iscsi"
+
+---
+# Loki PV - 30GB
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-loki
+  labels:
+    app: loki
+    component: monitoring
+spec:
+  capacity:
+    storage: 30Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  csi:
+    driver: csi.san.synology.com
+    fsType: btrfs
+    volumeHandle: e8df0ff6-5393-44b5-b75e-14cd8e425ae7
+    volumeAttributes:
+      dsm: "192.168.10.101"
+      protocol: "iscsi"
+
+---
+# Grafana PV - 10GB
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-grafana
+  labels:
+    app: grafana
+    component: monitoring
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  csi:
+    driver: csi.san.synology.com
+    fsType: btrfs
+    volumeHandle: c3c57d32-5115-492d-a6a0-d2c602f44dea
+    volumeAttributes:
+      dsm: "192.168.10.101"
+      protocol: "iscsi"
+
+---
+# AlertManager PV - 2GB
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-alertmanager
+  labels:
+    app: alertmanager
+    component: monitoring
+spec:
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  csi:
+    driver: csi.san.synology.com
+    fsType: btrfs
+    volumeHandle: 6a07e26a-bbeb-4258-b1cc-facef3ba67fa
+    volumeAttributes:
+      dsm: "192.168.10.101"
+      protocol: "iscsi"

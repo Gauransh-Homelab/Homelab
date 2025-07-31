@@ -297,15 +297,14 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 
 - [ ] Argo CD
 - [ ] LGM Stack with alloy
-- [ ] Attach all pod pvcs as pv by matching IQN for iscsi blocks and paths for nfs
 
 #### ✅ Recently Completed
 
 - [x] Whitelist only cloudflare ip and local ip CIDR blocks ✅ 2025-07-11
+- [x] Attach all pod pvcs as pv by matching IQN for iscsi blocks and paths for nfs ✅ 2025-07-30
 - [x] Create a pod deschedular so the pods run on the proper machine to split workload ✅ 2025-07-07
 - [x] Check node interconectivity ✅ 2025-07-23
 - [x] Create special kubeconfig for claude code that prevents it from fucking anything up again ✅ 2025-07-23
-- [x] Omni migration ✅ 2025-07-20
 
 ### 🚀 Future Projects
 

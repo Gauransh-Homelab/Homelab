@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: radarr2
-          image: lscr.io/linuxserver/radarr:5.26.2.10099
+          image: lscr.io/linuxserver/radarr:5.26.2.10099-ls279
           env:
             - name: PUID
               value: "1000"
@@ -61,4 +61,3 @@ spec:
           nfs:
             server: 192.168.10.101
             path: /volume1/NAS
-

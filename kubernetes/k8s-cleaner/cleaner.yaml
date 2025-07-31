@@ -1,10 +1,10 @@
 apiVersion: apps.projectsveltos.io/v1alpha1
 kind: Cleaner
 metadata:
-  name: completed-job-pods
+  name: failed-and-completed-pods
   namespace: k8s-cleaner
 spec:
-  schedule: "0 * * * *"  # Every hour
+  schedule: "0 */6 * * *"  # Every 6 hours
   resourcePolicySet:
     resourceSelectors:
     - kind: Pod
@@ -13,11 +13,57 @@ spec:
       evaluate: |
         function evaluate()
           local hs = {}
-          if obj.status.phase == "Succeeded" then
-            hs.matching = true
+          
+          -- Only process pods that are in terminal states
+          if obj.status.phase ~= "Succeeded" and obj.status.phase ~= "Failed" then
+            hs.matching = false
+            return hs
+          end
+          
+          -- Get current time and pod creation time
+          local current_time = os.time()
+          local creation_time = 0
+          
+          -- Parse pod creation timestamp (ISO 8601 format)
+          if obj.metadata.creationTimestamp then
+            local year, month, day, hour, min, sec = string.match(
+              obj.metadata.creationTimestamp, 
+              "(%d+)-(%d+)-(%d+)T(%d+):(%d+):(%d+)Z"
+            )
+            if year then
+              creation_time = os.time({
+                year = tonumber(year),
+                month = tonumber(month),
+                day = tonumber(day),
+                hour = tonumber(hour),
+                min = tonumber(min),
+                sec = tonumber(sec)
+              })
+            end
+          end
+          
+          -- Calculate age in hours
+          local age_hours = (current_time - creation_time) / 3600
+          
+          -- Clean up rules:
+          if obj.status.phase == "Failed" then
+            -- Delete Failed pods older than 24 hours
+            if age_hours > 24 then
+              hs.matching = true
+            else
+              hs.matching = false
+            end
+          elseif obj.status.phase == "Succeeded" then
+            -- Delete Succeeded pods older than 2 hours  
+            if age_hours > 2 then
+              hs.matching = true
+            else
+              hs.matching = false
+            end
           else
             hs.matching = false
           end
+          
           return hs
         end
   action: Delete

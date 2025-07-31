@@ -1,21 +1,25 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: jellyfin
-  namespace: argo-cd
+  name: synology-csi
+  namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
-  annotations:
-    # Image updater configuration
 spec:
   project: default
-  source:
-    repoURL: https://github.com/Gauransh-Homelab/Homelab.git
-    targetRevision: main
-    path: kubernetes/jellyfin
+  sources:
+    - repoURL: https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
+      chart: nfs-subdir-external-provisioner
+      targetRevision: 4.0.18
+      helm:
+        valueFiles:
+          - $values/helm/synology-csi/values.yaml
+    - repoURL: https://github.com/Gauransh-Homelab/Homelab.git
+      targetRevision: main
+      ref: values
   destination:
     server: https://kubernetes.default.svc
-    namespace: jelly
+    namespace: synology-csi
   syncPolicy:
     automated:
       prune: true

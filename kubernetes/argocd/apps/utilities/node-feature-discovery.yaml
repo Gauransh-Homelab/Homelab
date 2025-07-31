@@ -1,21 +1,25 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: jellyfin
-  namespace: argo-cd
+  name: node-feature-discovery
+  namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
-  annotations:
-    # Image updater configuration
 spec:
   project: default
-  source:
-    repoURL: https://github.com/Gauransh-Homelab/Homelab.git
-    targetRevision: main
-    path: kubernetes/jellyfin
+  sources:
+    - repoURL: https://kubernetes-sigs.github.io/node-feature-discovery/charts
+      chart: node-feature-discovery
+      targetRevision: 0.17.4
+      helm:
+        valueFiles:
+          - $values/helm/node-feature-discovery/values.yaml
+    - repoURL: https://github.com/Gauransh-Homelab/Homelab.git
+      targetRevision: main
+      ref: values
   destination:
     server: https://kubernetes.default.svc
-    namespace: jelly
+    namespace: node-feature-discovery
   syncPolicy:
     automated:
       prune: true

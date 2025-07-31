@@ -2,14 +2,12 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: vpn-group
-  namespace: argocd
+  namespace: argo-cd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
   annotations:
     # Image updater configuration for multiple images
-      gluetun=qmcgaw/gluetun:~v3,
-      qbittorrent=lscr.io/linuxserver/qbittorrent:~4.6,
-      nzbget=lscr.io/linuxserver/nzbget
+    argocd-image-updater.argoproj.io/image-list: gluetun=qmcgaw/gluetun:~v3,qbittorrent=lscr.io/linuxserver/qbittorrent:~4.6
 spec:
   project: default
   source:

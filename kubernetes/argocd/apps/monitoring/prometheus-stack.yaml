@@ -5,12 +5,14 @@ metadata:
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
+  annotations:
+    argocd-image-updater.argoproj.io/image-list: prometheus=quay.io/prometheus/prometheus:~v2.54, alertmanager=quay.io/prometheus/alertmanager:~v0.27, grafana=grafana/grafana:~11.2
 spec:
   project: default
   sources:
     - repoURL: https://prometheus-community.github.io/helm-charts
       chart: kube-prometheus-stack
-      targetRevision: 67.2.0
+      targetRevision: 75.15.1
       helm:
         valueFiles:
           - $values/helm/monitoring/prometheus-stack/values.yaml

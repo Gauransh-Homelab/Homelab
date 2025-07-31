@@ -1,0 +1,40 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cilium
+  namespace: argo-cd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  annotations:
+    # Conservative image updater - patch versions only
+    argocd-image-updater.argoproj.io/image-list: cilium=quay.io/cilium/cilium:~1.17
+spec:
+  project: default
+  sources:
+    - repoURL: https://helm.cilium.io
+      chart: cilium
+      targetRevision: "1.17.6"  # Exact current version for safety
+      helm:
+        valueFiles:
+          - $values/helm/cilium/values.yaml
+    - repoURL: https://github.com/Gauransh-Homelab/Homelab.git
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-system
+  syncPolicy:
+    automated:
+      prune: false      # NEVER prune Cilium resources - too dangerous
+      selfHeal: false   # Start with manual healing only
+      allowEmpty: false
+    syncOptions:
+    - CreateNamespace=false  # kube-system already exists
+    - ServerSideApply=true   # Handle resource ownership properly
+    - RespectIgnoreDifferences=true
+    retry:
+      limit: 2  # Limited retries for safety
+      backoff:
+        duration: 10s
+        factor: 2
+        maxDuration: 1m

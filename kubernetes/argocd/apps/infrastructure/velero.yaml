@@ -5,6 +5,8 @@ metadata:
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
+  annotations:
+    argocd-image-updater.argoproj.io/image-list: velero=velero/velero:~v1.14
 spec:
   project: default
   sources:

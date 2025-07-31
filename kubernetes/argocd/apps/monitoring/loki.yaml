@@ -2,9 +2,11 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: loki
-  namespace: argocd
+  namespace: argo-cd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
+  annotations:
+    argocd-image-updater.argoproj.io/image-list: loki=grafana/loki:~2.9
 spec:
   project: default
   sources:

@@ -4,15 +4,22 @@
 
 namespaceOverride: monitoring
 
+# Force old naming convention to maintain compatibility with existing PVs
+nameOverride: "kube-prometheus-stack"
+fullnameOverride: "kube-prometheus-stack"
+
 # Global settings
 global:
   rbac:
     create: true
     createAggregateClusterRoles: true
 
-# Prometheus configuration - production-ready
+# Prometheus configuration - production-ready  
 prometheus:
+  # Force the exact same naming as existing resources
   prometheusSpec:
+    prometheusName: "kube-prometheus-stack-prometheus"
+    serviceAccountName: "kube-prometheus-stack-prometheus"
     replicas: 1  # Will increase to 2 when cluster grows
     retention: 15d
     retentionSize: 45GB
@@ -84,6 +91,7 @@ prometheus:
 grafana:
   enabled: true
   replicas: 1
+  fullnameOverride: "kube-prometheus-stack-grafana"
   
   persistence:
     enabled: true
@@ -218,6 +226,7 @@ prometheusOperator:
 # ENABLE: Node exporter for comprehensive node metrics
 nodeExporter:
   enabled: true
+  fullnameOverride: "kube-prometheus-stack-prometheus-node-exporter"
   resources:
     requests:
       cpu: 50m
@@ -229,6 +238,7 @@ nodeExporter:
 # ENABLE: kube-state-metrics for rich K8s object metrics
 kubeStateMetrics:
   enabled: true
+  fullnameOverride: "kube-prometheus-stack-kube-state-metrics"
   resources:
     requests:
       cpu: 100m

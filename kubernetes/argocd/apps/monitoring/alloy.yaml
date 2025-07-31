@@ -2,9 +2,11 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: alloy
-  namespace: argocd
+  namespace: argo-cd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
+  annotations:
+    argocd-image-updater.argoproj.io/image-list: alloy=grafana/alloy:~v1.4
 spec:
   project: default
   sources:

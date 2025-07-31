@@ -54,7 +54,7 @@ rules:
 # ArgoCD application management
 - apiGroups: ["argoproj.io"]
   resources: ["applications"]
-  verbs: ["get", "list", "watch", "update", "patch"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
 - apiGroups: ["argoproj.io"]
   resources: ["applicationsets"]
   verbs: ["get", "list"]

@@ -286,30 +286,29 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 ### 📌 Current Status
 
 #### 📋 To Do
-- [ ] Huntarr + cleanuparr
-- [ ] Homarr
+- [ ] HA PostgreSQL
 - [ ] n8n
 - [ ] Ghost Blog
+- [ ] Huntarr + cleanuparr
+- [ ] Homarr
 - [ ] Jellyfin Stats
 - [ ] Authentik
 
 #### 🚧 In Progress
 
-- [ ] Argo CD
 - [ ] LGM Stack with alloy
 
 #### ✅ Recently Completed
 
+- [x] Argo CD ✅ 2025-08-03
 - [x] Whitelist only cloudflare ip and local ip CIDR blocks ✅ 2025-07-11
 - [x] Attach all pod pvcs as pv by matching IQN for iscsi blocks and paths for nfs ✅ 2025-07-30
 - [x] Create a pod deschedular so the pods run on the proper machine to split workload ✅ 2025-07-07
 - [x] Check node interconectivity ✅ 2025-07-23
-- [x] Create special kubeconfig for claude code that prevents it from fucking anything up again ✅ 2025-07-23
 
 ### 🚀 Future Projects
 
 - [ ] *arr Stack Migration (SQLite → PostgreSQL)
-- [ ] HA PostgreSQL
 - [ ] MCP Server - Discord Media Bot
 - [ ] Karakeep - bookmarking system
 - [ ] [OPTIONAL]🔽 Add k8s cleaner to remove completed pods every hour

@@ -77,3 +77,7 @@ rules:
 - apiGroups: ["batch"]
   resources: ["cronjobs"]
   verbs: ["get", "list", "watch"]
+# CloudNativePG (CNPG) resources
+- apiGroups: ["postgresql.cnpg.io"]
+  resources: ["clusters", "databases", "poolers"]
+  verbs: ["get", "list"]

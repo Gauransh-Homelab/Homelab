@@ -45,3 +45,8 @@ kubernetes/argocd/image-updater-git-secret.yaml
 *iscsi-target*.txt
 synoiscsi*.log
 iscsi-config*
+
+# Kubernetes secret files
+kubernetes/**/*secret*.yaml
+kubernetes/**/*secret*.yml
+

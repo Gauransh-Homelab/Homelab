@@ -40,8 +40,8 @@ serviceAccount:
 cmdOptions:
   # Set to true to test without actually evicting pods
   dry-run: false
-  # Logging verbosity (0-5)
-  v: 3
+  # Logging verbosity (0-5) - increased for better debugging
+  v: 4
 
 # Descheduler Policy Configuration
 deschedulerPolicy:
@@ -61,25 +61,21 @@ deschedulerPolicy:
             # Increased pod age to 30 minutes for stability
             minPodAge: "30m"
         
-        # Low node utilization - balance between nodes
-        - name: "LowNodeUtilization"
+        # High node utilization - evict from overloaded nodes
+        - name: "HighNodeUtilization"
           args:
-            # Increased thresholds to catch underutilized nodes
+            # Evict from nodes above these thresholds
             thresholds:
-              cpu: 30
-              memory: 30
-              pods: 30
-            # Lowered target thresholds for better distribution
-            targetThresholds:
-              cpu: 60
-              memory: 60
-              pods: 60
+              cpu: 70
+              memory: 70
+              pods: 65
             # Exclude critical namespaces
             evictableNamespaces:
               exclude:
                 - "kube-system"
                 - "synology-csi"
                 - "metallb"
+                - "cert-manager"
         
         # Spread duplicate pods across nodes
         - name: "RemoveDuplicates"
@@ -118,6 +114,12 @@ deschedulerPolicy:
             excludeOwnerKinds:
               - "Job"
               - "CronJob"
+        
+        # Remove pods violating node affinity
+        - name: "RemovePodsViolatingNodeAffinity"
+          args:
+            nodeAffinityType:
+              - "requiredDuringSchedulingIgnoredDuringExecution"
       
       plugins:
         # Enable deschedule plugins
@@ -126,8 +128,9 @@ deschedulerPolicy:
             - "RemovePodsHavingTooManyRestarts"
             - "RemoveFailedPods"
             - "PodLifeTime"
+            - "RemovePodsViolatingNodeAffinity"
         # Enable balance plugins
         balance:
           enabled:
-            - "LowNodeUtilization"
+            - "HighNodeUtilization"
             - "RemoveDuplicates"

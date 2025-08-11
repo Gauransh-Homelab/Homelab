@@ -6,6 +6,7 @@ metadata:
 spec:
   schedule: "0 2 * * *" # Daily at 2 AM
   template:
+    ttl: 168h  # 7 days retention
     excludedNamespaces:
       - kube-system # Core K8s components (kubelet, kube-proxy, CNI)
       - kube-public # Public cluster info (gets recreated)
@@ -18,5 +19,6 @@ spec:
       - componentstatuses # Runtime component status (recreated)
       - csidrivers # Storage drivers (reinstalled with storage)
       - csinodes # Node-specific CSI data (recreated)
-    snapshotVolumes: true
+    snapshotVolumes: false  # Disabled in favor of file-level backups
+    defaultVolumesToFsBackup: true  # Enable file-level backup for ALL PVCs
     storageLocation: default

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: huntarr-service
+  namespace: arr-stack
+  labels:
+    app: huntarr
+spec:
+  selector:
+    app: huntarr
+  type: LoadBalancer
+  ports:
+  - name: webui
+    protocol: TCP
+    port: 9705
+    targetPort: huntarr-webui

@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: huntarr
+  namespace: arr-stack
+  labels:
+    app: huntarr
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: huntarr
+  template:
+    metadata:
+      labels:
+        app: huntarr
+    spec:
+      containers:
+      - name: huntarr
+        image: huntarr/huntarr:latest
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: PUID
+          value: "1000"
+        - name: PGID
+          value: "1000"
+        - name: TZ
+          value: "Asia/Singapore"
+        ports:
+        - containerPort: 9705
+          name: huntarr-webui
+        volumeMounts:
+        - name: huntarr-config
+          mountPath: /config
+        livenessProbe:
+          tcpSocket:
+            port: 9705
+          initialDelaySeconds: 120
+          periodSeconds: 60
+      volumes:
+      - name: huntarr-config
+        persistentVolumeClaim:
+          claimName: huntarr-config

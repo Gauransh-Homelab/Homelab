@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cleanuparr-service
+  namespace: arr-stack
+  labels:
+    app: cleanuparr
+spec:
+  selector:
+    app: cleanuparr
+  type: LoadBalancer
+  ports:
+  - name: webui
+    protocol: TCP
+    port: 11011
+    targetPort: webui

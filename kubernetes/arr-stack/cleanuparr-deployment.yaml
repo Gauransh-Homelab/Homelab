@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cleanuparr
+  namespace: arr-stack
+  labels:
+    app: cleanuparr
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: cleanuparr
+  template:
+    metadata:
+      labels:
+        app: cleanuparr
+    spec:
+      containers:
+      - name: cleanuparr
+        image: ghcr.io/cleanuparr/cleanuparr:latest
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: PORT
+          value: "11011"
+        - name: PUID
+          value: "1000"
+        - name: PGID
+          value: "1000"
+        - name: TZ
+          value: "Asia/Singapore"
+        ports:
+        - containerPort: 11011
+          name: webui
+        volumeMounts:
+        - name: cleanuparr-config
+          mountPath: /config
+        livenessProbe:
+          tcpSocket:
+            port: 11011
+          initialDelaySeconds: 120
+          periodSeconds: 60
+      volumes:
+      - name: cleanuparr-config
+        persistentVolumeClaim:
+          claimName: cleanuparr-config

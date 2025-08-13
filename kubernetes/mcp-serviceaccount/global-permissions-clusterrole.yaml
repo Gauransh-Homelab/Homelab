@@ -81,3 +81,12 @@ rules:
 - apiGroups: ["postgresql.cnpg.io"]
   resources: ["clusters", "databases", "poolers"]
   verbs: ["get", "list"]
+# Velero backup and restore permissions
+- apiGroups: ["velero.io"]
+  resources: ["backups", "backupstoragelocations", "deletebackuprequests", "downloadrequests", "podvolumebackups", "podvolumerestores", "resticrepositories", "restores", "schedules", "serverstatusrequests", "volumesnapshotlocations"]
+  verbs: ["get", "list", "watch"]
+# Velero logs access (pods in velero namespace)
+- apiGroups: [""]
+  resources: ["pods", "pods/log"]
+  verbs: ["get", "list"]
+  namespaces: ["velero"]

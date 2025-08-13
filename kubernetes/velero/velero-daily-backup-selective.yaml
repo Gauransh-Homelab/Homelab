@@ -1,0 +1,24 @@
+apiVersion: velero.io/v1
+kind: Schedule
+metadata:
+  name: homelab-complete-backup
+  namespace: velero
+spec:
+  schedule: "0 2 * * *" # Daily at 2 AM
+  template:
+    ttl: 168h  # 7 days retention
+    excludedNamespaces:
+      - kube-system
+      - kube-public
+      - kube-node-lease
+    includedClusterScopedResources:
+      - "*"
+    excludedClusterScopedResources:
+      - nodes
+      - events
+      - componentstatuses
+      - csidrivers
+      - csinodes
+    snapshotVolumes: false
+    defaultVolumesToFsBackup: false  # Default is NO backup
+    storageLocation: default

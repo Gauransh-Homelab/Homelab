@@ -19,6 +19,6 @@ spec:
       - componentstatuses # Runtime component status (recreated)
       - csidrivers # Storage drivers (reinstalled with storage)
       - csinodes # Node-specific CSI data (recreated)
-    snapshotVolumes: false  # Disabled in favor of file-level backups
-    defaultVolumesToFsBackup: true  # Enable file-level backup for ALL PVCs
+    snapshotVolumes: false  # Volume snapshots disabled
+    defaultVolumesToFsBackup: false  # File-system backups disabled
     storageLocation: default

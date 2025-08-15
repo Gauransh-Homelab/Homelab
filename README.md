@@ -293,15 +293,14 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 
 - [ ] Homarr
 - [ ] n8n
-- [ ] Ghost Blog
 
 #### ✅ Recently Completed
 
+- [x] Ghost Blog ✅ 2025-08-16
 - [x] Huntarr + cleanuparr ✅ 2025-08-13
 - [x] LGM Stack with alloy ✅ 2025-07-27
 - [x] HA PostgreSQL ✅ 2025-08-05
 - [x] Argo CD ✅ 2025-08-03
-- [x] Whitelist only cloudflare ip and local ip CIDR blocks ✅ 2025-07-11
 
 ### 🚀 Future Projects
 

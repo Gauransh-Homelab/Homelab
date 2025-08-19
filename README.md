@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Kubernetes](https://img.shields.io/badge/Kubernetes-1.33.3-326CE5?logo=kubernetes&logoColor=white)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-1.33.4-326CE5?logo=kubernetes&logoColor=white)
 ![Talos](https://img.shields.io/badge/Talos_Linux-1.10.6-FF7300?logo=linux&logoColor=white)
 ![Services](https://img.shields.io/badge/Services-20+-00ADD8?logo=docker&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-Operational-brightgreen?logo=statuspage&logoColor=white)
@@ -279,13 +279,14 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 
 [![Live Roadmap](https://img.shields.io/badge/Live%20Roadmap-View%20on%20Obsidian-7c3aed?style=for-the-badge&logo=obsidian&logoColor=white)](https://publish.obsidian.md/gauranshmathur/Publish/Homelab)
 
-*Synced from Obsidian on every push*
+_Synced from Obsidian on every push_
 
 </div>
 
 ### 📌 Current Status
 
 #### 📋 To Do
+
 - [ ] Jellyfin Stats
 - [ ] Authentik
 
@@ -304,7 +305,7 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 
 ### 🚀 Future Projects
 
-- [ ] *arr Stack Migration (SQLite → PostgreSQL)
+- [ ] \*arr Stack Migration (SQLite → PostgreSQL)
 - [ ] MCP Server - Discord Media Bot
 - [ ] Karakeep - bookmarking system
 - [ ] Tdarr running on beelink cause we can have using iGPU and its quite decent
@@ -322,6 +323,7 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 - [x] obsidian-setup ✅ 2025-05-29
 
 ---
+
 ## 🔧 Troubleshooting
 
 ### Cert-Manager DuckDNS Issues

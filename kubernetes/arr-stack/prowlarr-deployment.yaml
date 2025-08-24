@@ -16,42 +16,43 @@ spec:
         app: prowlarr
     spec:
       containers:
-      - name: prowlarr
-        image: lscr.io/linuxserver/prowlarr:1.37.0.5076-ls119
-        env:
-        - name: PUID
-          value: "1000"
-        - name: PGID
-          value: "1000"
-        - name: TZ
-          value: "Asia/Singapore"
-        ports:
-        - containerPort: 9696
-          name: http
-        volumeMounts:
-        - name: prowlarr-config
-          mountPath: /config
-        livenessProbe:
-          httpGet:
-            path: /
-            port: 9696
-          initialDelaySeconds: 30
-          periodSeconds: 30
-        readinessProbe:
-          httpGet:
-            path: /
-            port: 9696
-          initialDelaySeconds: 15
-          periodSeconds: 15
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "100m"
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
+        - name: prowlarr
+          image: lscr.io/linuxserver/prowlarr:2.0.5.5160-ls125
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: "Asia/Singapore"
+          ports:
+            - containerPort: 9696
+              name: http
+          volumeMounts:
+            - name: prowlarr-config
+              mountPath: /config
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 9696
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 9696
+            initialDelaySeconds: 15
+            periodSeconds: 15
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
 
       volumes:
-      - name: prowlarr-config
-        persistentVolumeClaim:
-          claimName: prowlarr-config
+        - name: prowlarr-config
+          persistentVolumeClaim:
+            claimName: prowlarr-config
+

@@ -87,14 +87,15 @@
       ]
     },
     {
-      "description": "Disable major updates by default",
+      "description": "Allow major updates but don't auto-merge",
       "matchDatasources": [
         "docker"
       ],
       "matchUpdateTypes": [
         "major"
       ],
-      "enabled": false
+      "enabled": true,
+      "automerge": false
     }
   ],
   "customManagers": [

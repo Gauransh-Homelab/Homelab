@@ -8,7 +8,7 @@ metadata:
 spec:
   replicas: 1
   strategy:
-    type: Recreate  # Critical for VPN containers
+    type: Recreate # Critical for VPN containers
   selector:
     matchLabels:
       app: vpn-group
@@ -18,96 +18,96 @@ spec:
         app: vpn-group
     spec:
       containers:
-      # Gluetun VPN container - simple pattern like Docker
-      - name: gluetun
-        image: qmcgaw/gluetun:v3.39.0
-        env:
-        - name: VPN_SERVICE_PROVIDER
-          value: "expressvpn"
-        - name: OPENVPN_USER
-          valueFrom:
-            secretKeyRef:
-              name: arr-stack-secrets
-              key: expressvpn-username
-        - name: OPENVPN_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: arr-stack-secrets
-              key: expressvpn-password
-        - name: SERVER_COUNTRIES
-          value: "USA,UK,Netherlands,Canada"
-        - name: FIREWALL_INPUT_PORTS
-          value: "8080"  # Allow LoadBalancer access to web UIs
-        # Kubernetes-specific settings from research
-        - name: DNS_KEEP_NAMESERVER
-          value: "on"  # Keep Kubernetes DNS for service discovery
-        - name: FIREWALL_OUTBOUND_SUBNETS
-          value: "10.244.0.0/16"  # Your cluster's pod CIDR (adjust if needed)
-        securityContext:
-          privileged: true
-          capabilities:
-            add:
-              - NET_ADMIN
-        volumeMounts:
-        - name: dev-net-tun
-          mountPath: /dev/net/tun
-        - name: gluetun-config
-          mountPath: /gluetun
-        - name: nfs-nas
-          mountPath: /NAS
-        livenessProbe:
-          exec:
-            command:
-            - sh
-            - -c
-            - "wget -O - -q http://localhost:8000/v1/openvpn/status | grep -q '\"status\":\"running\"'"
-          initialDelaySeconds: 120
-          periodSeconds: 60
-          failureThreshold: 2
-      - name: qbittorrent
-        image: lscr.io/linuxserver/qbittorrent:20.04.1  # Pinned version
-        env:
-        - name: PUID
-          value: "1000"
-        - name: PGID
-          value: "1000"
-        - name: TZ
-          value: "Asia/Singapore"
-        - name: WEBUI_PORT
-          value: "8080"
-        - name: TORRENTING_PORT
-          value: "6881"
-        ports:
-        - containerPort: 8080
-          name: qb-webui
-        - containerPort: 6881
-          name: qb-torrent
-        volumeMounts:
-        - name: qbittorrent-config
-          mountPath: /config
-        - name: nfs-nas
-          mountPath: /NAS
-        livenessProbe:
-          httpGet:
-            path: /
-            port: 8080
-          initialDelaySeconds: 60
-          periodSeconds: 30
-
+        # Gluetun VPN container - simple pattern like Docker
+        - name: gluetun
+          image: qmcgaw/gluetun:v3.39.0
+          env:
+            - name: VPN_SERVICE_PROVIDER
+              value: "expressvpn"
+            - name: OPENVPN_USER
+              valueFrom:
+                secretKeyRef:
+                  name: arr-stack-secrets
+                  key: expressvpn-username
+            - name: OPENVPN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: arr-stack-secrets
+                  key: expressvpn-password
+            - name: SERVER_COUNTRIES
+              value: "USA,UK,Netherlands,Canada"
+            - name: FIREWALL_INPUT_PORTS
+              value: "8080" # Allow LoadBalancer access to web UIs
+            # Kubernetes-specific settings from research
+            - name: DNS_KEEP_NAMESERVER
+              value: "on" # Keep Kubernetes DNS for service discovery
+            - name: FIREWALL_OUTBOUND_SUBNETS
+              value: "10.244.0.0/16" # Your cluster's pod CIDR (adjust if needed)
+          securityContext:
+            privileged: true
+            capabilities:
+              add:
+                - NET_ADMIN
+          volumeMounts:
+            - name: dev-net-tun
+              mountPath: /dev/net/tun
+            - name: gluetun-config
+              mountPath: /gluetun
+            - name: nfs-nas
+              mountPath: /NAS
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - 'wget -O - -q http://localhost:8000/v1/openvpn/status | grep -q ''"status":"running"'''
+            initialDelaySeconds: 120
+            periodSeconds: 60
+            failureThreshold: 2
+        - name: qbittorrent
+          image: lscr.io/linuxserver/qbittorrent:v5.1.2-r1-ls411
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: "Asia/Singapore"
+            - name: WEBUI_PORT
+              value: "8080"
+            - name: TORRENTING_PORT
+              value: "6881"
+          ports:
+            - containerPort: 8080
+              name: qb-webui
+            - containerPort: 6881
+              name: qb-torrent
+          volumeMounts:
+            - name: qbittorrent-config
+              mountPath: /config
+            - name: nfs-nas
+              mountPath: /NAS
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 30
 
       volumes:
-      # CRITICAL: TUN device volume
-      - name: dev-net-tun
-        hostPath:
-          path: /dev/net/tun
-          type: CharDevice
-      - name: gluetun-config
-        persistentVolumeClaim:
-          claimName: gluetun-config
-      - name: qbittorrent-config
-        persistentVolumeClaim:
-          claimName: qbittorrent-config
-      - name: nfs-nas
-        nfs:
-          server: 192.168.10.101
-          path: /volume1/NAS
+        # CRITICAL: TUN device volume
+        - name: dev-net-tun
+          hostPath:
+            path: /dev/net/tun
+            type: CharDevice
+        - name: gluetun-config
+          persistentVolumeClaim:
+            claimName: gluetun-config
+        - name: qbittorrent-config
+          persistentVolumeClaim:
+            claimName: qbittorrent-config
+        - name: nfs-nas
+          nfs:
+            server: 192.168.10.101
+            path: /volume1/NAS
+

@@ -3,6 +3,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: jellyfin-config
   namespace: jelly
+  labels:
+    velero.io/backup: "true"
 spec:
   accessModes:
     - ReadWriteOnce
@@ -17,6 +19,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: jellyfin-data
   namespace: jelly
+  labels:
+    velero.io/backup: "true"
 spec:
   accessModes:
     - ReadWriteOnce
@@ -31,6 +35,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: jellyfin-cache
   namespace: jelly
+  labels:
+    velero.io/backup: "false"
 spec:
   accessModes:
     - ReadWriteOnce
@@ -45,6 +51,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: jellyfin-log
   namespace: jelly
+  labels:
+    velero.io/backup: "false"
 spec:
   accessModes:
     - ReadWriteOnce

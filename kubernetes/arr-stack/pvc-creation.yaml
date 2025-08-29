@@ -3,6 +3,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: gluetun-config
   namespace: arr-stack
+  labels:
+    velero.io/backup: "true"
 spec:
   accessModes:
     - ReadWriteOnce
@@ -17,6 +19,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: qbittorrent-config
   namespace: arr-stack
+  labels:
+    velero.io/backup: "true"
 spec:
   accessModes:
     - ReadWriteOnce
@@ -31,6 +35,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: nzbget-config
   namespace: arr-stack
+  labels:
+    velero.io/backup: "true"
 spec:
   accessModes:
     - ReadWriteOnce
@@ -45,6 +51,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: prowlarr-config
   namespace: arr-stack
+  labels:
+    velero.io/backup: "true"
 spec:
   accessModes:
     - ReadWriteOnce
@@ -59,6 +67,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: radarr-config
   namespace: arr-stack
+  labels:
+    velero.io/backup: "true"
 spec:
   accessModes:
     - ReadWriteOnce
@@ -73,6 +83,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: radarr2-config
   namespace: arr-stack
+  labels:
+    velero.io/backup: "true"
 spec:
   accessModes:
     - ReadWriteOnce
@@ -87,6 +99,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: sonarr-config
   namespace: arr-stack
+  labels:
+    velero.io/backup: "true"
 spec:
   accessModes:
     - ReadWriteOnce
@@ -101,6 +115,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: sonarr2-config
   namespace: arr-stack
+  labels:
+    velero.io/backup: "true"
 spec:
   accessModes:
     - ReadWriteOnce
@@ -115,6 +131,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: bazarr-config
   namespace: arr-stack
+  labels:
+    velero.io/backup: "true"
 spec:
   accessModes:
     - ReadWriteOnce
@@ -129,6 +147,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: bazarr2-config
   namespace: arr-stack
+  labels:
+    velero.io/backup: "true"
 spec:
   accessModes:
     - ReadWriteOnce
@@ -143,6 +163,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: notifiarr-config
   namespace: arr-stack
+  labels:
+    velero.io/backup: "true"
 spec:
   accessModes:
     - ReadWriteOnce

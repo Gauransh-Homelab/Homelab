@@ -3,6 +3,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: jellyseerr-pvc
   namespace: jelly
+  labels:
+    velero.io/backup: "true"
 spec:
   accessModes:
     - ReadWriteOnce

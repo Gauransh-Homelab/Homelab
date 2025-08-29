@@ -3,6 +3,7 @@ kind: PersistentVolumeClaim
 metadata:
   labels:
     service: n8n-claim0
+    velero.io/backup: "true"
   name: n8n-claim0
   namespace: n8n
 spec:

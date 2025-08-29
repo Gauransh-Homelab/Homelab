@@ -16,6 +16,8 @@ spec:
     metadata:
       labels:
         app: nzbget
+      annotations:
+        backup.velero.io/backup-volumes-excludes: nfs-nas
     spec:
       containers:
       - name: nzbget

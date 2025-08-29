@@ -16,6 +16,8 @@ spec:
     metadata:
       labels:
         app: jellyfin
+      annotations:
+        backup.velero.io/backup-volumes-excludes: media,cache-volume,log-volume,dri
     spec:
       affinity:
         nodeAffinity:

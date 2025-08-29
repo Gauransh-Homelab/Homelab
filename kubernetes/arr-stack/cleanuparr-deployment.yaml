@@ -16,6 +16,8 @@ spec:
     metadata:
       labels:
         app: cleanuparr
+      annotations:
+        backup.velero.io/backup-volumes: cleanuparr-config
     spec:
       containers:
       - name: cleanuparr

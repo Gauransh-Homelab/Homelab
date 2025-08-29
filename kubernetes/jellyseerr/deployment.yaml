@@ -16,6 +16,8 @@ spec:
     metadata:
       labels:
         app: jellyseerr
+      annotations:
+        backup.velero.io/backup-volumes: jellyseerr-config
     spec:
       containers:
         - name: jellyseerr

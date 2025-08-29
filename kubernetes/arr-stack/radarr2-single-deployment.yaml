@@ -15,7 +15,7 @@ spec:
       labels:
         app: radarr2
       annotations:
-        backup.velero.io/backup-volumes-excludes: nfs-nas
+        backup.velero.io/backup-volumes: radarr2-config
     spec:
       containers:
         - name: radarr2

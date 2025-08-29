@@ -16,6 +16,8 @@ spec:
     metadata:
       labels:
         service: n8n
+      annotations:
+        backup.velero.io/backup-volumes: n8n-claim0
     spec:
       initContainers:
         - name: volume-permissions

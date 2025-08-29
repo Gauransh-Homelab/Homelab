@@ -14,6 +14,8 @@ spec:
     metadata:
       labels:
         app: notifiarr
+      annotations:
+        backup.velero.io/backup-volumes: notifiarr-config
     spec:
       containers:
       - name: notifiarr

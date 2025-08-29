@@ -15,7 +15,7 @@ spec:
       labels:
         app: bazarr2
       annotations:
-        backup.velero.io/backup-volumes-excludes: nfs-nas
+        backup.velero.io/backup-volumes: bazarr2-config
     spec:
       containers:
       - name: bazarr2

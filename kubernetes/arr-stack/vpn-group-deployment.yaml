@@ -17,7 +17,7 @@ spec:
       labels:
         app: vpn-group
       annotations:
-        backup.velero.io/backup-volumes-excludes: nfs-nas
+        backup.velero.io/backup-volumes: gluetun-config,qbittorrent-config
     spec:
       containers:
         # Gluetun VPN container - simple pattern like Docker

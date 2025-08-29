@@ -3,8 +3,6 @@ kind: PersistentVolumeClaim
 metadata:
   name: cleanuparr-config
   namespace: arr-stack
-  labels:
-    velero.io/backup: "true"
 spec:
   accessModes:
     - ReadWriteOnce

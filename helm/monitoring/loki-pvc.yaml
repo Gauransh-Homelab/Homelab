@@ -6,7 +6,6 @@ metadata:
   labels:
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: loki
-    velero.io/backup: "true"
 spec:
   accessModes:
     - ReadWriteOnce

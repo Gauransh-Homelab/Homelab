@@ -3,8 +3,6 @@ kind: PersistentVolumeClaim
 metadata:
   name: huntarr-config
   namespace: arr-stack
-  labels:
-    velero.io/backup: "true"
 spec:
   accessModes:
     - ReadWriteOnce

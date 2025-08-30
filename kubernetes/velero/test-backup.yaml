@@ -1,0 +1,38 @@
+apiVersion: velero.io/v1
+kind: Backup
+metadata:
+  name: test-backup-$(date +%Y%m%d-%H%M%S)
+  namespace: velero
+spec:
+  # Same configuration as the schedule
+  ttl: 24h  # Shorter retention for test (1 day instead of 7)
+  
+  # Namespaces to exclude (same as schedule)
+  excludedNamespaces:
+    - kube-system
+    - kube-public
+    - kube-node-lease
+    - velero
+  
+  # Cluster-scoped resources (same as schedule)
+  includedClusterScopedResources:
+    - persistentvolumes
+    - storageclasses
+    - namespaces
+    - clusterroles
+    - clusterrolebindings
+  
+  excludedClusterScopedResources:
+    - nodes
+    - events
+    - componentstatuses
+    - csidrivers
+    - csinodes
+    - apiservices
+  
+  # Volume backup settings (same as schedule)
+  snapshotVolumes: false
+  defaultVolumesToFsBackup: false
+  
+  # Storage location
+  storageLocation: default

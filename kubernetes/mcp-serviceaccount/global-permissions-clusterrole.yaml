@@ -79,14 +79,24 @@ rules:
   verbs: ["get", "list", "watch"]
 # CloudNativePG (CNPG) resources
 - apiGroups: ["postgresql.cnpg.io"]
-  resources: ["clusters", "databases", "poolers"]
-  verbs: ["get", "list"]
+  resources: ["clusters", "databases", "poolers", "backups", "scheduledbackups"]
+  verbs: ["get", "list", "watch"]
 # Velero backup and restore permissions
 - apiGroups: ["velero.io"]
-  resources: ["backups", "backupstoragelocations", "deletebackuprequests", "downloadrequests", "podvolumebackups", "podvolumerestores", "resticrepositories", "restores", "schedules", "serverstatusrequests", "volumesnapshotlocations"]
+  resources: ["backups", "backupstoragelocations", "deletebackuprequests", "downloadrequests", "podvolumebackups", "podvolumerestores", "resticrepositories", "restores", "schedules", "serverstatusrequests", "volumesnapshotlocations", "backuprepositories", "datadownloads", "datauploads"]
   verbs: ["get", "list", "watch"]
-# Velero logs access (pods in velero namespace)
+# Velero backup status and progress monitoring
+- apiGroups: ["velero.io"]
+  resources: ["backups/status", "restores/status", "schedules/status", "downloadrequests/status", "serverstatusrequests/status"]
+  verbs: ["get", "list", "watch"]
+# Velero namespace - pod and log access for monitoring
+# Note: ClusterRole grants cluster-wide permissions, namespace-specific access controlled via RoleBinding
 - apiGroups: [""]
-  resources: ["pods", "pods/log"]
-  verbs: ["get", "list"]
-  namespaces: ["velero"]
+  resources: ["pods", "pods/log", "events"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "daemonsets", "replicasets", "statefulsets"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["batch"]
+  resources: ["jobs", "cronjobs"]
+  verbs: ["get", "list", "watch"]

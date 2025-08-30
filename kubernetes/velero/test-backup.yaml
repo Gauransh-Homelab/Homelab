@@ -1,7 +1,7 @@
 apiVersion: velero.io/v1
 kind: Backup
 metadata:
-  name: test-backup-$(date +%Y%m%d-%H%M%S)
+  name: test-backup-20250830
   namespace: velero
 spec:
   # Same configuration as the schedule

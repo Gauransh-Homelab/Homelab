@@ -1,0 +1,49 @@
+apiVersion: velero.io/v1
+kind: Schedule
+metadata:
+  name: homelab-daily-backup
+  namespace: velero
+spec:
+  schedule: "0 2 * * *" # Daily at 2 AM Singapore time
+  template:
+    ttl: 168h  # 7 days retention
+    
+    # Namespaces to exclude (system/temporary namespaces)
+    excludedNamespaces:
+      - kube-system      # Core K8s components
+      - kube-public      # Public cluster info
+      - kube-node-lease  # Node heartbeat data
+      - velero          # Velero itself (avoid circular backup)
+    
+    # Include all user namespaces implicitly by not specifying includedNamespaces
+    
+    # Cluster-scoped resources
+    includedClusterScopedResources:
+      - persistentvolumes  # PV definitions
+      - storageclasses    # Storage configurations
+      - namespaces        # Namespace definitions
+      - clusterroles      # RBAC roles
+      - clusterrolebindings # RBAC bindings
+    
+    excludedClusterScopedResources:
+      - nodes             # Physical node info
+      - events           # Ephemeral events
+      - componentstatuses # Runtime status
+      - csidrivers       # Storage drivers
+      - csinodes         # Node-specific CSI data
+      - apiservices      # API registration
+    
+    # Volume backup settings
+    snapshotVolumes: false  # No CSI snapshots (not supported)
+    defaultVolumesToFsBackup: false  # Require explicit opt-in via pod annotations
+    
+    # Use pod annotations to control which volumes to backup:
+    # backup.velero.io/backup-volumes: volume1,volume2
+    
+    # Storage location
+    storageLocation: default
+    
+    # Include resources with specific labels (optional)
+    # labelSelector:
+    #   matchLabels:
+    #     backup: "true"

@@ -5,6 +5,7 @@
     ":dependencyDashboard",
     ":semanticCommitTypeAll(feat)"
   ],
+  "automerge": false,
   "timezone": "Asia/Singapore",
   "labels": [
     "renovate",
@@ -26,7 +27,7 @@
       "pinDigests": false
     },
     {
-      "description": "Auto-merge stable container updates",
+      "description": "Review stable container updates manually",
       "matchDatasources": [
         "docker"
       ],
@@ -35,9 +36,6 @@
         "patch",
         "digest"
       ],
-      "automerge": true,
-      "automergeType": "pr",
-      "platformAutomerge": true,
       "matchPackageNames": [
         "lscr.io/linuxserver/sonarr",
         "lscr.io/linuxserver/radarr",
@@ -53,7 +51,7 @@
       ]
     },
     {
-      "description": "Auto-merge k8s infrastructure updates",
+      "description": "Review k8s infrastructure updates manually",
       "matchDatasources": [
         "docker"
       ],
@@ -61,9 +59,6 @@
         "minor",
         "patch"
       ],
-      "automerge": true,
-      "automergeType": "pr",
-      "platformAutomerge": true,
       "matchPackageNames": [
         "registry.k8s.io/descheduler/descheduler",
         "quay.io/jetstack/cert-manager-controller",

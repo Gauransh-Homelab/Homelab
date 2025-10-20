@@ -22,20 +22,20 @@ spec:
       affinity:
         nodeAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 100
-            preference:
-              matchExpressions:
-              - key: kubernetes.io/hostname
-                operator: In
-                values:
-                - proxmox
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - proxmox
       securityContext:
         supplementalGroups:
-          - 44  # video group for GPU access
+          - 44 # video group for GPU access
           - 104 # render group for GPU access
       containers:
         - name: jellyfin
-          image: jellyfin/jellyfin:10.11.0
+          image: jellyfin/jellyfin:10.7.0
           imagePullPolicy: IfNotPresent
           resources:
             limits:

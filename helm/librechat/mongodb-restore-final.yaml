@@ -9,7 +9,7 @@ spec:
       restartPolicy: Never
       containers:
       - name: mongo-restore
-        image: mongo:8.0
+        image: mongo:8.2
         command:
         - /bin/bash
         - -c

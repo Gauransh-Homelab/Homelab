@@ -36,7 +36,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 50Gi
+      storage: 30Gi
   storageClassName: "" # Empty to bind to our specific PV
   volumeName: jellyfin-cache-pv # Bind to specific PV
 ---

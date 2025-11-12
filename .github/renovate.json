@@ -27,6 +27,12 @@
       "pinDigests": false
     },
     {
+      "description": "Map lscr.io LinuxServer images to Docker Hub",
+      "matchDatasources": ["docker"],
+      "matchPackagePatterns": ["^linuxserver/"],
+      "registryUrls": ["https://index.docker.io"]
+    },
+    {
       "description": "Review stable container updates manually",
       "matchDatasources": [
         "docker"
@@ -37,12 +43,12 @@
         "digest"
       ],
       "matchPackageNames": [
-        "lscr.io/linuxserver/sonarr",
-        "lscr.io/linuxserver/radarr",
-        "lscr.io/linuxserver/bazarr",
-        "lscr.io/linuxserver/prowlarr",
-        "lscr.io/linuxserver/qbittorrent",
-        "lscr.io/linuxserver/nzbget",
+        "linuxserver/sonarr",
+        "linuxserver/radarr",
+        "linuxserver/bazarr",
+        "linuxserver/prowlarr",
+        "linuxserver/qbittorrent",
+        "linuxserver/nzbget",
         "jellyfin/jellyfin",
         "fallenbagel/jellyseerr",
         "golift/notifiarr",
@@ -96,13 +102,27 @@
   "customManagers": [
     {
       "customType": "regex",
-      "description": "Process container images in Kubernetes files",
+      "description": "Process lscr.io container images in Kubernetes files",
       "managerFilePatterns": [
         "/\\.yaml$/",
         "/\\.yml$/"
       ],
       "matchStrings": [
-        "image:\\s+(?<depName>[^:]+):(?<currentValue>[^\\s]+)"
+        "image:\\s+lscr\\.io/(?<depName>[^:]+):(?<currentValue>[^\\s]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "docker",
+      "registryUrlTemplate": "https://lscr.io"
+    },
+    {
+      "customType": "regex",
+      "description": "Process other container images in Kubernetes files",
+      "managerFilePatterns": [
+        "/\\.yaml$/",
+        "/\\.yml$/"
+      ],
+      "matchStrings": [
+        "image:\\s+(?!lscr\\.io/)(?<depName>[^:]+):(?<currentValue>[^\\s]+)"
       ],
       "datasourceTemplate": "docker",
       "versioningTemplate": "docker"

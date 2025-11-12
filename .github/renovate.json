@@ -75,12 +75,14 @@
   "customManagers": [
     {
       "customType": "regex",
-      "description": "Process lscr.io container images in Kubernetes files",
+      "description": "Process lscr.io LinuxServer container images",
       "fileMatch": ["\\.yaml$", "\\.yml$"],
       "matchStrings": [
-        "image:\\s+lscr\\.io/(?<depName>[^:]+):(?<currentValue>[^\\s]+)"
+        "image:\\s+lscr\\.io/(?<depName>linuxserver/[^:]+):(?<currentValue>[^\\s]+)"
       ],
-      "datasourceTemplate": "docker"
+      "datasourceTemplate": "docker",
+      "lookupNameTemplate": "{{{depName}}}",
+      "registryUrlTemplate": "https://index.docker.io"
     },
     {
       "customType": "regex",

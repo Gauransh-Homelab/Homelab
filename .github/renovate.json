@@ -14,34 +14,22 @@
   "assigneesFromCodeOwners": true,
   "rebaseWhen": "behind-base-branch",
   "kubernetes": {
-    "managerFilePatterns": [
-      "/\\.yaml$/",
-      "/\\.yml$/"
-    ]
+    "fileMatch": ["\\.yaml$", "\\.yml$"]
   },
   "packageRules": [
     {
-      "matchCategories": [
-        "docker"
-      ],
+      "matchCategories": ["docker"],
       "pinDigests": false
     },
     {
-      "description": "Map lscr.io LinuxServer images to Docker Hub",
+      "description": "Filter out pre-release versions",
       "matchDatasources": ["docker"],
-      "matchPackagePatterns": ["^linuxserver/"],
-      "registryUrls": ["https://index.docker.io"]
+      "allowedVersions": "!/^.*-(alpha|beta|rc|dev|canary|unstable|preview|pre|test|experimental).*$/"
     },
     {
       "description": "Review stable container updates manually",
-      "matchDatasources": [
-        "docker"
-      ],
-      "matchUpdateTypes": [
-        "minor",
-        "patch",
-        "digest"
-      ],
+      "matchDatasources": ["docker"],
+      "matchUpdateTypes": ["minor", "patch", "digest"],
       "matchPackageNames": [
         "linuxserver/sonarr",
         "linuxserver/radarr",
@@ -58,13 +46,8 @@
     },
     {
       "description": "Review k8s infrastructure updates manually",
-      "matchDatasources": [
-        "docker"
-      ],
-      "matchUpdateTypes": [
-        "minor",
-        "patch"
-      ],
+      "matchDatasources": ["docker"],
+      "matchUpdateTypes": ["minor", "patch"],
       "matchPackageNames": [
         "registry.k8s.io/descheduler/descheduler",
         "quay.io/jetstack/cert-manager-controller",
@@ -76,25 +59,15 @@
     },
     {
       "description": "Group ArgoCD updates",
-      "matchDatasources": [
-        "docker",
-        "helm"
-      ],
+      "matchDatasources": ["docker", "helm"],
       "groupName": "ArgoCD",
       "automerge": false,
-      "matchPackageNames": [
-        "/argo-cd/",
-        "/argocd/"
-      ]
+      "matchPackageNames": ["/argo-cd/", "/argocd/"]
     },
     {
       "description": "Allow major updates but don't auto-merge",
-      "matchDatasources": [
-        "docker"
-      ],
-      "matchUpdateTypes": [
-        "major"
-      ],
+      "matchDatasources": ["docker"],
+      "matchUpdateTypes": ["major"],
       "enabled": true,
       "automerge": false
     }
@@ -103,36 +76,23 @@
     {
       "customType": "regex",
       "description": "Process lscr.io container images in Kubernetes files",
-      "managerFilePatterns": [
-        "/\\.yaml$/",
-        "/\\.yml$/"
-      ],
+      "fileMatch": ["\\.yaml$", "\\.yml$"],
       "matchStrings": [
         "image:\\s+lscr\\.io/(?<depName>[^:]+):(?<currentValue>[^\\s]+)"
       ],
-      "datasourceTemplate": "docker",
-      "versioningTemplate": "docker",
-      "registryUrlTemplate": "https://lscr.io"
+      "datasourceTemplate": "docker"
     },
     {
       "customType": "regex",
-      "description": "Process other container images in Kubernetes files",
-      "managerFilePatterns": [
-        "/\\.yaml$/",
-        "/\\.yml$/"
-      ],
+      "description": "Process Docker Hub and other registry images",
+      "fileMatch": ["\\.yaml$", "\\.yml$"],
       "matchStrings": [
-        "image:\\s+(?!lscr\\.io/)(?<depName>[^:]+):(?<currentValue>[^\\s]+)"
+        "image:\\s+(?<depName>[a-z0-9][a-z0-9._/-]+[a-z0-9]):(?<currentValue>[^\\s]+)"
       ],
-      "datasourceTemplate": "docker",
-      "versioningTemplate": "docker"
+      "datasourceTemplate": "docker"
     }
   ],
-  "ignorePresets": [
-    ":prHourlyLimit2"
-  ],
-  "allowedCommands": [],
-  "allowedVersions": "!/^.*-(alpha|beta|rc|dev|canary|unstable|preview|pre|test|experimental).*$/",
+  "ignorePresets": [":prHourlyLimit2"],
   "commitMessagePrefix": "feat({{packageFileDir}}):",
   "commitMessageTopic": "update {{depName}} to {{newVersion}}",
   "commitMessageExtra": "from {{currentVersion}}",

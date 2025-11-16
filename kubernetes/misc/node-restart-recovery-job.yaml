@@ -1,0 +1,313 @@
+---
+# Node Restart Recovery Job
+# This job helps recover the cluster after a node restart by:
+# 1. Cleaning up failed/evicted pods
+# 2. Triggering pod redistribution
+# 3. Restarting crashlooping pods
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: node-recovery
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: node-recovery
+rules:
+- apiGroups: [""]
+  resources: ["pods", "nodes"]
+  verbs: ["get", "list", "delete", "patch"]
+- apiGroups: [""]
+  resources: ["pods/eviction"]
+  verbs: ["create"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "daemonsets", "replicasets", "statefulsets"]
+  verbs: ["get", "list", "patch"]
+- apiGroups: ["batch"]
+  resources: ["cronjobs", "jobs"]
+  verbs: ["create", "get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: node-recovery
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: node-recovery
+subjects:
+- kind: ServiceAccount
+  name: node-recovery
+  namespace: kube-system
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: node-recovery-script
+  namespace: kube-system
+data:
+  recovery.sh: |
+    #!/bin/bash
+    set -e
+
+    echo "================================================"
+    echo "Node Recovery Script - Started at $(date)"
+    echo "================================================"
+
+    # Function to wait for node to be ready
+    wait_for_nodes() {
+      echo ""
+      echo "Step 1: Checking node status..."
+      echo "--------------------------------"
+
+      local max_wait=300  # 5 minutes
+      local waited=0
+
+      while [ $waited -lt $max_wait ]; do
+        not_ready_nodes=$(kubectl get nodes --no-headers | grep -c "NotReady" || true)
+
+        if [ $not_ready_nodes -eq 0 ]; then
+          echo "✓ All nodes are ready!"
+          kubectl get nodes
+          break
+        else
+          echo "⏳ Waiting for nodes to be ready... ($not_ready_nodes nodes not ready)"
+          sleep 10
+          waited=$((waited + 10))
+        fi
+      done
+
+      if [ $waited -ge $max_wait ]; then
+        echo "⚠️  Warning: Some nodes still not ready after ${max_wait} seconds"
+        kubectl get nodes
+      fi
+    }
+
+    # Function to clean up failed/evicted pods
+    cleanup_failed_pods() {
+      echo ""
+      echo "Step 2: Cleaning up failed/evicted pods..."
+      echo "-------------------------------------------"
+
+      # Delete pods in Failed state
+      failed_pods=$(kubectl get pods -A --field-selector=status.phase=Failed -o json | jq -r '.items[] | "\(.metadata.namespace)/\(.metadata.name)"')
+
+      if [ -n "$failed_pods" ]; then
+        echo "Found failed pods:"
+        echo "$failed_pods"
+        for pod in $failed_pods; do
+          namespace=$(echo $pod | cut -d'/' -f1)
+          name=$(echo $pod | cut -d'/' -f2)
+          echo "  Deleting failed pod: $namespace/$name"
+          kubectl delete pod $name -n $namespace --grace-period=0 --force 2>/dev/null || true
+        done
+      else
+        echo "✓ No failed pods found"
+      fi
+
+      # Delete evicted pods
+      evicted_pods=$(kubectl get pods -A -o json | jq -r '.items[] | select(.status.reason=="Evicted") | "\(.metadata.namespace)/\(.metadata.name)"')
+
+      if [ -n "$evicted_pods" ]; then
+        echo "Found evicted pods:"
+        echo "$evicted_pods"
+        for pod in $evicted_pods; do
+          namespace=$(echo $pod | cut -d'/' -f1)
+          name=$(echo $pod | cut -d'/' -f2)
+          echo "  Deleting evicted pod: $namespace/$name"
+          kubectl delete pod $name -n $namespace --grace-period=0 --force 2>/dev/null || true
+        done
+      else
+        echo "✓ No evicted pods found"
+      fi
+
+      # Handle pods in Unknown state (usually after node failure)
+      unknown_pods=$(kubectl get pods -A --field-selector=status.phase=Unknown -o json | jq -r '.items[] | "\(.metadata.namespace)/\(.metadata.name)"')
+
+      if [ -n "$unknown_pods" ]; then
+        echo "Found pods in Unknown state:"
+        echo "$unknown_pods"
+        for pod in $unknown_pods; do
+          namespace=$(echo $pod | cut -d'/' -f1)
+          name=$(echo $pod | cut -d'/' -f2)
+          echo "  Deleting unknown pod: $namespace/$name"
+          kubectl delete pod $name -n $namespace --grace-period=0 --force 2>/dev/null || true
+        done
+      else
+        echo "✓ No pods in Unknown state"
+      fi
+    }
+
+    # Function to restart crashlooping pods
+    restart_crashloop_pods() {
+      echo ""
+      echo "Step 3: Handling CrashLoopBackOff pods..."
+      echo "------------------------------------------"
+
+      # Find pods in CrashLoopBackOff
+      crashloop_pods=$(kubectl get pods -A -o json | jq -r '.items[] | select(.status.containerStatuses[]?.state.waiting.reason == "CrashLoopBackOff") | "\(.metadata.namespace)/\(.metadata.name)"' | sort -u)
+
+      if [ -n "$crashloop_pods" ]; then
+        echo "Found pods in CrashLoopBackOff:"
+        echo "$crashloop_pods"
+
+        for pod in $crashloop_pods; do
+          namespace=$(echo $pod | cut -d'/' -f1)
+          name=$(echo $pod | cut -d'/' -f2)
+
+          # Skip critical system pods
+          if [[ "$namespace" == "kube-system" ]] || [[ "$namespace" == "synology-csi" ]]; then
+            echo "  ⚠️  Skipping system pod: $namespace/$name (manual intervention may be needed)"
+            continue
+          fi
+
+          # Get the owner of the pod
+          owner=$(kubectl get pod $name -n $namespace -o json | jq -r '.metadata.ownerReferences[0].kind' 2>/dev/null || echo "Unknown")
+
+          if [[ "$owner" == "ReplicaSet" ]] || [[ "$owner" == "DaemonSet" ]] || [[ "$owner" == "StatefulSet" ]]; then
+            echo "  Deleting crashloop pod: $namespace/$name (owned by $owner)"
+            kubectl delete pod $name -n $namespace --grace-period=0 2>/dev/null || true
+            sleep 2
+          else
+            echo "  ⚠️  Skipping pod with unknown owner: $namespace/$name"
+          fi
+        done
+      else
+        echo "✓ No pods in CrashLoopBackOff"
+      fi
+    }
+
+    # Function to trigger descheduler
+    trigger_descheduler() {
+      echo ""
+      echo "Step 4: Triggering descheduler for pod redistribution..."
+      echo "---------------------------------------------------------"
+
+      # Check if descheduler cronjob exists
+      if kubectl get cronjob descheduler -n kube-system &>/dev/null; then
+        echo "Creating manual descheduler job..."
+        job_name="descheduler-recovery-$(date +%s)"
+        kubectl create job --from=cronjob/descheduler $job_name -n kube-system
+
+        # Wait for job to complete
+        echo "Waiting for descheduler job to complete..."
+        kubectl wait --for=condition=complete --timeout=120s job/$job_name -n kube-system 2>/dev/null || true
+
+        echo "✓ Descheduler job triggered"
+      else
+        echo "⚠️  Descheduler cronjob not found, skipping..."
+      fi
+    }
+
+    # Function to check pod distribution
+    check_distribution() {
+      echo ""
+      echo "Step 5: Checking pod distribution..."
+      echo "-------------------------------------"
+
+      for node in $(kubectl get nodes -o json | jq -r '.items[].metadata.name'); do
+        pod_count=$(kubectl get pods -A --field-selector spec.nodeName=$node --no-headers | wc -l)
+        echo "Node $node: $pod_count pods"
+      done
+
+      # Show any pods still pending
+      pending_count=$(kubectl get pods -A --field-selector=status.phase=Pending --no-headers | wc -l)
+      if [ $pending_count -gt 0 ]; then
+        echo ""
+        echo "⚠️  Warning: $pending_count pods still pending:"
+        kubectl get pods -A --field-selector=status.phase=Pending
+      fi
+    }
+
+    # Function to restart stuck deployments
+    restart_stuck_deployments() {
+      echo ""
+      echo "Step 6: Checking for stuck deployments..."
+      echo "------------------------------------------"
+
+      # Find deployments with unavailable replicas
+      stuck_deployments=$(kubectl get deployments -A -o json | jq -r '.items[] | select(.status.unavailableReplicas > 0) | "\(.metadata.namespace)/\(.metadata.name)"')
+
+      if [ -n "$stuck_deployments" ]; then
+        echo "Found deployments with unavailable replicas:"
+        for deployment in $stuck_deployments; do
+          namespace=$(echo $deployment | cut -d'/' -f1)
+          name=$(echo $deployment | cut -d'/' -f2)
+
+          # Skip critical system deployments
+          if [[ "$namespace" == "kube-system" ]] || [[ "$namespace" == "synology-csi" ]]; then
+            echo "  ⚠️  Skipping system deployment: $namespace/$name"
+            continue
+          fi
+
+          echo "  Restarting deployment: $namespace/$name"
+          kubectl rollout restart deployment/$name -n $namespace
+          sleep 2
+        done
+      else
+        echo "✓ All deployments healthy"
+      fi
+    }
+
+    # Main execution
+    main() {
+      echo "Starting node recovery process..."
+      echo ""
+
+      wait_for_nodes
+      cleanup_failed_pods
+      restart_crashloop_pods
+      trigger_descheduler
+      restart_stuck_deployments
+      check_distribution
+
+      echo ""
+      echo "================================================"
+      echo "Node Recovery Script - Completed at $(date)"
+      echo "================================================"
+      echo ""
+      echo "Final cluster status:"
+      kubectl get nodes
+      echo ""
+      echo "Pod summary:"
+      kubectl get pods -A -o wide | grep -E "(Running|Pending|Error|CrashLoop)" | wc -l | xargs echo "Total pods:"
+      kubectl get pods -A --field-selector=status.phase=Running --no-headers | wc -l | xargs echo "Running:"
+      kubectl get pods -A --field-selector=status.phase=Pending --no-headers | wc -l | xargs echo "Pending:"
+      kubectl get pods -A -o wide | grep -c CrashLoop | xargs echo "CrashLoop:" || echo "CrashLoop: 0"
+
+      echo ""
+      echo "✅ Recovery process complete!"
+    }
+
+    # Run main function
+    main
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: node-recovery
+  namespace: kube-system
+spec:
+  ttlSecondsAfterFinished: 3600  # Auto-delete after 1 hour
+  template:
+    spec:
+      serviceAccountName: node-recovery
+      restartPolicy: Never
+      containers:
+      - name: recovery
+        image: bitnami/kubectl:latest
+        command: ["/bin/bash"]
+        args: ["-c", "/scripts/recovery.sh"]
+        volumeMounts:
+        - name: script
+          mountPath: /scripts
+        env:
+        - name: KUBECONFIG
+          value: "/.kube/config"
+      volumes:
+      - name: script
+        configMap:
+          name: node-recovery-script
+          defaultMode: 0755

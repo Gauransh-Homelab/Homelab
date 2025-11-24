@@ -22,9 +22,10 @@
       "pinDigests": false
     },
     {
-      "description": "LinuxServer.io images versioning",
-      "matchPackageNames": ["/^(gh|ls)cr\\.io\\/linuxserver\\//"],
-      "versioning": "regex:^v?(?<major>\\d+)\\.(?<minor>\\d+)(?:\\.(?<patch>\\d+))?(?:\\.(?<build>\\d+))?(?:-ls(?<revision>\\d+))?$"
+      "description": "LinuxServer.io images versioning - track immutable tags only",
+      "matchDatasources": ["docker"],
+      "matchPackagePatterns": ["^(gh|ls)cr\\.io/linuxserver/"],
+      "versioning": "regex:^v?(?<major>\\d+)\\.(?<minor>\\d+)(?:\\.(?<patch>\\d+))?-ls(?<revision>\\d+)$"
     },
     {
       "description": "Filter out pre-release versions",

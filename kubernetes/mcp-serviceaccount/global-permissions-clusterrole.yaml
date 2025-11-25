@@ -24,7 +24,10 @@ rules:
   verbs: ["get", "list"]
 # Storage debugging
 - apiGroups: ["storage.k8s.io"]
-  resources: ["volumeattachments", "csinodes", "csidrivers"]
+  resources: ["volumeattachments"]
+  verbs: ["get", "list", "delete"]
+- apiGroups: ["storage.k8s.io"]
+  resources: ["csinodes", "csidrivers"]
   verbs: ["get", "list"]
 # Cilium resources (if using Cilium CNI)
 - apiGroups: ["cilium.io"]

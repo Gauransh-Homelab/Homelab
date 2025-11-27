@@ -67,7 +67,7 @@ spec:
             periodSeconds: 60
             failureThreshold: 2
         - name: qbittorrent
-          image: lscr.io/linuxserver/qbittorrent:5.1.2-r1-ls411
+          image: lscr.io/linuxserver/qbittorrent:v5.1.2-r1-ls411
           env:
             - name: PUID
               value: "1000"

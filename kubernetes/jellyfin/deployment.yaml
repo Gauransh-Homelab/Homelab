@@ -28,7 +28,7 @@ spec:
                   - key: kubernetes.io/hostname
                     operator: In
                     values:
-                      - proxmox
+                      - talos-f37-jub
       securityContext:
         supplementalGroups:
           - 44 # video group for GPU access

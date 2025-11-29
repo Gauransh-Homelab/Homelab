@@ -14,7 +14,7 @@ spec:
     targetRevision: main
     path: kubernetes/arr-stack
     directory:
-      include: "radarr-single-deployment.yaml"
+      include: "{radarr-single-deployment.yaml,radarr-pvc-new.yaml}"
   destination:
     server: https://kubernetes.default.svc
     namespace: arr-stack

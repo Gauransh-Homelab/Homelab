@@ -293,7 +293,7 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 
 #### 🚧 In Progress
 
-
+- [ ] External DNS
 
 #### ✅ Recently Completed
 

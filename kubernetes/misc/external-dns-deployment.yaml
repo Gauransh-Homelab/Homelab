@@ -1,0 +1,46 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: external-dns
+  namespace: misc
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: external-dns
+  template:
+    metadata:
+      labels:
+        app: external-dns
+    spec:
+      serviceAccountName: external-dns
+      containers:
+      - name: external-dns
+        image: registry.k8s.io/external-dns/external-dns:v0.15.0
+        envFrom:
+        - secretRef:
+            name: pihole-password
+        args:
+        - --source=service
+        - --source=ingress
+        - --source=traefik-proxy
+        # Disable legacy Traefik API (traefik.containo.us) - cluster only has traefik.io
+        - --traefik-disable-legacy
+        # Use TXT registry for ownership tracking
+        - --registry=txt
+        - --txt-owner-id=k8s-external-dns
+        # IMPORTANT: upsert-only policy to avoid deleting manually managed records
+        - --policy=upsert-only
+        - --provider=pihole
+        # Pi-hole server URL (API is at /api, not /admin/api)
+        - --pihole-server=http://192.168.10.101:8000/api
+        # Only sync records for your domain
+        - --domain-filter=arkhaya.duckdns.org
+        # Sync interval
+        - --interval=1m
+        # Log level
+        - --log-level=info
+      securityContext:
+        fsGroup: 65534

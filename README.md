@@ -290,10 +290,13 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 - [ ] Homarr
 - [ ] Jellyfin Stats
 - [ ] Authentik
+- [ ] Configure talos to pipe logs for node into loki
+- [ ] Research and find the best way to handle secrets for cluster so we can not have it only on local machine
 
 #### 🚧 In Progress
 
 - [ ] External DNS
+- [ ] Tdarr running on beelink cause we can have using iGPU and its quite decent
 
 #### ✅ Recently Completed
 
@@ -308,7 +311,6 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 - [ ] *arr Stack Migration (SQLite → PostgreSQL)
 - [ ] MCP Server - Discord Media Bot
 - [ ] Karakeep - bookmarking system
-- [ ] Tdarr running on beelink cause we can have using iGPU and its quite decent
 
 ### 📦 Archive
 

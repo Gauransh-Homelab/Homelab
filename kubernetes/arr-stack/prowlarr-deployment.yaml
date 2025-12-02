@@ -29,8 +29,6 @@ spec:
               value: "1000"
             - name: TZ
               value: "Asia/Singapore"
-            - name: DOTNET_SENTRY_ENABLED
-              value: "false"
           ports:
             - containerPort: 9696
               name: http

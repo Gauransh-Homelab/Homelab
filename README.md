@@ -279,14 +279,13 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 
 [![Live Roadmap](https://img.shields.io/badge/Live%20Roadmap-View%20on%20Obsidian-7c3aed?style=for-the-badge&logo=obsidian&logoColor=white)](https://publish.obsidian.md/gauranshmathur/Publish/Homelab)
 
-_Synced from Obsidian on every push_
+*Synced from Obsidian on every push*
 
 </div>
 
 ### 📌 Current Status
 
 #### 📋 To Do
-
 - [ ] n8n
 - [ ] Homarr
 - [ ] Jellyfin Stats
@@ -309,7 +308,7 @@ _Synced from Obsidian on every push_
 
 ### 🚀 Future Projects
 
-- [ ] \*arr Stack Migration (SQLite → PostgreSQL)
+- [ ] *arr Stack Migration (SQLite → PostgreSQL)
 - [ ] MCP Server - Discord Media Bot
 - [ ] Karakeep - bookmarking system
 
@@ -326,7 +325,6 @@ _Synced from Obsidian on every push_
 - [x] obsidian-setup ✅ 2025-05-29
 
 ---
-
 ## 🔧 Troubleshooting
 
 ### Cert-Manager DuckDNS Issues

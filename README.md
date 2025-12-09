@@ -295,16 +295,15 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 
 #### 🚧 In Progress
 
-- [ ] External DNS
 - [ ] Tdarr running on beelink cause we can have using iGPU and its quite decent
 
 #### ✅ Recently Completed
 
+- [x] External DNS ✅ 2025-12-01
 - [x] Ghost Blog ✅ 2025-08-16
 - [x] Huntarr + cleanuparr ✅ 2025-08-13
 - [x] LGM Stack with alloy ✅ 2025-07-27
 - [x] HA PostgreSQL ✅ 2025-08-05
-- [x] Argo CD ✅ 2025-08-03
 
 ### 🚀 Future Projects
 

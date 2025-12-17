@@ -299,11 +299,11 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 
 #### ✅ Recently Completed
 
+- [x] Convert notifiarr to statefulset to prevent name change for trash sync ✅ 2025-12-09
 - [x] External DNS ✅ 2025-12-01
 - [x] Ghost Blog ✅ 2025-08-16
 - [x] Huntarr + cleanuparr ✅ 2025-08-13
 - [x] LGM Stack with alloy ✅ 2025-07-27
-- [x] HA PostgreSQL ✅ 2025-08-05
 
 ### 🚀 Future Projects
 

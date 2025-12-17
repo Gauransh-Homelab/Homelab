@@ -1,0 +1,121 @@
+#
+# Tdarr Helm chart values for home lab deployment
+# Chart: k8s-home-lab/tdarr
+# Chart Version: 5.0.1
+#
+
+# -- Global settings for the Tdarr server (main pod).
+# The image tag is set to the specific app version requested.
+image:
+  repository: ghcr.io/haveagitgat/tdarr
+  tag: 2.00.20
+  pullPolicy: IfNotPresent
+
+# -- Common environment variables for all pods created by this chart.
+env:
+  TZ: "Asia/Singapore"
+  PUID: "1000"
+  PGID: "1000"
+
+# -- Configure the web UI and server API service.
+# This exposes Tdarr on a static IP using a LoadBalancer.
+service:
+  main:
+    type: LoadBalancer
+    # -- Assign a static IP from your MetalLB or other LoadBalancer range.
+    loadBalancerIP: 192.168.10.30
+    ports:
+      http:
+        port: 8265
+      server:
+        port: 8266
+
+# -- Configure the Tdarr Node deployment, which handles transcoding.
+node:
+  enabled: true
+
+  # -- Image for the Tdarr transcoding node.
+  image:
+    repository: ghcr.io/haveagitgat/tdarr_node
+    tag: 2.58.02 # Using the specific version requested for the node
+
+  # -- Environment variables for the Tdarr Node to connect to the server.
+  env:
+    # -- The node ID for identification in the Tdarr UI.
+    nodeID: "intel-gpu-node"
+    # -- The node connects to the server via its internal Kubernetes service name.
+    # Assumes a Helm release name of `tdarr`, creating a service named `tdarr-main`.
+    serverIP: "tdarr-main"
+    serverPort: "8266"
+
+  # -- Define resource requests and limits for the Tdarr Node.
+  # This is where the GPU is allocated.
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1536Mi
+      # -- Allocate one Intel i915 GPU to this node pod.
+      gpu.intel.com/i915: "1"
+    limits:
+      cpu: 3000m
+      memory: 6Gi
+      gpu.intel.com/i915: "1"
+
+# -- Pin all pods to the specific Kubernetes node that has the Intel GPU.
+nodeSelector:
+  kubernetes.io/hostname: talos-qay-wxj
+
+# -- Pod annotations for Velero backup
+podAnnotations:
+  backup.velero.io/backup-volumes: config,data
+
+# -- Resource requests and limits for the main Tdarr Server pod.
+# The server is less resource-intensive than the transcoding node.
+resources:
+  requests:
+    cpu: 200m
+    memory: 256Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+
+# -- Configure persistence for Tdarr data, configs, media, and transcode cache.
+persistence:
+  # -- PVC for Tdarr's configuration files.
+  config:
+    enabled: true
+    type: pvc
+    storageClass: synostorage
+    accessMode: ReadWriteOnce
+    size: 2Gi
+    mountPath: /app/configs
+
+  # -- PVC for Tdarr's internal server database.
+  data:
+    enabled: true
+    type: pvc
+    storageClass: synostorage
+    accessMode: ReadWriteOnce
+    size: 10Gi
+    mountPath: /app/server
+
+  # -- NFS mount for the media library.
+  media:
+    enabled: true
+    type: nfs
+    # -- IP address of your NFS server.
+    server: 192.168.10.101
+    # -- Path to the share on the NFS server.
+    path: /volume1/NAS
+    mountPath: /media
+    readOnly: false
+
+  # -- Local node storage for the transcode cache.
+  # Using emptyDir is fast for temporary files but is ephemeral and
+  # tied to the pod's lifecycle on the node.
+  shared:
+    enabled: true
+    type: emptyDir
+    mountPath: /shared
+    # -- Set a size limit to prevent filling up the node's disk.
+    sizeLimit: 250Gi

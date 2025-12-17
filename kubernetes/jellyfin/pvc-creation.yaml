@@ -3,6 +3,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: jellyfin-config
   namespace: jelly
+  labels:
+    app: jellyfin
 spec:
   accessModes:
     - ReadWriteOnce
@@ -17,6 +19,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: jellyfin-data
   namespace: jelly
+  labels:
+    app: jellyfin
 spec:
   accessModes:
     - ReadWriteOnce

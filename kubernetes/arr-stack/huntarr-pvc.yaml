@@ -3,6 +3,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: huntarr-config
   namespace: arr-stack
+  labels:
+    app: huntarr
 spec:
   accessModes:
     - ReadWriteOnce

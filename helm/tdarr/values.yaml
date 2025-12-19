@@ -12,6 +12,7 @@ image:
   pullPolicy: IfNotPresent
 
 # -- Common environment variables for all pods created by this chart.
+# NOTE: These env vars are shared by BOTH server and node containers.
 env:
   TZ: "Asia/Singapore"
   PUID: "1000"
@@ -19,6 +20,9 @@ env:
   # Enable dual-stack (IPv4/IPv6) so server listens on both
   # This fixes node connection issue where localhost resolves to IPv6
   serverDualStack: "true"
+  # -- FFmpeg path for transcoding (used by node container)
+  # Must be set at root env level - node.env is ignored by this chart
+  ffmpegPath: "/usr/local/bin/tdarr-ffmpeg"
 
 # -- Configure the web UI and server API service.
 # This exposes Tdarr on a static IP using a LoadBalancer.
@@ -42,16 +46,9 @@ node:
     repository: ghcr.io/haveagitgat/tdarr_node
     tag: 2.58.02 # Using the specific version requested for the node
 
-  # -- Environment variables for the Tdarr Node to connect to the server.
-  env:
-    # -- The node ID for identification in the Tdarr UI.
-    nodeID: "intel-gpu-node"
-    # -- Use explicit IPv4 localhost since node runs as sidecar in same pod.
-    # "localhost" resolves to IPv6 first which causes ECONNREFUSED.
-    serverIP: "127.0.0.1"
-    serverPort: "8266"
-    # -- FFmpeg path - required for transcoding to work
-    ffmpegPath: "tdarr-ffmpeg"
+  # NOTE: node.env is NOT supported by this Helm chart (k8s-home-lab/tdarr).
+  # Environment variables must be set at the root 'env:' level above.
+  # The chart uses root env values for both server and node containers.
 
   # -- Define resource requests and limits for the Tdarr Node.
   # This is where the GPU is allocated.

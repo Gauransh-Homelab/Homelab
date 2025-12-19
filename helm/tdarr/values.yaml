@@ -16,6 +16,9 @@ env:
   TZ: "Asia/Singapore"
   PUID: "1000"
   PGID: "1000"
+  # Enable dual-stack (IPv4/IPv6) so server listens on both
+  # This fixes node connection issue where localhost resolves to IPv6
+  serverDualStack: "true"
 
 # -- Configure the web UI and server API service.
 # This exposes Tdarr on a static IP using a LoadBalancer.

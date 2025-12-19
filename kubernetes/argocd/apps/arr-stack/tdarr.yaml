@@ -5,6 +5,8 @@ metadata:
   namespace: argo-cd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
+  annotations:
+    argocd-image-updater.argoproj.io/image-list: server=ghcr.io/haveagitgat/tdarr:~2, node=ghcr.io/haveagitgat/tdarr_node:~2
 spec:
   project: default
   sources:

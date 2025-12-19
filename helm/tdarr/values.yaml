@@ -43,9 +43,9 @@ node:
   env:
     # -- The node ID for identification in the Tdarr UI.
     nodeID: "intel-gpu-node"
-    # -- The node connects to the server via its internal Kubernetes service name.
-    # Assumes a Helm release name of `tdarr`, creating a service named `tdarr-main`.
-    serverIP: "tdarr-main"
+    # -- Use explicit IPv4 localhost since node runs as sidecar in same pod.
+    # "localhost" resolves to IPv6 first which causes ECONNREFUSED.
+    serverIP: "127.0.0.1"
     serverPort: "8266"
 
   # -- Define resource requests and limits for the Tdarr Node.

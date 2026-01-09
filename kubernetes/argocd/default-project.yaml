@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: default
+  namespace: argo-cd
+spec:
+  description: Default ArgoCD project with sync window restrictions
+
+  # Preserve default permissive settings
+  sourceRepos:
+    - "*"
+
+  destinations:
+    - namespace: "*"
+      server: https://kubernetes.default.svc
+
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"
+
+  namespaceResourceWhitelist:
+    - group: "*"
+      kind: "*"
+
+  # Sync Window - Only allow automatic syncs between 3 AM and 6 AM SGT
+  syncWindows:
+    - kind: allow
+      schedule: "0 3 * * *"    # At 3:00 AM daily
+      duration: 3h              # Until 6:00 AM
+      applications:
+        - "*"                   # All applications
+      manualSync: true          # Manual syncs still allowed anytime
+      timeZone: "Asia/Singapore"

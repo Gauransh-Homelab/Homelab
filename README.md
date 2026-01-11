@@ -286,30 +286,32 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 ### 📌 Current Status
 
 #### 📋 To Do
-- [ ] n8n
 - [ ] Homarr
-- [ ] Jellyfin Stats
-- [ ] Authentik
 - [ ] Configure talos to pipe logs for node into loki
-- [ ] Research and find the best way to handle secrets for cluster so we can not have it only on local machine
+- [ ] Configure Prom and grafana to with alert manager to setup the config that will show proper dashboarding and also send alerts via alert manager and other details
 
 #### 🚧 In Progress
 
 - [ ] Tdarr running on beelink cause we can have using iGPU and its quite decent
+- [ ] Install External Secrets Operator
+- [ ] Configure Secret Store to be able to use AWS secrets manager
+- [ ] Convert all the current secrets and push to github allowing for complete full recreation of cluster just with git
 
 #### ✅ Recently Completed
 
+- [x] Research and find the best way to handle secrets for cluster so we can not have it only on local machine ✅ 2026-01-11
 - [x] Convert notifiarr to statefulset to prevent name change for trash sync ✅ 2025-12-09
 - [x] External DNS ✅ 2025-12-01
 - [x] Ghost Blog ✅ 2025-08-16
 - [x] Huntarr + cleanuparr ✅ 2025-08-13
-- [x] LGM Stack with alloy ✅ 2025-07-27
 
 ### 🚀 Future Projects
 
 - [ ] *arr Stack Migration (SQLite → PostgreSQL)
 - [ ] MCP Server - Discord Media Bot
 - [ ] Karakeep - bookmarking system
+- [ ] Authentik
+- [ ] Jellyfin Stats
 
 ### 📦 Archive
 

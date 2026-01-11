@@ -47,8 +47,8 @@ spec:
           
           -- Clean up rules:
           if obj.status.phase == "Failed" then
-            -- Delete Failed pods older than 24 hours
-            if age_hours > 24 then
+            -- Delete Failed pods older than 2 hours
+            if age_hours > 2 then
               hs.matching = true
             else
               hs.matching = false

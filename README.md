@@ -2,11 +2,11 @@
 
 <div align="center">
 
-![Kubernetes](https://img.shields.io/badge/Kubernetes-1.34.1-326CE5?logo=kubernetes&logoColor=white)
-![Talos](https://img.shields.io/badge/Talos_Linux-1.11.3-FF7300?logo=linux&logoColor=white)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-1.35.0-326CE5?logo=kubernetes&logoColor=white)
+![Talos](https://img.shields.io/badge/Talos_Linux-1.12.1-FF7300?logo=linux&logoColor=white)
 ![Services](https://img.shields.io/badge/Services-20+-00ADD8?logo=docker&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-Operational-brightgreen?logo=statuspage&logoColor=white)
-![Last Updated](https://img.shields.io/badge/Updated-December%202025-purple?logo=github&logoColor=white)
+![Last Updated](https://img.shields.io/badge/Updated-January%202026-purple?logo=github&logoColor=white)
 
 _A modern homelab running on Kubernetes with Talos Linux, migrated from Proxmox/Docker_
 
@@ -279,13 +279,15 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 
 [![Live Roadmap](https://img.shields.io/badge/Live%20Roadmap-View%20on%20Obsidian-7c3aed?style=for-the-badge&logo=obsidian&logoColor=white)](https://publish.obsidian.md/gauranshmathur/Publish/Homelab)
 
-*Synced from Obsidian on every push*
+_Synced from Obsidian on every push_
 
 </div>
 
 ### 📌 Current Status
 
 #### 📋 To Do
+
+- [ ] n8n
 - [ ] Homarr
 - [ ] Configure talos to pipe logs for node into loki
 - [ ] Configure Prom and grafana to with alert manager to setup the config that will show proper dashboarding and also send alerts via alert manager and other details
@@ -307,7 +309,7 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 
 ### 🚀 Future Projects
 
-- [ ] *arr Stack Migration (SQLite → PostgreSQL)
+- [ ] \*arr Stack Migration (SQLite → PostgreSQL)
 - [ ] MCP Server - Discord Media Bot
 - [ ] Karakeep - bookmarking system
 - [ ] Authentik
@@ -326,6 +328,7 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 - [x] obsidian-setup ✅ 2025-05-29
 
 ---
+
 ## 🔧 Troubleshooting
 
 ### Cert-Manager DuckDNS Issues

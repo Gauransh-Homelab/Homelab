@@ -11,32 +11,53 @@
     "renovate",
     "dependencies"
   ],
-  "assignees": ["GauranshMathur"],
-  "reviewers": ["GauranshMathur"],
+  "assignees": [
+    "GauranshMathur"
+  ],
+  "reviewers": [
+    "GauranshMathur"
+  ],
   "rebaseWhen": "behind-base-branch",
   "kubernetes": {
-    "fileMatch": ["\\.yaml$", "\\.yml$"]
+    "managerFilePatterns": [
+      "/\\.yaml$/",
+      "/\\.yml$/"
+    ]
   },
   "packageRules": [
     {
-      "matchCategories": ["docker"],
+      "matchCategories": [
+        "docker"
+      ],
       "pinDigests": false
     },
     {
       "description": "LinuxServer.io images - support v-prefix, 3-part and 4-part versions",
-      "matchDatasources": ["docker"],
-      "matchPackagePatterns": ["^(gh|ls)cr\\.io/linuxserver/"],
-      "versioning": "regex:^v?(?<major>\\d+)(?:\\.(?<minor>\\d+))?(?:\\.(?<patch>\\d+))?(?:\\.(?<build>\\d+))?-ls(?<revision>\\d+)$"
+      "matchDatasources": [
+        "docker"
+      ],
+      "versioning": "regex:^v?(?<major>\\d+)(?:\\.(?<minor>\\d+))?(?:\\.(?<patch>\\d+))?(?:\\.(?<build>\\d+))?-ls(?<revision>\\d+)$",
+      "matchPackageNames": [
+        "/^(gh|ls)cr\\.io/linuxserver//"
+      ]
     },
     {
       "description": "Filter out pre-release versions",
-      "matchDatasources": ["docker"],
+      "matchDatasources": [
+        "docker"
+      ],
       "allowedVersions": "!/^.*-(alpha|beta|rc|dev|canary|unstable|preview|pre|test|experimental).*$/"
     },
     {
       "description": "Review stable container updates manually",
-      "matchDatasources": ["docker"],
-      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "digest"
+      ],
       "matchPackageNames": [
         "lscr.io/linuxserver/sonarr",
         "lscr.io/linuxserver/radarr",
@@ -59,8 +80,13 @@
     },
     {
       "description": "Review k8s infrastructure updates manually",
-      "matchDatasources": ["docker"],
-      "matchUpdateTypes": ["minor", "patch"],
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
       "matchPackageNames": [
         "registry.k8s.io/descheduler/descheduler",
         "quay.io/jetstack/cert-manager-controller",
@@ -72,15 +98,25 @@
     },
     {
       "description": "Group ArgoCD updates",
-      "matchDatasources": ["docker", "helm"],
+      "matchDatasources": [
+        "docker",
+        "helm"
+      ],
       "groupName": "ArgoCD",
       "automerge": false,
-      "matchPackageNames": ["/argo-cd/", "/argocd/"]
+      "matchPackageNames": [
+        "/argo-cd/",
+        "/argocd/"
+      ]
     },
     {
       "description": "Allow major updates but don't auto-merge",
-      "matchDatasources": ["docker"],
-      "matchUpdateTypes": ["major"],
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
       "enabled": true,
       "automerge": false
     }
@@ -89,14 +125,19 @@
     {
       "customType": "regex",
       "description": "Process all container images in Kubernetes files",
-      "fileMatch": ["\\.yaml$", "\\.yml$"],
+      "managerFilePatterns": [
+        "/\\.yaml$/",
+        "/\\.yml$/"
+      ],
       "matchStrings": [
         "image:\\s+(?<depName>[^\\s:]+):(?<currentValue>[^\\s]+)"
       ],
       "datasourceTemplate": "docker"
     }
   ],
-  "ignorePresets": [":prHourlyLimit2"],
+  "ignorePresets": [
+    ":prHourlyLimit2"
+  ],
   "commitMessagePrefix": "feat({{packageFileDir}}):",
   "commitMessageTopic": "update {{depName}} to {{newVersion}}",
   "commitMessageExtra": "from {{currentVersion}}",

@@ -11,7 +11,8 @@
     "renovate",
     "dependencies"
   ],
-  "assigneesFromCodeOwners": true,
+  "assignees": ["GauranshMathur"],
+  "reviewers": ["GauranshMathur"],
   "rebaseWhen": "behind-base-branch",
   "kubernetes": {
     "fileMatch": ["\\.yaml$", "\\.yml$"]

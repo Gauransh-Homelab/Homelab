@@ -289,6 +289,7 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 - [ ] Homarr
 - [ ] Configure talos to pipe logs for node into loki
 - [ ] Configure Prom and grafana to with alert manager to setup the config that will show proper dashboarding and also send alerts via alert manager and other details
+- [ ] Test and install Searxng with setups to check and see how well it works compared to kagi
 
 #### 🚧 In Progress
 

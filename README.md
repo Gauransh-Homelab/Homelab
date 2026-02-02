@@ -6,7 +6,7 @@
 ![Talos](https://img.shields.io/badge/Talos_Linux-1.12.1-FF7300?logo=linux&logoColor=white)
 ![Services](https://img.shields.io/badge/Services-20+-00ADD8?logo=docker&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-Operational-brightgreen?logo=statuspage&logoColor=white)
-![Last Updated](https://img.shields.io/badge/Updated-January%202026-purple?logo=github&logoColor=white)
+![Last Updated](https://img.shields.io/badge/Updated-February%202026-purple?logo=github&logoColor=white)
 
 _A modern homelab running on Kubernetes with Talos Linux, migrated from Proxmox/Docker_
 

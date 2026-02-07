@@ -5,8 +5,8 @@
     ":dependencyDashboard",
     ":semanticCommitTypeAll(feat)"
   ],
-  "automerge": true,
-  "platformAutomerge": true,
+  "automerge": false,
+  "platformAutomerge": false,
   "timezone": "Asia/Singapore",
   "labels": [
     "renovate",

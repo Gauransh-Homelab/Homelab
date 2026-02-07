@@ -285,12 +285,13 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 <tr>
 <td valign="top" width="33%">
 
-<h3>To Do (4)</h3>
+<h3>To Do (5)</h3>
 
 - Look at how to be able to scrape and share the board in README<br>
 - Configure Prometheus and Grafana with Alert Manager for dashboarding and alerts<br>
 - Verify everything that needs to be backed up is being backed up<br>
 - Authentik - Identity Provider setup<br>
+- Work on lowering req and limits to allow Worker to run more<br>
 
 </td>
 <td valign="top" width="33%">
@@ -299,18 +300,19 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 
 - Issue with n8n connection to github using oauth2<br>
 - Update Nvim config to add tab to fill and remove auto save reformat<br>
-- Install Sealed Secrets<br>
 - Verify ArgoCD Helm argo image updater is working<br>
+- Convert all Secrets to sealed secrets<br>
 
 </td>
 <td valign="top" width="33%">
 
-<h3>Done (4)</h3>
+<h3>Done (5)</h3>
 
 - Figure out why aws s3 is more costly<br>
 - Switch kanban to jira<br>
 - Add kanban items to jira<br>
 - Fix n8n not updating to newest version via GitOps<br>
+- Install Sealed Secrets<br>
 
 </td>
 </tr>

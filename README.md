@@ -21,7 +21,7 @@ _A modern homelab running on Kubernetes with Talos Linux, migrated from Proxmox/
 > **What**: Production-grade Kubernetes homelab for self-hosted services  
 > **Why**: GitOps automation, better scalability, and learning cloud-native tech  
 > **How**: Talos Linux bare-metal cluster with declarative configuration  
-> **Docs**: [Detailed documentation on Obsidian](https://publish.obsidian.md/gauranshmathur)
+> **Board**: [Project Board on Jira](https://arkhaya.atlassian.net/jira/software/projects/KAN/board)
 
 ---
 
@@ -277,54 +277,53 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 
 <div align="center">
 
-[![Live Roadmap](https://img.shields.io/badge/Live%20Roadmap-View%20on%20Obsidian-7c3aed?style=for-the-badge&logo=obsidian&logoColor=white)](https://publish.obsidian.md/gauranshmathur/Publish/Homelab)
-
-*Synced from Obsidian on every push*
+<em>Synced from <a href="https://arkhaya.atlassian.net/jira/software/projects/KAN/board">Jira</a> • Updates every 6 hours and on push</em>
 
 </div>
 
-### 📌 Current Status
+<table>
+<tr>
+<td valign="top" width="33%">
 
-#### 📋 To Do
-- [ ] Homarr
-- [ ] Configure talos to pipe logs for node into loki
-- [ ] Configure Prom and grafana to with alert manager to setup the config that will show proper dashboarding and also send alerts via alert manager and other details
-- [ ] Test and install Searxng with setups to check and see how well it works compared to kagi
+<h3>📋 To Do (16)</h3>
 
-#### 🚧 In Progress
+📖 Jellyfin Stats<br>
+📖 Homarr - Dashboard setup<br>
+📖 Authentik - Identity Provider setup<br>
+📖 Karakeep - bookmarking system<br>
+📖 MCP Server - Discord Media Bot<br>
+📖 *arr Stack Migration (SQLite to PostgreSQL)<br>
+✅ Edit Renovate to tag on PR for notifications<br>
+✅ Convert all current secrets and push to GitHub for full cluster recreation<br>
+✅ Configure Secret Store to use AWS Secrets Manager<br>
+✅ Install External Secrets Operator<br>
+✅ Set up Tdarr on Beelink using iGPU<br>
+✅ Test and install SearXNG<br>
+✅ Configure Prometheus and Grafana with Alert Manager for dashboarding and alerts<br>
+✅ Configure talos to pipe logs for node into loki<br>
+📖 Look at how to be able to scrape and share the board in README<br>
+✅ Switch kanban to jira<br>
 
-- [ ] Tdarr running on beelink cause we can have using iGPU and its quite decent
-- [ ] Install External Secrets Operator
-- [ ] Configure Secret Store to be able to use AWS secrets manager
-- [ ] Convert all the current secrets and push to github allowing for complete full recreation of cluster just with git
+</td>
+<td valign="top" width="33%">
 
-#### ✅ Recently Completed
+<h3>🚧 In Progress (4)</h3>
 
-- [x] Research and find the best way to handle secrets for cluster so we can not have it only on local machine ✅ 2026-01-11
-- [x] Convert notifiarr to statefulset to prevent name change for trash sync ✅ 2025-12-09
-- [x] External DNS ✅ 2025-12-01
-- [x] Ghost Blog ✅ 2025-08-16
-- [x] Huntarr + cleanuparr ✅ 2025-08-13
+✅ Add kanban items to jira<br>
+✅ Fix n8n not updating to newest version via GitOps<br>
+✅ Update Nvim config to add tab to fill and remove auto save reformat<br>
+✅ Issue with n8n connection to github using oauth2<br>
 
-### 🚀 Future Projects
+</td>
+<td valign="top" width="33%">
 
-- [ ] *arr Stack Migration (SQLite → PostgreSQL)
-- [ ] MCP Server - Discord Media Bot
-- [ ] Karakeep - bookmarking system
-- [ ] Authentik
-- [ ] Jellyfin Stats
+<h3>✅ Done (1)</h3>
 
-### 📦 Archive
+📖 Figure out why aws s3 is more costly<br>
 
-- [x] librechat-migration ✅ 2025-07-02
-- [x] jellyfin-migration ✅ 2025-07-06
-- [x] talos-infrastructure ✅ 2025-07-06
-- [x] tailscale-migration ✅ 2025-07-05
-- [x] traefik-setup ✅ 2025-07-02
-- [x] Figure out how to host updatable markdown so can show the Kanbans ( ~~if no other way just use vercel~~) ✅ 2025-06-14
-- [x] arr-stack-migration ✅ 2025-07-02
-- [x] synology-integration ✅ 2025-05-29
-- [x] obsidian-setup ✅ 2025-05-29
+</td>
+</tr>
+</table>
 
 ---
 ## 🔧 Troubleshooting
@@ -454,7 +453,7 @@ Homelab/
 
 ## 📚 Resources
 
-- 📖 [Full Documentation](https://publish.obsidian.md/gauranshmathur)
+- 📖 [Project Board](https://arkhaya.atlassian.net/jira/software/projects/KAN/board)
 - 📜 [v1 README](README-v1.md) (Legacy setup)
 - 🏷️ [Talos Linux Docs](https://www.talos.dev/)
 - 🎯 [TRaSH Guides](https://trash-guides.info/) (Media quality settings)

@@ -1,10 +1,12 @@
-name: Sync Roadmap
+name: Sync Roadmap from Jira
 
 on:
   push:
     branches: [main]
     paths-ignore:
-      - 'README.md'  # Prevent infinite loop
+      - 'README.md'
+  schedule:
+    - cron: '0 */6 * * *'  # Every 6 hours
   workflow_dispatch:
 
 concurrency:
@@ -16,91 +18,145 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    
+
     steps:
       - uses: actions/checkout@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Update Roadmap
+
+      - name: Fetch Jira Board
+        env:
+          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
         run: |
-          # Fetch Obsidian markdown
-          curl -s "https://publish-01.obsidian.md/access/5d709373479c3fe55e2ee18eefb6ecc5/Publish/Homelab.md" > obsidian.md
-          
-          # Extract sections more precisely
-          TODO=$(sed -n '/^## To Do$/,/^##/{//!p}' obsidian.md | grep "^- \[ \]" | sed 's/\[\[//g;s/\]\]//g' || true)
-          PROGRESS=$(sed -n '/^## In Progress$/,/^##/{//!p}' obsidian.md | grep "^- \[ \]" | sed 's/\[\[//g;s/\]\]//g' || true)
-          DONE=$(sed -n '/^## Done$/,/^##/{//!p}' obsidian.md | grep "^- \[x\]" | sed 's/\[\[//g;s/\]\]//g' || true)
-          FUTURE=$(sed -n '/^## Future Projects$/,/^##/{//!p}' obsidian.md | grep "^- \[ \]" | sed 's/\[\[//g;s/\]\]//g' || true)
-          ARCHIVE=$(sed -n '/^## Archive$/,/^%%/{//!p}' obsidian.md | grep "^- \[x\]" | sed 's/\[\[//g;s/\]\]//g' || true)
-          
-          # Build new roadmap section
-          cat > roadmap.tmp << 'EOF'
-          ## 📋 Roadmap
-          
-          <div align="center">
-          
-          [![Live Roadmap](https://img.shields.io/badge/Live%20Roadmap-View%20on%20Obsidian-7c3aed?style=for-the-badge&logo=obsidian&logoColor=white)](https://publish.obsidian.md/gauranshmathur/Publish/Homelab)
-          
-          *Synced from Obsidian on every push*
-          
-          </div>
-          
-          ### 📌 Current Status
-          
-          #### 📋 To Do
-          EOF
-          
-          echo "$TODO" >> roadmap.tmp || echo "*(No items)*" >> roadmap.tmp
-          
-          echo -e "\n#### 🚧 In Progress\n" >> roadmap.tmp
-          echo "$PROGRESS" >> roadmap.tmp || echo "*(No items)*" >> roadmap.tmp
-          
-          echo -e "\n#### ✅ Recently Completed\n" >> roadmap.tmp
-          echo "$DONE" | head -5 >> roadmap.tmp || echo "*(No items)*" >> roadmap.tmp
-          
-          echo -e "\n### 🚀 Future Projects\n" >> roadmap.tmp
-          echo "$FUTURE" >> roadmap.tmp || echo "*(No items)*" >> roadmap.tmp
-          
-          echo -e "\n### 📦 Archive\n" >> roadmap.tmp
-          echo "$ARCHIVE" | head -10 >> roadmap.tmp || echo "*(No items)*" >> roadmap.tmp
-          
-          echo -e "\n---" >> roadmap.tmp
-          
+          # Fetch all issues from KAN project
+          curl -s \
+            -u "${JIRA_EMAIL}:${JIRA_API_TOKEN}" \
+            -H "Accept: application/json" \
+            "https://arkhaya.atlassian.net/rest/api/3/search?jql=project%3DKAN%20ORDER%20BY%20created%20DESC&fields=summary,status,issuetype,priority&maxResults=100" \
+            > jira_response.json
+
+          # Verify we got valid data
+          TOTAL=$(jq '.total // 0' jira_response.json)
+          if [ "$TOTAL" -eq 0 ]; then
+            echo "No issues found or API error"
+            cat jira_response.json
+            exit 1
+          fi
+          echo "Found $TOTAL issues"
+
+      - name: Generate Kanban Board
+        run: |
+          python3 << 'PYEOF'
+          import json
+
+          with open('jira_response.json') as f:
+              data = json.load(f)
+
+          # Group issues by status
+          columns = {'To Do': [], 'In Progress': [], 'Done': []}
+          for issue in data.get('issues', []):
+              fields = issue['fields']
+              status = fields['status']['name']
+              summary = fields['summary']
+              itype = fields['issuetype']['name']
+              key = issue['key']
+
+              # Map issue type to emoji
+              type_emoji = {'Story': '\U0001f4d6', 'Task': '\u2705', 'Bug': '\U0001f41b', 'Epic': '\U0001f680', 'Subtask': '\U0001f539'}
+              emoji = type_emoji.get(itype, '\U0001f4cb')
+
+              item = f'{emoji} {summary}'
+
+              if status in columns:
+                  columns[status].append(item)
+              else:
+                  # Map unknown statuses to closest column
+                  columns['To Do'].append(item)
+
+          def render_items(items):
+              if not items:
+                  return '<em>No items</em>\n'
+              lines = ''
+              for item in items:
+                  lines += f'{item}<br>\n'
+              return lines
+
+          todo_items = render_items(columns['To Do'])
+          progress_items = render_items(columns['In Progress'])
+          done_items = render_items(columns['Done'])
+
+          kanban = f'''## \U0001f4cb Roadmap
+
+<div align="center">
+
+<em>Synced from <a href="https://arkhaya.atlassian.net/jira/software/projects/KAN/board">Jira</a> \u2022 Updates every 6 hours and on push</em>
+
+</div>
+
+<table>
+<tr>
+<td valign="top" width="33%">
+
+<h3>\U0001f4cb To Do ({len(columns["To Do"])})</h3>
+
+{todo_items}
+</td>
+<td valign="top" width="33%">
+
+<h3>\U0001f6a7 In Progress ({len(columns["In Progress"])})</h3>
+
+{progress_items}
+</td>
+<td valign="top" width="33%">
+
+<h3>\u2705 Done ({len(columns["Done"])})</h3>
+
+{done_items}
+</td>
+</tr>
+</table>
+
+---'''
+
+          with open('roadmap.tmp', 'w') as f:
+              f.write(kanban)
+
+          print(f"Generated kanban: {len(columns['To Do'])} todo, {len(columns['In Progress'])} in progress, {len(columns['Done'])} done")
+          PYEOF
+
+      - name: Update README
+        run: |
           # Save content before roadmap
           awk '/^## 📋 Roadmap$/{exit} 1' README.md > readme_before.tmp
-          
-          # Save content after roadmap (find the --- after roadmap, then get everything after the next ## section)
+
+          # Save content after roadmap (find --- after roadmap, then get everything after the next ## section)
           awk '
             /^## 📋 Roadmap$/ {in_roadmap=1}
             in_roadmap && /^---$/ {found_end=1}
             found_end && /^## / {capture=1}
             capture {print}
           ' README.md > readme_after.tmp
-          
+
           # Combine all parts
           cat readme_before.tmp roadmap.tmp readme_after.tmp > README.md
-          
+
           # Cleanup
-          rm -f *.tmp obsidian.md
-      
+          rm -f *.tmp jira_response.json
+
       - name: Commit changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          
-          # Check if README actually changed
+
           if git diff --quiet README.md; then
             echo "No changes to README.md"
             exit 0
           fi
-          
-          # Commit and push
+
           git add README.md
-          git commit -m "🔄 Sync roadmap [skip ci]"
-          
-          # Try to push, but don't fail the workflow if it fails
-          # (another push probably happened in the meantime)
+          git commit -m "🔄 Sync roadmap from Jira [skip ci]"
+
           if ! git push origin main; then
             echo "Push failed - likely due to concurrent changes. Skipping."
             echo "The next push will trigger a new sync."

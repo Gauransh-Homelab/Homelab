@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: prowlarr
-          image: lscr.io/linuxserver/prowlarr:2.3.0.5236-ls135
+          image: lscr.io/linuxserver/prowlarr:2.3.0.5236-ls136
           env:
             - name: PUID
               value: "1000"

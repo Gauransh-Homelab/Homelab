@@ -285,23 +285,40 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 <tr>
 <td valign="top" width="33%">
 
-<h3>To Do</h3>
+<h3>To Do (14)</h3>
 
-<em>Will be synced from Jira board automatically</em>
+- Look at how to be able to scrape and share the board in README<br>
+- Configure Prometheus and Grafana with Alert Manager for dashboarding and alerts<br>
+- Configure talos to pipe logs for node into loki<br>
+- Test SearXNG<br>
+- Install Sealed Secrets<br>
+- Configure Secret Store to use AWS Secrets Manager<br>
+- Convert all current secrets and push to GitHub for full cluster recreation<br>
+- Edit Renovate to tag on PR for notifications<br>
+- *arr Stack Migration (SQLite to PostgreSQL)<br>
+- MCP Server - Discord Media Bot<br>
+- Karakeep - bookmarking system<br>
+- Authentik - Identity Provider setup<br>
+- Homarr - Dashboard setup<br>
+- Jellyfin Stats<br>
 
 </td>
 <td valign="top" width="33%">
 
-<h3>In Progress</h3>
+<h3>In Progress (2)</h3>
 
-<em>Will be synced from Jira board automatically</em>
+- Issue with n8n connection to github using oauth2<br>
+- Update Nvim config to add tab to fill and remove auto save reformat<br>
 
 </td>
 <td valign="top" width="33%">
 
-<h3>Done</h3>
+<h3>Done (4)</h3>
 
-<em>Will be synced from Jira board automatically</em>
+- Figure out why aws s3 is more costly<br>
+- Switch kanban to jira<br>
+- Add kanban items to jira<br>
+- Fix n8n not updating to newest version via GitOps<br>
 
 </td>
 </tr>

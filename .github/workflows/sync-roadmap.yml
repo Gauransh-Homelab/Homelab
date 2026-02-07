@@ -30,12 +30,24 @@ jobs:
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
         shell: bash
         run: |
-          curl -s -X POST \
+          # Get board ID for KAN project
+          BOARD_ID=$(curl -s \
             -u "${JIRA_EMAIL}:${JIRA_API_TOKEN}" \
-            -H "Content-Type: application/json" \
             -H "Accept: application/json" \
-            -d '{"jql":"project = KAN ORDER BY created DESC","fields":["summary","status","issuetype"],"maxResults":100}' \
-            "https://arkhaya.atlassian.net/rest/api/3/search/jql" \
+            "https://arkhaya.atlassian.net/rest/agile/1.0/board?projectKeyOrId=KAN" \
+            | jq '.values[0].id')
+
+          if [ "$BOARD_ID" = "null" ] || [ -z "$BOARD_ID" ]; then
+            echo "Could not find board for KAN project"
+            exit 1
+          fi
+          echo "Board ID: $BOARD_ID"
+
+          # Fetch only board issues (excludes backlog)
+          curl -s \
+            -u "${JIRA_EMAIL}:${JIRA_API_TOKEN}" \
+            -H "Accept: application/json" \
+            "https://arkhaya.atlassian.net/rest/agile/1.0/board/${BOARD_ID}/issue?fields=summary,status&maxResults=100" \
             > jira_response.json
 
           ISSUE_COUNT=$(jq '.issues | length' jira_response.json)
@@ -44,13 +56,11 @@ jobs:
             cat jira_response.json
             exit 1
           fi
-          echo "Found $ISSUE_COUNT issues"
+          echo "Found $ISSUE_COUNT board issues"
 
-          JQ_FILTER='"\(if .fields.issuetype.name == "Story" then "📖" elif .fields.issuetype.name == "Bug" then "🐛" elif .fields.issuetype.name == "Epic" then "🚀" else "✅" end) \(.fields.summary)<br>"'
-
-          TODO=$(jq -r ".issues[] | select(.fields.status.name == \"To Do\") | $JQ_FILTER" jira_response.json)
-          PROGRESS=$(jq -r ".issues[] | select(.fields.status.name == \"In Progress\") | $JQ_FILTER" jira_response.json)
-          DONE=$(jq -r ".issues[] | select(.fields.status.name == \"Done\") | $JQ_FILTER" jira_response.json)
+          TODO=$(jq -r '.issues[] | select(.fields.status.name == "To Do") | "- \(.fields.summary)<br>"' jira_response.json)
+          PROGRESS=$(jq -r '.issues[] | select(.fields.status.name == "In Progress") | "- \(.fields.summary)<br>"' jira_response.json)
+          DONE=$(jq -r '.issues[] | select(.fields.status.name == "Done") | "- \(.fields.summary)<br>"' jira_response.json)
 
           TODO_COUNT=$(echo "$TODO" | grep -c '<br>' || true)
           PROGRESS_COUNT=$(echo "$PROGRESS" | grep -c '<br>' || true)
@@ -73,21 +83,21 @@ jobs:
             echo '<tr>'
             echo '<td valign="top" width="33%">'
             echo ''
-            echo "<h3>📋 To Do (${TODO_COUNT})</h3>"
+            echo "<h3>To Do (${TODO_COUNT})</h3>"
             echo ''
             echo "$TODO"
             echo ''
             echo '</td>'
             echo '<td valign="top" width="33%">'
             echo ''
-            echo "<h3>🚧 In Progress (${PROGRESS_COUNT})</h3>"
+            echo "<h3>In Progress (${PROGRESS_COUNT})</h3>"
             echo ''
             echo "$PROGRESS"
             echo ''
             echo '</td>'
             echo '<td valign="top" width="33%">'
             echo ''
-            echo "<h3>✅ Done (${DONE_COUNT})</h3>"
+            echo "<h3>Done (${DONE_COUNT})</h3>"
             echo ''
             echo "$DONE"
             echo ''

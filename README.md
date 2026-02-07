@@ -285,41 +285,23 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 <tr>
 <td valign="top" width="33%">
 
-<h3>📋 To Do (16)</h3>
+<h3>To Do</h3>
 
-📖 Jellyfin Stats<br>
-📖 Homarr - Dashboard setup<br>
-📖 Authentik - Identity Provider setup<br>
-📖 Karakeep - bookmarking system<br>
-📖 MCP Server - Discord Media Bot<br>
-📖 *arr Stack Migration (SQLite to PostgreSQL)<br>
-✅ Edit Renovate to tag on PR for notifications<br>
-✅ Convert all current secrets and push to GitHub for full cluster recreation<br>
-✅ Configure Secret Store to use AWS Secrets Manager<br>
-✅ Install External Secrets Operator<br>
-✅ Set up Tdarr on Beelink using iGPU<br>
-✅ Test and install SearXNG<br>
-✅ Configure Prometheus and Grafana with Alert Manager for dashboarding and alerts<br>
-✅ Configure talos to pipe logs for node into loki<br>
-📖 Look at how to be able to scrape and share the board in README<br>
-✅ Switch kanban to jira<br>
+<em>Will be synced from Jira board automatically</em>
 
 </td>
 <td valign="top" width="33%">
 
-<h3>🚧 In Progress (4)</h3>
+<h3>In Progress</h3>
 
-✅ Add kanban items to jira<br>
-✅ Fix n8n not updating to newest version via GitOps<br>
-✅ Update Nvim config to add tab to fill and remove auto save reformat<br>
-✅ Issue with n8n connection to github using oauth2<br>
+<em>Will be synced from Jira board automatically</em>
 
 </td>
 <td valign="top" width="33%">
 
-<h3>✅ Done (1)</h3>
+<h3>Done</h3>
 
-📖 Figure out why aws s3 is more costly<br>
+<em>Will be synced from Jira board automatically</em>
 
 </td>
 </tr>

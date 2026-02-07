@@ -28,8 +28,8 @@ jobs:
         env:
           JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+        shell: bash
         run: |
-          # Fetch all issues from KAN project
           curl -s \
             -u "${JIRA_EMAIL}:${JIRA_API_TOKEN}" \
             -H "Accept: application/json" \
@@ -44,10 +44,11 @@ jobs:
           fi
           echo "Found $TOTAL issues"
 
-          # Build items per column using jq
-          TODO=$(jq -r '.issues[] | select(.fields.status.name == "To Do") | "\(if .fields.issuetype.name == "Story" then "📖" elif .fields.issuetype.name == "Bug" then "🐛" elif .fields.issuetype.name == "Epic" then "🚀" else "✅" end) \(.fields.summary)<br>"' jira_response.json)
-          PROGRESS=$(jq -r '.issues[] | select(.fields.status.name == "In Progress") | "\(if .fields.issuetype.name == "Story" then "📖" elif .fields.issuetype.name == "Bug" then "🐛" elif .fields.issuetype.name == "Epic" then "🚀" else "✅" end) \(.fields.summary)<br>"' jira_response.json)
-          DONE=$(jq -r '.issues[] | select(.fields.status.name == "Done") | "\(if .fields.issuetype.name == "Story" then "📖" elif .fields.issuetype.name == "Bug" then "🐛" elif .fields.issuetype.name == "Epic" then "🚀" else "✅" end) \(.fields.summary)<br>"' jira_response.json)
+          JQ_FILTER='"\(if .fields.issuetype.name == "Story" then "📖" elif .fields.issuetype.name == "Bug" then "🐛" elif .fields.issuetype.name == "Epic" then "🚀" else "✅" end) \(.fields.summary)<br>"'
+
+          TODO=$(jq -r ".issues[] | select(.fields.status.name == \"To Do\") | $JQ_FILTER" jira_response.json)
+          PROGRESS=$(jq -r ".issues[] | select(.fields.status.name == \"In Progress\") | $JQ_FILTER" jira_response.json)
+          DONE=$(jq -r ".issues[] | select(.fields.status.name == \"Done\") | $JQ_FILTER" jira_response.json)
 
           TODO_COUNT=$(echo "$TODO" | grep -c '<br>' || true)
           PROGRESS_COUNT=$(echo "$PROGRESS" | grep -c '<br>' || true)
@@ -57,49 +58,46 @@ jobs:
           [ -z "$PROGRESS" ] && PROGRESS="<em>No items</em>"
           [ -z "$DONE" ] && DONE="<em>No items</em>"
 
-          # Build roadmap section
-          cat > roadmap.tmp << EOF
-## 📋 Roadmap
+          {
+            echo '## 📋 Roadmap'
+            echo ''
+            echo '<div align="center">'
+            echo ''
+            echo '<em>Synced from <a href="https://arkhaya.atlassian.net/jira/software/projects/KAN/board">Jira</a> • Updates every 6 hours and on push</em>'
+            echo ''
+            echo '</div>'
+            echo ''
+            echo '<table>'
+            echo '<tr>'
+            echo '<td valign="top" width="33%">'
+            echo ''
+            echo "<h3>📋 To Do (${TODO_COUNT})</h3>"
+            echo ''
+            echo "$TODO"
+            echo ''
+            echo '</td>'
+            echo '<td valign="top" width="33%">'
+            echo ''
+            echo "<h3>🚧 In Progress (${PROGRESS_COUNT})</h3>"
+            echo ''
+            echo "$PROGRESS"
+            echo ''
+            echo '</td>'
+            echo '<td valign="top" width="33%">'
+            echo ''
+            echo "<h3>✅ Done (${DONE_COUNT})</h3>"
+            echo ''
+            echo "$DONE"
+            echo ''
+            echo '</td>'
+            echo '</tr>'
+            echo '</table>'
+            echo ''
+            echo '---'
+          } > roadmap.tmp
 
-<div align="center">
-
-<em>Synced from <a href="https://arkhaya.atlassian.net/jira/software/projects/KAN/board">Jira</a> • Updates every 6 hours and on push</em>
-
-</div>
-
-<table>
-<tr>
-<td valign="top" width="33%">
-
-<h3>📋 To Do (${TODO_COUNT})</h3>
-
-${TODO}
-
-</td>
-<td valign="top" width="33%">
-
-<h3>🚧 In Progress (${PROGRESS_COUNT})</h3>
-
-${PROGRESS}
-
-</td>
-<td valign="top" width="33%">
-
-<h3>✅ Done (${DONE_COUNT})</h3>
-
-${DONE}
-
-</td>
-</tr>
-</table>
-
----
-EOF
-
-          # Save content before roadmap
           awk '/^## 📋 Roadmap$/{exit} 1' README.md > readme_before.tmp
 
-          # Save content after roadmap
           awk '
             /^## 📋 Roadmap$/ {in_roadmap=1}
             in_roadmap && /^---$/ {found_end=1}
@@ -107,10 +105,7 @@ EOF
             capture {print}
           ' README.md > readme_after.tmp
 
-          # Combine
           cat readme_before.tmp roadmap.tmp readme_after.tmp > README.md
-
-          # Cleanup
           rm -f *.tmp jira_response.json
 
       - name: Commit changes

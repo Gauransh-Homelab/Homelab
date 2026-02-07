@@ -1,4 +1,5 @@
 name: Sync Roadmap from Jira
+# Syncs Jira KAN board → README.md Kanban table
 
 on:
   push:

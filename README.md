@@ -285,22 +285,10 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 <tr>
 <td valign="top" width="33%">
 
-<h3>To Do (14)</h3>
+<h3>To Do (2)</h3>
 
 - Look at how to be able to scrape and share the board in README<br>
 - Configure Prometheus and Grafana with Alert Manager for dashboarding and alerts<br>
-- Configure talos to pipe logs for node into loki<br>
-- Test SearXNG<br>
-- Install Sealed Secrets<br>
-- Configure Secret Store to use AWS Secrets Manager<br>
-- Convert all current secrets and push to GitHub for full cluster recreation<br>
-- Edit Renovate to tag on PR for notifications<br>
-- *arr Stack Migration (SQLite to PostgreSQL)<br>
-- MCP Server - Discord Media Bot<br>
-- Karakeep - bookmarking system<br>
-- Authentik - Identity Provider setup<br>
-- Homarr - Dashboard setup<br>
-- Jellyfin Stats<br>
 
 </td>
 <td valign="top" width="33%">

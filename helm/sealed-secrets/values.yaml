@@ -2,9 +2,6 @@
 # Chart: https://bitnami-labs.github.io/sealed-secrets
 
 resources:
-  requests:
-    cpu: 25m
-    memory: 32Mi
   limits:
     cpu: 100m
     memory: 64Mi

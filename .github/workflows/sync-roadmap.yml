@@ -43,20 +43,26 @@ jobs:
           fi
           echo "Board ID: $BOARD_ID"
 
-          # Fetch only board issues (excludes backlog)
+          # Fetch all board issues
           curl -s \
             -u "${JIRA_EMAIL}:${JIRA_API_TOKEN}" \
             -H "Accept: application/json" \
             "https://arkhaya.atlassian.net/rest/agile/1.0/board/${BOARD_ID}/issue?fields=summary,status&maxResults=100" \
-            > jira_response.json
+            > jira_all.json
+
+          # Fetch backlog issues to exclude them
+          curl -s \
+            -u "${JIRA_EMAIL}:${JIRA_API_TOKEN}" \
+            -H "Accept: application/json" \
+            "https://arkhaya.atlassian.net/rest/agile/1.0/board/${BOARD_ID}/backlog?fields=key&maxResults=100" \
+            > jira_backlog.json
+
+          # Get backlog keys and filter them out
+          BACKLOG_KEYS=$(jq -r '[.issues[].key]' jira_backlog.json)
+          jq --argjson backlog "$BACKLOG_KEYS" '{issues: [.issues[] | select(.key as $k | $backlog | index($k) | not)]}' jira_all.json > jira_response.json
 
           ISSUE_COUNT=$(jq '.issues | length' jira_response.json)
-          if [ "$ISSUE_COUNT" -eq 0 ] || [ "$ISSUE_COUNT" = "null" ]; then
-            echo "No issues found or API error"
-            cat jira_response.json
-            exit 1
-          fi
-          echo "Found $ISSUE_COUNT board issues"
+          echo "Found $ISSUE_COUNT board issues (excluded $(jq '.issues | length' jira_backlog.json) backlog items)"
 
           TODO=$(jq -r '.issues[] | select(.fields.status.name == "To Do") | "- \(.fields.summary)<br>"' jira_response.json)
           PROGRESS=$(jq -r '.issues[] | select(.fields.status.name == "In Progress") | "- \(.fields.summary)<br>"' jira_response.json)
@@ -118,7 +124,7 @@ jobs:
           ' README.md > readme_after.tmp
 
           cat readme_before.tmp roadmap.tmp readme_after.tmp > README.md
-          rm -f *.tmp jira_response.json
+          rm -f *.tmp jira_*.json
 
       - name: Commit changes
         run: |

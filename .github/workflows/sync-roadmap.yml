@@ -30,19 +30,21 @@ jobs:
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
         shell: bash
         run: |
-          curl -s \
+          curl -s -X POST \
             -u "${JIRA_EMAIL}:${JIRA_API_TOKEN}" \
+            -H "Content-Type: application/json" \
             -H "Accept: application/json" \
-            "https://arkhaya.atlassian.net/rest/api/3/search?jql=project%3DKAN%20ORDER%20BY%20created%20DESC&fields=summary,status,issuetype&maxResults=100" \
+            -d '{"jql":"project = KAN ORDER BY created DESC","fields":["summary","status","issuetype"],"maxResults":100}' \
+            "https://arkhaya.atlassian.net/rest/api/3/search/jql" \
             > jira_response.json
 
-          TOTAL=$(jq '.total // 0' jira_response.json)
-          if [ "$TOTAL" -eq 0 ]; then
+          ISSUE_COUNT=$(jq '.issues | length' jira_response.json)
+          if [ "$ISSUE_COUNT" -eq 0 ] || [ "$ISSUE_COUNT" = "null" ]; then
             echo "No issues found or API error"
             cat jira_response.json
             exit 1
           fi
-          echo "Found $TOTAL issues"
+          echo "Found $ISSUE_COUNT issues"
 
           JQ_FILTER='"\(if .fields.issuetype.name == "Story" then "📖" elif .fields.issuetype.name == "Bug" then "🐛" elif .fields.issuetype.name == "Epic" then "🚀" else "✅" end) \(.fields.summary)<br>"'
 

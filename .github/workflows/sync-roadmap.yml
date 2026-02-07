@@ -1,5 +1,4 @@
 name: Sync Roadmap from Jira
-# Syncs Jira KAN board → README.md Kanban table
 
 on:
   push:
@@ -7,7 +6,7 @@ on:
     paths-ignore:
       - 'README.md'
   schedule:
-    - cron: '0 */6 * * *'  # Every 6 hours
+    - cron: '0 */6 * * *'
   workflow_dispatch:
 
 concurrency:
@@ -25,7 +24,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Fetch Jira Board
+      - name: Fetch Jira and Update README
         env:
           JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
@@ -34,10 +33,9 @@ jobs:
           curl -s \
             -u "${JIRA_EMAIL}:${JIRA_API_TOKEN}" \
             -H "Accept: application/json" \
-            "https://arkhaya.atlassian.net/rest/api/3/search?jql=project%3DKAN%20ORDER%20BY%20created%20DESC&fields=summary,status,issuetype,priority&maxResults=100" \
+            "https://arkhaya.atlassian.net/rest/api/3/search?jql=project%3DKAN%20ORDER%20BY%20created%20DESC&fields=summary,status,issuetype&maxResults=100" \
             > jira_response.json
 
-          # Verify we got valid data
           TOTAL=$(jq '.total // 0' jira_response.json)
           if [ "$TOTAL" -eq 0 ]; then
             echo "No issues found or API error"
@@ -46,52 +44,26 @@ jobs:
           fi
           echo "Found $TOTAL issues"
 
-      - name: Generate Kanban Board
-        run: |
-          python3 << 'PYEOF'
-          import json
+          # Build items per column using jq
+          TODO=$(jq -r '.issues[] | select(.fields.status.name == "To Do") | "\(if .fields.issuetype.name == "Story" then "📖" elif .fields.issuetype.name == "Bug" then "🐛" elif .fields.issuetype.name == "Epic" then "🚀" else "✅" end) \(.fields.summary)<br>"' jira_response.json)
+          PROGRESS=$(jq -r '.issues[] | select(.fields.status.name == "In Progress") | "\(if .fields.issuetype.name == "Story" then "📖" elif .fields.issuetype.name == "Bug" then "🐛" elif .fields.issuetype.name == "Epic" then "🚀" else "✅" end) \(.fields.summary)<br>"' jira_response.json)
+          DONE=$(jq -r '.issues[] | select(.fields.status.name == "Done") | "\(if .fields.issuetype.name == "Story" then "📖" elif .fields.issuetype.name == "Bug" then "🐛" elif .fields.issuetype.name == "Epic" then "🚀" else "✅" end) \(.fields.summary)<br>"' jira_response.json)
 
-          with open('jira_response.json') as f:
-              data = json.load(f)
+          TODO_COUNT=$(echo "$TODO" | grep -c '<br>' || true)
+          PROGRESS_COUNT=$(echo "$PROGRESS" | grep -c '<br>' || true)
+          DONE_COUNT=$(echo "$DONE" | grep -c '<br>' || true)
 
-          # Group issues by status
-          columns = {'To Do': [], 'In Progress': [], 'Done': []}
-          for issue in data.get('issues', []):
-              fields = issue['fields']
-              status = fields['status']['name']
-              summary = fields['summary']
-              itype = fields['issuetype']['name']
-              key = issue['key']
+          [ -z "$TODO" ] && TODO="<em>No items</em>"
+          [ -z "$PROGRESS" ] && PROGRESS="<em>No items</em>"
+          [ -z "$DONE" ] && DONE="<em>No items</em>"
 
-              # Map issue type to emoji
-              type_emoji = {'Story': '\U0001f4d6', 'Task': '\u2705', 'Bug': '\U0001f41b', 'Epic': '\U0001f680', 'Subtask': '\U0001f539'}
-              emoji = type_emoji.get(itype, '\U0001f4cb')
-
-              item = f'{emoji} {summary}'
-
-              if status in columns:
-                  columns[status].append(item)
-              else:
-                  # Map unknown statuses to closest column
-                  columns['To Do'].append(item)
-
-          def render_items(items):
-              if not items:
-                  return '<em>No items</em>\n'
-              lines = ''
-              for item in items:
-                  lines += f'{item}<br>\n'
-              return lines
-
-          todo_items = render_items(columns['To Do'])
-          progress_items = render_items(columns['In Progress'])
-          done_items = render_items(columns['Done'])
-
-          kanban = f'''## \U0001f4cb Roadmap
+          # Build roadmap section
+          cat > roadmap.tmp << EOF
+## 📋 Roadmap
 
 <div align="center">
 
-<em>Synced from <a href="https://arkhaya.atlassian.net/jira/software/projects/KAN/board">Jira</a> \u2022 Updates every 6 hours and on push</em>
+<em>Synced from <a href="https://arkhaya.atlassian.net/jira/software/projects/KAN/board">Jira</a> • Updates every 6 hours and on push</em>
 
 </div>
 
@@ -99,39 +71,35 @@ jobs:
 <tr>
 <td valign="top" width="33%">
 
-<h3>\U0001f4cb To Do ({len(columns["To Do"])})</h3>
+<h3>📋 To Do (${TODO_COUNT})</h3>
 
-{todo_items}
+${TODO}
+
 </td>
 <td valign="top" width="33%">
 
-<h3>\U0001f6a7 In Progress ({len(columns["In Progress"])})</h3>
+<h3>🚧 In Progress (${PROGRESS_COUNT})</h3>
 
-{progress_items}
+${PROGRESS}
+
 </td>
 <td valign="top" width="33%">
 
-<h3>\u2705 Done ({len(columns["Done"])})</h3>
+<h3>✅ Done (${DONE_COUNT})</h3>
 
-{done_items}
+${DONE}
+
 </td>
 </tr>
 </table>
 
----'''
+---
+EOF
 
-          with open('roadmap.tmp', 'w') as f:
-              f.write(kanban)
-
-          print(f"Generated kanban: {len(columns['To Do'])} todo, {len(columns['In Progress'])} in progress, {len(columns['Done'])} done")
-          PYEOF
-
-      - name: Update README
-        run: |
           # Save content before roadmap
           awk '/^## 📋 Roadmap$/{exit} 1' README.md > readme_before.tmp
 
-          # Save content after roadmap (find --- after roadmap, then get everything after the next ## section)
+          # Save content after roadmap
           awk '
             /^## 📋 Roadmap$/ {in_roadmap=1}
             in_roadmap && /^---$/ {found_end=1}
@@ -139,7 +107,7 @@ jobs:
             capture {print}
           ' README.md > readme_after.tmp
 
-          # Combine all parts
+          # Combine
           cat readme_before.tmp roadmap.tmp readme_after.tmp > README.md
 
           # Cleanup
@@ -160,5 +128,4 @@ jobs:
 
           if ! git push origin main; then
             echo "Push failed - likely due to concurrent changes. Skipping."
-            echo "The next push will trigger a new sync."
           fi

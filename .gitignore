@@ -38,7 +38,7 @@ helm/**/*secret*.yml
 CLAUDE.md
 .claude
 .serena
-kubernetes/argocd/image-updater-git-secret.yaml
+
 
 # Sensitive iSCSI configuration data
 *iscsi-lun*.txt

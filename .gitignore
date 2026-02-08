@@ -5,34 +5,11 @@ vault-vars.yml
 ~/.DS_Store
 .DS_Store
 
-  # Certificate files (using naming convention)
-  *.secret.crt
-  *.secret.pem
-  *.secret.key
-  *.secret.cert
-  *.secret.pfx
-  *.secret.p12
-  *.secret.yml
-  *.secret.yaml
-
-  # Alternative: prefix-based naming
-  secret-*.crt
-  secret-*.pem
-  secret-*.key
-  secret-*.cert
-  secret-*.pfx
-  secret-*.p12
-  secret-*.yml
-  secret-*.yaml
-
-  # Or both patterns combined
-  *-secret.*
-  secret.*
-  *secret*
-
-# Helm secret files
-helm/**/*secret*.yaml
-helm/**/*secret*.yml
+# Traefik routes, middlewares, and certificates (contain FQDNs/topology)
+helm/traefik/*route*.yaml
+helm/traefik/*middleware*.yaml
+helm/traefik/*certificate*.yaml
+helm/traefik/*whitelist*.yaml
 
 # Claude and Serena folders
 CLAUDE.md
@@ -46,7 +23,4 @@ CLAUDE.md
 synoiscsi*.log
 iscsi-config*
 
-# Kubernetes secret files
-kubernetes/**/*secret*.yaml
-kubernetes/**/*secret*.yml
 

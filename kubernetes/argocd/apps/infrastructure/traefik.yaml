@@ -17,6 +17,11 @@ spec:
     - repoURL: https://github.com/Gauransh-Homelab/Homelab.git
       targetRevision: main
       ref: values
+    - repoURL: https://github.com/Gauransh-Homelab/Homelab.git
+      targetRevision: main
+      path: helm/traefik
+      directory:
+        include: "{dashboard-secret.yaml,dns-secrets-traefik.yaml}"
   destination:
     server: https://kubernetes.default.svc
     namespace: traefik

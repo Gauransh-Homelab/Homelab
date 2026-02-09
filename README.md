@@ -291,16 +291,17 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 - Configure Prometheus and Grafana with Alert Manager for dashboarding and alerts<br>
 - Verify everything that needs to be backed up is being backed up<br>
 - Authentik - Identity Provider setup<br>
-- Work on lowering req and limits to allow Worker to run more<br>
+- Create PriorityClasses for specific pods<br>
 
 </td>
 <td valign="top" width="33%">
 
-<h3>In Progress (3)</h3>
+<h3>In Progress (4)</h3>
 
 - Issue with n8n connection to github using oauth2<br>
 - Update Nvim config to add tab to fill and remove auto save reformat<br>
 - Verify ArgoCD Helm argo image updater is working<br>
+- Work on lowering req and limits to allow Worker to run more<br>
 
 </td>
 <td valign="top" width="33%">

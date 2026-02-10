@@ -6,7 +6,7 @@ metadata:
 spec:
   schedule: "0 2 * * *" # Daily at 2 AM Singapore time
   template:
-    ttl: 168h  # 7 days retention
+    ttl: 288h  # 12 days retention (must be < S3 lifecycle of 15 days)
     
     # Namespaces to exclude (system/temporary namespaces)
     excludedNamespaces:

@@ -39,22 +39,6 @@ spec:
           mountPath: /config
         - name: nfs-nas
           mountPath: /NAS
-        startupProbe:
-          httpGet:
-            path: /
-            port: 6767
-          failureThreshold: 30
-          periodSeconds: 10
-        livenessProbe:
-          httpGet:
-            path: /
-            port: 6767
-          periodSeconds: 30
-        readinessProbe:
-          httpGet:
-            path: /
-            port: 6767
-          periodSeconds: 15
         resources:
           requests:
             memory: "256Mi"

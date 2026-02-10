@@ -33,6 +33,13 @@ spec:
         ports:
         - containerPort: 9705
           name: huntarr-webui
+        resources:
+          requests:
+            cpu: "10m"
+            memory: "64Mi"
+          limits:
+            cpu: "50m"
+            memory: "128Mi"
         volumeMounts:
         - name: huntarr-config
           mountPath: /config

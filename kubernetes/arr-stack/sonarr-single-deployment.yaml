@@ -51,11 +51,11 @@ spec:
           periodSeconds: 15
         resources:
           requests:
-            memory: "512Mi"
-            cpu: "200m"
+            memory: "256Mi"
+            cpu: "10m"
           limits:
-            memory: "1Gi"
-            cpu: "1000m"
+            memory: "512Mi"
+            cpu: "100m"
 
       volumes:
       - name: sonarr-config

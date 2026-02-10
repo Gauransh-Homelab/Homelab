@@ -33,6 +33,13 @@ spec:
         ports:
         - containerPort: 6789
           name: nzbget-webui
+        resources:
+          requests:
+            cpu: "10m"
+            memory: "32Mi"
+          limits:
+            cpu: "50m"
+            memory: "128Mi"
         volumeMounts:
         - name: nzbget-config
           mountPath: /config

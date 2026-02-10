@@ -50,6 +50,13 @@ spec:
             capabilities:
               add:
                 - NET_ADMIN
+          resources:
+            requests:
+              cpu: "30m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
           volumeMounts:
             - name: dev-net-tun
               mountPath: /dev/net/tun
@@ -84,6 +91,13 @@ spec:
               name: qb-webui
             - containerPort: 6881
               name: qb-torrent
+          resources:
+            requests:
+              cpu: "20m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
           volumeMounts:
             - name: qbittorrent-config
               mountPath: /config

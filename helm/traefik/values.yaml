@@ -65,11 +65,11 @@ metrics:
 # Resource Limits - Appropriate for homelab environment
 resources:
   requests:
-    cpu: "100m"
-    memory: "50Mi"
+    cpu: "10m"
+    memory: "64Mi"
   limits:
-    cpu: "750m" # Generous for SSL processing
-    memory: "250Mi"
+    cpu: "100m"
+    memory: "256Mi"
 
 # Security: Disable unnecessary endpoints
 ping:

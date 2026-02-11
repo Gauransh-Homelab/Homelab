@@ -35,18 +35,6 @@ spec:
           volumeMounts:
             - name: prowlarr-config
               mountPath: /config
-          livenessProbe:
-            httpGet:
-              path: /
-              port: 9696
-            initialDelaySeconds: 30
-            periodSeconds: 30
-          readinessProbe:
-            httpGet:
-              path: /
-              port: 9696
-            initialDelaySeconds: 15
-            periodSeconds: 15
           resources:
             requests:
               memory: "256Mi"

@@ -1,26 +1,5 @@
-# ignore ansible variable files
-vault-vars.yml
-
 # Ds store
 ~/.DS_Store
 .DS_Store
-
-# Traefik routes, middlewares, and certificates (contain FQDNs/topology)
-helm/traefik/*route*.yaml
-helm/traefik/*middleware*.yaml
-helm/traefik/*certificate*.yaml
-helm/traefik/*whitelist*.yaml
-
-# Claude and Serena folders
-CLAUDE.md
-.claude
-.serena
-
-
-# Sensitive iSCSI configuration data
-*iscsi-lun*.txt
-*iscsi-target*.txt
-synoiscsi*.log
-iscsi-config*
 
 

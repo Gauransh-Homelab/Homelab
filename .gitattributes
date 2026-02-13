@@ -1,0 +1,20 @@
+# git-crypt encrypted files
+CLAUDE.md filter=git-crypt diff=git-crypt
+CLAUDE.local.md filter=git-crypt diff=git-crypt
+.claude/** filter=git-crypt diff=git-crypt
+.serena/** filter=git-crypt diff=git-crypt
+
+# Traefik sensitive routes and certificates
+helm/traefik/*route*.yaml filter=git-crypt diff=git-crypt
+helm/traefik/*middleware*.yaml filter=git-crypt diff=git-crypt
+helm/traefik/*certificate*.yaml filter=git-crypt diff=git-crypt
+helm/traefik/*whitelist*.yaml filter=git-crypt diff=git-crypt
+
+# Sensitive iSCSI configuration
+*iscsi-lun*.txt filter=git-crypt diff=git-crypt
+*iscsi-target*.txt filter=git-crypt diff=git-crypt
+synoiscsi*.log filter=git-crypt diff=git-crypt
+iscsi-config* filter=git-crypt diff=git-crypt
+
+# Ansible secrets
+vault-vars.yml filter=git-crypt diff=git-crypt

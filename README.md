@@ -285,23 +285,24 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 <tr>
 <td valign="top" width="33%">
 
-<h3>To Do (6)</h3>
+<h3>To Do (5)</h3>
 
 - Look at how to be able to scrape and share the board in README<br>
 - Configure Prometheus and Grafana with Alert Manager for dashboarding and alerts<br>
 - Verify everything that needs to be backed up is being backed up<br>
-- Authentik - Identity Provider setup<br>
 - Create PriorityClasses for specific pods<br>
 - Add Prometheus alerting rule for Velero backup failures<br>
 
 </td>
 <td valign="top" width="33%">
 
-<h3>In Progress (3)</h3>
+<h3>In Progress (5)</h3>
 
 - Issue with n8n connection to github using oauth2<br>
 - Update Nvim config to add tab to fill and remove auto save reformat<br>
 - Verify ArgoCD Helm argo image updater is working<br>
+- Authentik - Identity Provider setup<br>
+- Setup git-crypt for serena, claude etc<br>
 
 </td>
 <td valign="top" width="33%">

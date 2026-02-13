@@ -296,21 +296,20 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 </td>
 <td valign="top" width="33%">
 
-<h3>In Progress (4)</h3>
+<h3>In Progress (2)</h3>
 
-- Issue with n8n connection to github using oauth2<br>
-- Update Nvim config to add tab to fill and remove auto save reformat<br>
 - Verify ArgoCD Helm argo image updater is working<br>
 - Authentik - Identity Provider setup<br>
 
 </td>
 <td valign="top" width="33%">
 
-<h3>Done (9)</h3>
+<h3>Done (10)</h3>
 
 - Figure out why aws s3 is more costly<br>
 - Switch kanban to jira<br>
 - Add kanban items to jira<br>
+- Update Nvim config to add tab to fill and remove auto save reformat<br>
 - Fix n8n not updating to newest version via GitOps<br>
 - Install Sealed Secrets<br>
 - Convert all Secrets to sealed secrets<br>

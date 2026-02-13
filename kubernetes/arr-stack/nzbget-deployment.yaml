@@ -36,10 +36,10 @@ spec:
         resources:
           requests:
             cpu: "10m"
-            memory: "32Mi"
+            memory: "64Mi"
           limits:
-            cpu: "50m"
-            memory: "128Mi"
+            cpu: "500m"
+            memory: "512Mi"
         volumeMounts:
         - name: nzbget-config
           mountPath: /config

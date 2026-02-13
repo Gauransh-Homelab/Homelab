@@ -302,7 +302,7 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 - Update Nvim config to add tab to fill and remove auto save reformat<br>
 - Verify ArgoCD Helm argo image updater is working<br>
 - Authentik - Identity Provider setup<br>
-- Setup git-crypt for serena, claude etc<br>
+- Setup git-secret for serena, claude etc<br>
 
 </td>
 <td valign="top" width="33%">

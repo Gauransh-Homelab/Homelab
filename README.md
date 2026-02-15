@@ -296,10 +296,11 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 </td>
 <td valign="top" width="33%">
 
-<h3>In Progress (2)</h3>
+<h3>In Progress (3)</h3>
 
 - Verify ArgoCD Helm argo image updater is working<br>
 - Authentik - Identity Provider setup<br>
+- Switch to seerr v3<br>
 
 </td>
 <td valign="top" width="33%">

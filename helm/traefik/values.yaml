@@ -14,10 +14,11 @@ ports:
       default: true
     exposedPort: 80 # External HTTP port
     redirections:
-      entryPoint:
-        to: websecure
-        scheme: https
-        permanent: true
+      http:
+        entryPoint:
+          to: websecure
+          scheme: https
+          permanent: true
   websecure:
     port: 8443 # Internal container port
     expose:

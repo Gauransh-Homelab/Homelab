@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: app-of-apps
+  namespace: argo-cd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Gauransh-Homelab/Homelab.git
+    targetRevision: main
+    path: kubernetes/argocd/apps
+    directory:
+      recurse: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argo-cd
+  syncPolicy:
+    automated:
+      prune: false     # Don't auto-delete apps if YAML removed from git - too dangerous
+      selfHeal: true   # Revert manual changes to Application specs
+      allowEmpty: false
+    syncOptions:
+    - CreateNamespace=false
+    - ServerSideApply=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

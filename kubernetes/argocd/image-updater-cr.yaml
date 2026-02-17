@@ -1,0 +1,37 @@
+apiVersion: argocd-image-updater.argoproj.io/v1alpha1
+kind: ImageUpdater
+metadata:
+  name: helm-apps-image-updater
+  namespace: argo-cd
+spec:
+  applicationRefs:
+    - namePattern: "cilium"
+      images:
+        - alias: "cilium"
+          imageName: "quay.io/cilium/cilium:^1.17"
+    - namePattern: "nfs-subdir-external-provisioner"
+      images:
+        - alias: "nfs-provisioner"
+          imageName: "registry.k8s.io/sig-storage/nfs-subdir-external-provisioner:^v4.0"
+    - namePattern: "alloy"
+      images:
+        - alias: "alloy"
+          imageName: "grafana/alloy:^v1.4"
+    - namePattern: "kube-prometheus-stack"
+      images:
+        - alias: "prometheus"
+          imageName: "quay.io/prometheus/prometheus:^v2.54"
+        - alias: "alertmanager"
+          imageName: "quay.io/prometheus/alertmanager:^v0.27"
+        - alias: "grafana"
+          imageName: "grafana/grafana:^11.2"
+    - namePattern: "loki"
+      images:
+        - alias: "loki"
+          imageName: "grafana/loki:^2.9"
+    - namePattern: "tdarr"
+      images:
+        - alias: "server"
+          imageName: "ghcr.io/haveagitgat/tdarr:^2"
+        - alias: "node"
+          imageName: "ghcr.io/haveagitgat/tdarr_node:^2"

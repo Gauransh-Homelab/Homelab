@@ -5,9 +5,6 @@ metadata:
   namespace: argo-cd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
-  annotations:
-    # Conservative image updater - patch versions only
-    argocd-image-updater.argoproj.io/image-list: cilium=quay.io/cilium/cilium:~1.17
 spec:
   project: default
   sources:

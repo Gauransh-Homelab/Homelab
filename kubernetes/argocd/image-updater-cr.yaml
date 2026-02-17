@@ -4,11 +4,11 @@ metadata:
   name: helm-apps-image-updater
   namespace: argo-cd
 spec:
+  namespace: argo-cd
   applicationRefs:
-    - namePattern: "cilium"
-      images:
-        - alias: "cilium"
-          imageName: "quay.io/cilium/cilium:^1.17"
+    # NOTE: cilium and kube-prometheus-stack are NOT here because their
+    # image versions are tightly coupled to the chart version.
+    # Those should be updated via chart version bumps (Renovate) only.
     - namePattern: "nfs-subdir-external-provisioner"
       images:
         - alias: "nfs-provisioner"
@@ -19,10 +19,6 @@ spec:
           imageName: "grafana/alloy:^v1.4"
     - namePattern: "kube-prometheus-stack"
       images:
-        - alias: "prometheus"
-          imageName: "quay.io/prometheus/prometheus:^v2.54"
-        - alias: "alertmanager"
-          imageName: "quay.io/prometheus/alertmanager:^v0.27"
         - alias: "grafana"
           imageName: "grafana/grafana:^11.2"
     - namePattern: "loki"

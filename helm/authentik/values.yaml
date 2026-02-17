@@ -27,14 +27,7 @@ server:
       cpu: 500m
       memory: 1Gi
   ingress:
-    enabled: true
-    ingressClassName: traefik
-    hosts:
-      - auth.arkhaya.duckdns.org
-    tls:
-      - secretName: duckdns-wildcard-tls
-        hosts:
-          - auth.arkhaya.duckdns.org
+    enabled: false
 
 worker:
   replicas: 1

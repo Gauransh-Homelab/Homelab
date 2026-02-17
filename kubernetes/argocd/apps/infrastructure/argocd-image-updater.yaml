@@ -1,21 +1,25 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: vpn-group
+  name: argocd-image-updater
   namespace: argo-cd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
-  source:
-    repoURL: https://github.com/Gauransh-Homelab/Homelab.git
-    targetRevision: main
-    path: kubernetes/arr-stack
-    directory:
-      include: "{vpn-group-deployment.yaml,vpn-group-service.yaml}"
+  sources:
+    - repoURL: https://argoproj.github.io/argo-helm
+      chart: argocd-image-updater
+      targetRevision: 1.0.3
+      helm:
+        valueFiles:
+          - $values/helm/argocd-image-updater/values.yaml
+    - repoURL: https://github.com/Gauransh-Homelab/Homelab.git
+      targetRevision: main
+      ref: values
   destination:
     server: https://kubernetes.default.svc
-    namespace: arr-stack
+    namespace: argo-cd
   syncPolicy:
     automated:
       prune: true

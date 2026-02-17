@@ -1,0 +1,61 @@
+# Authentik Helm chart values
+# Chart: authentik/authentik
+# Repo: https://charts.goauthentik.io
+
+global:
+  envFrom:
+    - secretRef:
+        name: authentik-secret
+
+authentik:
+  error_reporting:
+    enabled: false
+  postgresql:
+    host: database-rw.default.svc.cluster.local
+    port: 5432
+    name: authentik
+    user: authentik_user
+    password: ""
+
+server:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    hosts:
+      - auth.arkhaya.duckdns.org
+    tls:
+      - secretName: duckdns-wildcard-tls
+        hosts:
+          - auth.arkhaya.duckdns.org
+
+worker:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+
+postgresql:
+  enabled: false
+
+redis:
+  enabled: true
+  master:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 200m
+        memory: 256Mi

@@ -92,6 +92,7 @@ grafana:
   enabled: true
   replicas: 1
   fullnameOverride: "kube-prometheus-stack-grafana"
+  adminPassword: prom-operator
   
   persistence:
     enabled: true

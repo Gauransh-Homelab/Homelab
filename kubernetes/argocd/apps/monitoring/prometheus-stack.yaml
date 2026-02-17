@@ -10,7 +10,7 @@ spec:
   sources:
     - repoURL: https://prometheus-community.github.io/helm-charts
       chart: kube-prometheus-stack
-      targetRevision: 75.15.1
+      targetRevision: 82.0.2
       helm:
         valueFiles:
           - $values/helm/monitoring/kube-prometheus-stack-values.yaml
@@ -25,6 +25,13 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
+  ignoreDifferences:
+    - group: ""
+      kind: Secret
+      name: kube-prometheus-stack-grafana
+      namespace: monitoring
+      jsonPointers:
+        - /data
   syncPolicy:
     automated:
       prune: true
@@ -34,6 +41,7 @@ spec:
     - CreateNamespace=false
     - PrunePropagationPolicy=foreground
     - Replace=true
+    - RespectIgnoreDifferences=true
     retry:
       limit: 5
       backoff:

@@ -19,6 +19,11 @@
     "GauranshMathur"
   ],
   "rebaseWhen": "behind-base-branch",
+  "argocd": {
+    "managerFilePatterns": [
+      "/kubernetes/argocd/.+\\.yaml$/"
+    ]
+  },
   "kubernetes": {
     "managerFilePatterns": [
       "/\\.yaml$/",
@@ -120,6 +125,32 @@
       ],
       "enabled": true,
       "automerge": false
+    },
+    {
+      "description": "Helm chart updates - never auto-merge, review manually",
+      "matchDatasources": [
+        "helm"
+      ],
+      "automerge": false,
+      "labels": [
+        "renovate",
+        "dependencies",
+        "helm-chart"
+      ]
+    },
+    {
+      "description": "Cilium chart - minor upgrades need consecutive steps, pin to patch only",
+      "matchDatasources": [
+        "helm"
+      ],
+      "matchPackageNames": [
+        "cilium"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "major"
+      ],
+      "enabled": false
     }
   ],
   "customManagers": [

@@ -1,4 +1,4 @@
-upgradeCompatibility: "1.17"
+upgradeCompatibility: "1.18"
 ipam:
   mode: kubernetes
 k8sServiceHost: localhost

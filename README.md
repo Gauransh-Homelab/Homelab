@@ -296,15 +296,14 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 </td>
 <td valign="top" width="33%">
 
-<h3>In Progress (2)</h3>
+<h3>In Progress (1)</h3>
 
-- Verify ArgoCD Helm argo image updater is working<br>
 - Authentik - Identity Provider setup<br>
 
 </td>
 <td valign="top" width="33%">
 
-<h3>Done (11)</h3>
+<h3>Done (12)</h3>
 
 - Figure out why aws s3 is more costly<br>
 - Switch kanban to jira<br>
@@ -316,6 +315,7 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 - Work on lowering req and limits to allow Worker to run more<br>
 - Random Kopia Job review and cleanup<br>
 - Setup git-crypt for serena, claude etc<br>
+- Verify ArgoCD Helm argo image updater is working<br>
 - Switch to seerr v3<br>
 
 </td>

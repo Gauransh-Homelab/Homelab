@@ -13,19 +13,11 @@ ports:
     expose:
       default: true
     exposedPort: 80 # External HTTP port
-    redirections:
-      http:
-        entryPoint:
-          to: websecure
-          scheme: https
-          permanent: true
   websecure:
     port: 8443 # Internal container port
     expose:
       default: true
     exposedPort: 443 # External HTTPS port
-    tls:
-      enabled: false # Let IngressRoutes handle TLS termination
 
 # MetalLB LoadBalancer Service - Gets external IP like arr-stack services
 service:
@@ -41,10 +33,10 @@ service:
 # persistence:
 #   enabled: false
 
-# Dashboard Configuration - Web interface like NPM
-dashboard:
-  enabled: true
-# We'll create a secure IngressRoute separately for dashboard access
+# Dashboard Configuration - managed via separate IngressRoute
+ingressRoute:
+  dashboard:
+    enabled: false # We manage the dashboard IngressRoute separately
 
 # DNS credentials now used by cert-manager ClusterIssuers
 # No environment variables needed in Traefik
@@ -72,9 +64,6 @@ resources:
     cpu: "100m"
     memory: "256Mi"
 
-# Security: Disable unnecessary endpoints
-ping:
-  enabled: false # Disable public ping endpoint
 
 # Additional Arguments - Basic configuration for cert-manager integration
 additionalArguments:
@@ -85,4 +74,8 @@ additionalArguments:
   - "--providers.kubernetescrd.allowCrossNamespace=true"
   # Allow ExternalName services
   - "--providers.kubernetescrd.allowExternalNameServices=true"
+  # HTTP to HTTPS redirect
+  - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+  - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+  - "--entrypoints.web.http.redirections.entryPoint.permanent=true"
 

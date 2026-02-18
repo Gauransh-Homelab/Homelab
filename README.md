@@ -296,10 +296,11 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 </td>
 <td valign="top" width="33%">
 
-<h3>In Progress (2)</h3>
+<h3>In Progress (3)</h3>
 
 - Authentik - Identity Provider setup<br>
 - Apply and configure Dashboard<br>
+- Fix Traefik deprecated issues with routes<br>
 
 </td>
 <td valign="top" width="33%">

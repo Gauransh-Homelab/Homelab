@@ -296,21 +296,20 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 </td>
 <td valign="top" width="33%">
 
-<h3>In Progress (3)</h3>
+<h3>In Progress (1)</h3>
 
-- Authentik - Identity Provider setup<br>
-- Apply and configure Dashboard<br>
-- Fix Traefik deprecated issues with routes<br>
+- Import all users into Authentik then disable normal login<br>
 
 </td>
 <td valign="top" width="33%">
 
-<h3>Done (12)</h3>
+<h3>Done (15)</h3>
 
 - Figure out why aws s3 is more costly<br>
 - Switch kanban to jira<br>
 - Add kanban items to jira<br>
 - Update Nvim config to add tab to fill and remove auto save reformat<br>
+- Fix Traefik deprecated issues with routes<br>
 - Fix n8n not updating to newest version via GitOps<br>
 - Install Sealed Secrets<br>
 - Convert all Secrets to sealed secrets<br>
@@ -318,6 +317,8 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 - Random Kopia Job review and cleanup<br>
 - Setup git-crypt for serena, claude etc<br>
 - Verify ArgoCD Helm argo image updater is working<br>
+- Authentik - Identity Provider setup<br>
+- Apply and configure Dashboard<br>
 - Switch to seerr v3<br>
 
 </td>

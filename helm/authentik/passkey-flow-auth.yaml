@@ -1,0 +1,105 @@
+version: 1
+metadata:
+  name: Passkey Enrollment Flow
+entries:
+  - model: authentik_flows.flow
+    id: enrollment-passkey
+    identifiers:
+      slug: enrollment-passkey
+    attrs:
+      name: Passkey Enrollment
+      title: Create your account
+      designation: enrollment
+      authentication: require_unauthenticated
+
+  - model: authentik_stages_invitation.invitationstage
+    id: enrollment-invitation
+    identifiers:
+      name: enrollment-invitation
+    attrs:
+      continue_flow_without_invitation: false
+
+  - model: authentik_stages_prompt.prompt
+    id: prompt-username
+    identifiers:
+      name: prompt-username
+    attrs:
+      field_key: username
+      label: Username
+      type: text
+      required: true
+      placeholder: Username
+      order: 0
+
+  - model: authentik_stages_prompt.prompt
+    id: prompt-email
+    identifiers:
+      name: prompt-email
+    attrs:
+      field_key: email
+      label: Email
+      type: email
+      required: true
+      placeholder: Email
+      order: 1
+
+  - model: authentik_stages_prompt.promptstage
+    id: enrollment-prompt
+    identifiers:
+      name: enrollment-prompt
+    attrs:
+      fields:
+        - !KeyOf prompt-username
+        - !KeyOf prompt-email
+
+  - model: authentik_stages_user_write.userwritestage
+    id: enrollment-user-write
+    identifiers:
+      name: enrollment-user-write
+    attrs:
+      user_creation_mode: always_create
+
+  - model: authentik_stages_authenticator_webauthn.authenticatorwebauthnstage
+    id: enrollment-webauthn-setup
+    identifiers:
+      name: enrollment-webauthn-setup
+    attrs:
+      friendly_name: Passkey Setup
+      user_verification: required
+
+  - model: authentik_stages_user_login.userloginstage
+    id: enrollment-login
+    identifiers:
+      name: enrollment-login
+    attrs:
+      session_duration: seconds=2592000
+
+  - model: authentik_flows.flowstagebinding
+    identifiers:
+      target: !KeyOf enrollment-passkey
+      stage: !KeyOf enrollment-invitation
+      order: 10
+
+  - model: authentik_flows.flowstagebinding
+    identifiers:
+      target: !KeyOf enrollment-passkey
+      stage: !KeyOf enrollment-prompt
+      order: 20
+
+  - model: authentik_flows.flowstagebinding
+    identifiers:
+      target: !KeyOf enrollment-passkey
+      stage: !KeyOf enrollment-user-write
+      order: 30
+
+  - model: authentik_flows.flowstagebinding
+    identifiers:
+      target: !KeyOf enrollment-passkey
+      stage: !KeyOf enrollment-webauthn-setup
+      order: 40
+
+  - model: authentik_flows.flowstagebinding
+    identifiers:
+      target: !KeyOf enrollment-passkey
+      stage: !KeyOf enrollment-login
+      order: 50

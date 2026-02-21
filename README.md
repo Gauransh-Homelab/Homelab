@@ -296,9 +296,11 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 </td>
 <td valign="top" width="33%">
 
-<h3>In Progress (1)</h3>
+<h3>In Progress (3)</h3>
 
 - Import all users into Authentik then disable normal login<br>
+- Fix loki degradation<br>
+- N8N using authentik middleware for routes<br>
 
 </td>
 <td valign="top" width="33%">

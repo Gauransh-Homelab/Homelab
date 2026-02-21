@@ -39,7 +39,7 @@ spec:
             memory: "64Mi"
           limits:
             cpu: "500m"
-            memory: "512Mi"
+            memory: "1536Mi"
         volumeMounts:
         - name: nzbget-config
           mountPath: /config

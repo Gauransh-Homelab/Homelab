@@ -41,12 +41,6 @@ loki:
   # Storage configuration
   storage:
     type: filesystem
-    filesystem:
-      directory: /var/loki/chunks
-    # Added tsdb_shipper config to use the persistent volume
-    tsdb_shipper:
-      active_index_directory: /var/loki/tsdb-index
-      cache_location: /var/loki/tsdb-cache
   
   # Limits configuration
   limits_config:

@@ -15,9 +15,6 @@
   "assignees": [
     "GauranshMathur"
   ],
-  "reviewers": [
-    "GauranshMathur"
-  ],
   "rebaseWhen": "behind-base-branch",
   "argocd": {
     "managerFilePatterns": [

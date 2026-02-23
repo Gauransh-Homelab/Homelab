@@ -10,7 +10,7 @@ spec:
   sources:
     - repoURL: https://k8s-home-lab.github.io/helm-charts/
       chart: tdarr
-      targetRevision: 5.0.1
+      targetRevision: 5.2.0
       helm:
         valueFiles:
           - $values/helm/tdarr/values.yaml

@@ -25,9 +25,3 @@ spec:
       images:
         - alias: "loki"
           imageName: "grafana/loki:^2.9"
-    - namePattern: "tdarr"
-      images:
-        - alias: "server"
-          imageName: "ghcr.io/haveagitgat/tdarr:^2"
-        - alias: "node"
-          imageName: "ghcr.io/haveagitgat/tdarr_node:^2"

@@ -4,7 +4,7 @@
 
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-1.35.0-326CE5?logo=kubernetes&logoColor=white)
 ![Talos](https://img.shields.io/badge/Talos_Linux-1.12.4-FF7300?logo=linux&logoColor=white)
-![Services](https://img.shields.io/badge/Services-20+-00ADD8?logo=docker&logoColor=white)
+![Services](https://img.shields.io/badge/Services-30+-00ADD8?logo=docker&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-Operational-brightgreen?logo=statuspage&logoColor=white)
 ![Last Updated](https://img.shields.io/badge/Updated-February%202026-purple?logo=github&logoColor=white)
 
@@ -38,23 +38,39 @@ graph TB
     subgraph "Homelab Network"
         Router[Router<br/>192.168.10.1]
 
-        subgraph "Kubernetes Cluster"
+        subgraph "Kubernetes Cluster (Talos Linux + Cilium CNI)"
             subgraph "Control Plane"
-                CP[beelink-1<br/>192.168.10.147<br/>Control Plane]
+                CP[beelink-1<br/>192.168.10.147<br/>Intel N100 · 16GB]
             end
 
-            subgraph "Worker Nodes"
-                W1[proxmox<br/>192.168.10.165<br/>Worker Node]
+            subgraph "Worker Node"
+                W1[proxmox<br/>192.168.10.165<br/>i5-7400 · 16GB · GT-730]
             end
 
             subgraph "Network Layer"
                 MLB[MetalLB<br/>Load Balancer]
-                TRF[Traefik<br/>Ingress Controller]
+                TRF[Traefik v3<br/>Ingress + SSL]
+                AUTH[Authentik<br/>SSO / ForwardAuth]
+            end
+
+            subgraph "Observability"
+                PROM[Prometheus<br/>+ Grafana]
+                LOKI[Loki<br/>+ Alloy]
+            end
+
+            subgraph "GitOps"
+                ARGO[ArgoCD<br/>24 Apps]
+                AIU[Image Updater]
+                VELERO[Velero<br/>Daily Backups]
             end
         end
 
         subgraph "Storage"
-            NAS[Synology DS423+<br/>36TB Raw / 24TB Usable<br/>3x 12TB SHR - 1 Drive Redundancy<br/>NFS + iSCSI]
+            NAS[Synology DS423+<br/>36TB Raw / 24TB Usable<br/>NFS + 19 iSCSI LUNs]
+        end
+
+        subgraph "DNS"
+            PIHOLE[PiHole<br/>+ External-DNS]
         end
     end
 
@@ -64,21 +80,28 @@ graph TB
     DD --> Router
     Router --> MLB
     MLB --> TRF
+    TRF --> AUTH
     TRF --> CP
     TRF --> W1
     CP -.-> W1
     W1 --> NAS
     CP --> NAS
+    ARGO --> AIU
+    PROM -.-> LOKI
 
     classDef control fill:#326CE5,stroke:#fff,stroke-width:2px,color:#fff
     classDef worker fill:#00ADD8,stroke:#fff,stroke-width:2px,color:#fff
     classDef network fill:#FF7300,stroke:#fff,stroke-width:2px,color:#fff
     classDef storage fill:#40C463,stroke:#fff,stroke-width:2px,color:#fff
+    classDef gitops fill:#E96D4B,stroke:#fff,stroke-width:2px,color:#fff
+    classDef obs fill:#7B61FF,stroke:#fff,stroke-width:2px,color:#fff
 
     class CP control
     class W1 worker
-    class MLB,TRF network
-    class NAS storage
+    class MLB,TRF,AUTH network
+    class NAS,PIHOLE storage
+    class ARGO,AIU,VELERO gitops
+    class PROM,LOKI obs
 ```
 
 ---
@@ -141,6 +164,55 @@ graph TB
 - **Jellyfin** - Media streaming server with Intel GPU transcoding
 - **Jellyseerr** - Media request management
 
+### 📊 Monitoring & Observability (`monitoring` namespace)
+
+<table>
+<tr>
+<th width="40%">Service</th>
+<th width="60%">Purpose</th>
+</tr>
+<tr>
+<td>Prometheus (kube-prometheus-stack)</td>
+<td>Metrics collection & alerting</td>
+</tr>
+<tr>
+<td>Grafana</td>
+<td>Dashboards & visualization</td>
+</tr>
+<tr>
+<td>Loki</td>
+<td>Log aggregation</td>
+</tr>
+<tr>
+<td>Alloy</td>
+<td>Telemetry collector (logs & metrics)</td>
+</tr>
+<tr>
+<td>Discord Webhook Proxy</td>
+<td>Routes critical/warning/status alerts to separate Discord channels</td>
+</tr>
+</table>
+
+Custom homelab alert rules fire every 30 minutes with cluster status reports, plus event-driven alerts for pod failures, node issues, and PVC pressure.
+
+### 🔒 Identity & Access (`authentik` namespace)
+
+- **Authentik** (v2025.12.4) - Self-hosted SSO/Identity Provider with passkey login flows
+  - Middleware applied to services via Traefik ForwardAuth
+  - Backed by CNPG PostgreSQL database
+
+### 🔄 Automation & GitOps
+
+- **n8n** (v2.10.0, `n8n` namespace) - Visual workflow automation, backed by CNPG PostgreSQL
+- **ArgoCD Image Updater** - Automatically commits new container image tags back to Git
+
+### 🗄️ Data & Backup
+
+- **CloudNativePG (CNPG)** (`default` namespace) - PostgreSQL operator managing databases for Authentik and n8n
+- **Velero** (`velero` namespace) - Cluster backup & disaster recovery
+  - Daily backups at 2 AM SGT to S3, 12-day retention
+  - Covers all user namespaces + cluster-scoped resources (PVs, namespaces, RBAC)
+
 ### 🛠️ Infrastructure Services
 
 <table>
@@ -150,9 +222,9 @@ graph TB
 <th>Purpose</th>
 </tr>
 <tr>
-<td>Traefik</td>
+<td>Traefik v3</td>
 <td>traefik</td>
-<td>Ingress controller & reverse proxy</td>
+<td>Ingress controller & reverse proxy (2-replica HA)</td>
 </tr>
 <tr>
 <td>Cert-Manager</td>
@@ -163,6 +235,21 @@ graph TB
 <td>MetalLB</td>
 <td>metallb</td>
 <td>Bare-metal load balancer</td>
+</tr>
+<tr>
+<td>Cilium</td>
+<td>kube-system</td>
+<td>eBPF-based CNI networking</td>
+</tr>
+<tr>
+<td>Sealed Secrets</td>
+<td>kube-system</td>
+<td>Encrypted secrets safe to commit to Git</td>
+</tr>
+<tr>
+<td>External-DNS</td>
+<td>misc</td>
+<td>Automatic DNS record management via PiHole webhook</td>
 </tr>
 <tr>
 <td>K8s-Cleaner</td>
@@ -181,7 +268,7 @@ graph TB
 </tr>
 </table>
 
-### 🤖 Other Services
+### 🤖 AI & Productivity
 
 - **LibreChat** (`ai-stuff` namespace) - Self-hosted AI chat interface with MongoDB backend
 
@@ -193,9 +280,10 @@ graph TB
 
 ```yaml
 Cluster:
-  OS: Talos Linux v1.6
-  Kubernetes: v1.29
-  CNI: Flannel
+  OS: Talos Linux v1.12.4
+  Kubernetes: v1.35.0
+  CNI: Cilium (eBPF)
+  GitOps: ArgoCD (24 applications)
 
 Nodes:
   - Name: beelink-1

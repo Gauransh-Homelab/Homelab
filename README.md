@@ -268,10 +268,6 @@ Custom homelab alert rules fire every 30 minutes with cluster status reports, pl
 </tr>
 </table>
 
-### 🤖 AI & Productivity
-
-- **LibreChat** (`ai-stuff` namespace) - Self-hosted AI chat interface with MongoDB backend
-
 ---
 
 ## 🔧 Infrastructure Details
@@ -322,8 +318,7 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 │   ├── kube/                    # NFS-based PVCs
 │   │   ├── jelly/
 │   │   │   └── jellyseerr-pvc
-│   │   ├── ai-stuff/
-│   │   │   └── mongodb-backup-pvc
+│   │   ├── ai-stuff/               # (legacy)
 │   │   ├── default/
 │   │   │   └── test-pvc-worker
 │   │   └── test-nfs/
@@ -340,7 +335,7 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
     ├── jellyfin-cache           # Transcoding cache
     ├── jellyfin-log             # Jellyfin logs
     ├── arr-stack configs        # All *arr app configs
-    ├── librechat volumes        # AI app storage
+    ├── misc service volumes     # Other app configs
     └── ... (other service volumes)
 ```
 

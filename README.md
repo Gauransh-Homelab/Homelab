@@ -368,13 +368,12 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 <tr>
 <td valign="top" width="33%">
 
-<h3>To Do (5)</h3>
+<h3>To Do (4)</h3>
 
-- Look at how to be able to scrape and share the board in README<br>
 - Configure Prometheus and Grafana with Alert Manager for dashboarding and alerts<br>
 - Verify everything that needs to be backed up is being backed up<br>
-- Create PriorityClasses for specific pods<br>
 - Add Prometheus alerting rule for Velero backup failures<br>
+- Add skills.md for claude to change how CLAUDE.md is used<br>
 
 </td>
 <td valign="top" width="33%">
@@ -387,7 +386,7 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 </td>
 <td valign="top" width="33%">
 
-<h3>Done (16)</h3>
+<h3>Done (17)</h3>
 
 - Figure out why aws s3 is more costly<br>
 - Switch kanban to jira<br>
@@ -400,6 +399,7 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 - Work on lowering req and limits to allow Worker to run more<br>
 - Random Kopia Job review and cleanup<br>
 - Setup git-crypt for serena, claude etc<br>
+- Look at how to be able to scrape and share the board in README<br>
 - Verify ArgoCD Helm argo image updater is working<br>
 - Authentik - Identity Provider setup<br>
 - Apply and configure Dashboard<br>

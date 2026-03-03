@@ -37,9 +37,13 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           allowed_bots: '*'
+          show_full_output: true
           prompt: |
-            Review this pull request and post a concise comment summarizing:
+            Review this pull request and post a comment on it using the gh CLI.
+            Run: gh pr view ${{ github.event.pull_request.number }} --json files,title,body
+            Then summarize:
             - What changed and why
             - Any risks or concerns
             - Whether it looks safe to merge
+            Post your review as a PR comment with: gh pr comment ${{ github.event.pull_request.number }} --body "..."
 

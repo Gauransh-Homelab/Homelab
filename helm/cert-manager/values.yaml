@@ -19,6 +19,12 @@ global:
 # Override the namespace for storing DNS provider credentials for ClusterIssuer resources
 clusterResourceNamespace: cert-manager
 
+# Force cert-manager to use public DNS for ACME challenge verification
+# Without this, cluster DNS hits random authoritative nameservers that may timeout
+extraArgs:
+  - --dns01-recursive-nameservers-only
+  - --dns01-recursive-nameservers=8.8.8.8:53,1.1.1.1:53
+
 # Prometheus monitoring (disabled for now)
 prometheus:
   enabled: false

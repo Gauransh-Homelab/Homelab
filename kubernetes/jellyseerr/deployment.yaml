@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: jellyseerr
-          image: ghcr.io/seerr-team/seerr:v3.0.1
+          image: ghcr.io/seerr-team/seerr:v3.1.0
           securityContext:
             runAsUser: 1000
             runAsGroup: 1000

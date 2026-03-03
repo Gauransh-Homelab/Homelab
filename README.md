@@ -378,16 +378,14 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 </td>
 <td valign="top" width="33%">
 
-<h3>In Progress (3)</h3>
+<h3>In Progress (1)</h3>
 
-- Import all users into Authentik then disable normal login<br>
 - N8N using authentik middleware for routes<br>
-- Issue with duckdns cert<br>
 
 </td>
 <td valign="top" width="33%">
 
-<h3>Done (17)</h3>
+<h3>Done (19)</h3>
 
 - Figure out why aws s3 is more costly<br>
 - Switch kanban to jira<br>
@@ -406,6 +404,8 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 - Apply and configure Dashboard<br>
 - Switch to seerr v3<br>
 - Fix loki degradation<br>
+- Issue with duckdns cert<br>
+- Import all users into Authentik then disable normal login<br>
 
 </td>
 </tr>

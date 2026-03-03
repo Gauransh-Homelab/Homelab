@@ -12,9 +12,6 @@
     "renovate",
     "dependencies"
   ],
-  "assignees": [
-    "GauranshMathur"
-  ],
   "rebaseWhen": "behind-base-branch",
   "argocd": {
     "managerFilePatterns": [

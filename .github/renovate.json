@@ -145,6 +145,15 @@
         "major"
       ],
       "enabled": false
+    },
+    {
+      "description": "Auto-merge patch releases directly without PRs",
+      "matchUpdateTypes": [
+        "patch",
+        "digest"
+      ],
+      "automerge": true,
+      "automergeType": "branch"
     }
   ],
   "customManagers": [

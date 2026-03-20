@@ -178,5 +178,16 @@
   "commitMessageExtra": "from {{currentVersion}}",
   "prCreation": "immediate",
   "prHourlyLimit": 10,
-  "prConcurrentLimit": 20
+  "prConcurrentLimit": 20,
+  "fetchReleaseNotes": true,
+  "prBodyColumns": [
+    "Package",
+    "Type",
+    "Update",
+    "Change",
+    "Age",
+    "Adoption",
+    "Passing",
+    "Confidence"
+  ]
 }

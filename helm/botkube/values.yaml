@@ -1,0 +1,54 @@
+# Botkube Helm Values - Discord notifications only (no kubectl execution)
+
+image:
+  registry: ghcr.io
+  repository: kubeshop/botkube
+  tag: v1.14.0
+
+settings:
+  clusterName: homelab
+
+# Communications config is provided via SealedSecret (botkube-communications)
+existingCommunicationsSecretName: "botkube-communications"
+
+sources:
+  k8s-err-events:
+    botkube/kubernetes:
+      enabled: true
+      config:
+        event:
+          types:
+            - error
+        resources:
+          - type: v1/pods
+          - type: v1/services
+          - type: apps/v1/deployments
+          - type: apps/v1/statefulsets
+          - type: apps/v1/daemonsets
+          - type: batch/v1/jobs
+  k8s-recommendation-events:
+    botkube/kubernetes:
+      enabled: true
+      config:
+        recommendations:
+          pod:
+            noLatestImageTag: true
+            labelsSet: true
+          ingress:
+            backendServiceValid: true
+            tlsSecretValid: true
+
+executors:
+  k8s-default-tools:
+    botkube/kubectl:
+      enabled: false
+
+rbac:
+  create: true
+  groups:
+    botkube-plugins-default:
+      create: true
+      rules:
+        - apiGroups: ["*"]
+          resources: ["*"]
+          verbs: ["get", "watch", "list"]

@@ -173,15 +173,6 @@ alertmanager:
     existingSecretKey: alertmanager.yaml
   alertmanagerSpec:
     replicas: 1
-    storage:
-      volumeClaimTemplate:
-        spec:
-          storageClassName: ""
-          volumeName: pv-alertmanager
-          accessModes: ["ReadWriteOnce"]
-          resources:
-            requests:
-              storage: 2Gi
     resources:
       requests:
         cpu: 50m

@@ -72,27 +72,3 @@ spec:
     volumeAttributes:
       dsm: "192.168.10.101"
       protocol: "iscsi"
-
----
-# AlertManager PV - 2GB
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: pv-alertmanager
-  labels:
-    app: alertmanager
-    component: monitoring
-spec:
-  capacity:
-    storage: 2Gi
-  accessModes:
-    - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Retain
-  storageClassName: ""
-  csi:
-    driver: csi.san.synology.com
-    fsType: btrfs
-    volumeHandle: 6a07e26a-bbeb-4258-b1cc-facef3ba67fa
-    volumeAttributes:
-      dsm: "192.168.10.101"
-      protocol: "iscsi"

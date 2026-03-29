@@ -10,7 +10,7 @@ rules:
   resources: ["storageclasses"]
   verbs: ["get", "list"]
 - apiGroups: [""]
-  resources: ["persistentvolumes"]
+  resources: ["persistentvolumes", "persistentvolumeclaims"]
   verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
 # Global debugging permissions (read-only)
 - apiGroups: [""]

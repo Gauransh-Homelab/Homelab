@@ -56,7 +56,7 @@ spec:
             - name: N8N_PORT
               value: "5678"
             - name: WEBHOOK_URL
-              value: "https://n8n-webhook.arkhaya.xyz"
+              value: "https://n8n.arkhaya.xyz"
           image: n8nio/n8n:2.13.2
           name: n8n
           ports:

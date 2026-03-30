@@ -25,6 +25,12 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: default
+  ignoreDifferences:
+    - group: ""
+      kind: ConfigMap
+      name: botkube-runtime-config
+      jsonPointers:
+        - /data
   syncPolicy:
     automated:
       prune: true

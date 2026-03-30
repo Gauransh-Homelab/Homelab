@@ -44,7 +44,7 @@ executors:
       enabled: false
 
 containerSecurityContext:
-  readOnlyRootFilesystem: true
+  readOnlyRootFilesystem: false
 
 livenessProbe:
   initialDelaySeconds: 10

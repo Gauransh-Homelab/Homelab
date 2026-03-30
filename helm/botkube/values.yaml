@@ -43,15 +43,6 @@ executors:
     botkube/kubectl:
       enabled: false
 
-containerSecurityContext:
-  readOnlyRootFilesystem: false
-
-livenessProbe:
-  initialDelaySeconds: 10
-
-readinessProbe:
-  initialDelaySeconds: 10
-
 rbac:
   create: true
   groups:

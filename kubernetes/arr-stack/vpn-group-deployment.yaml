@@ -22,7 +22,7 @@ spec:
       containers:
         # Gluetun VPN container - simple pattern like Docker
         - name: gluetun
-          image: qmcgaw/gluetun:pr-2970
+          image: qmcgaw/gluetun:v3.41.1
           env:
             - name: VPN_SERVICE_PROVIDER
               value: "expressvpn"
@@ -41,8 +41,8 @@ spec:
             - name: FIREWALL_INPUT_PORTS
               value: "8080" # Allow LoadBalancer access to web UIs
             # Kubernetes-specific settings from research
-            - name: DNS_KEEP_NAMESERVER
-              value: "on" # Keep Kubernetes DNS for service discovery
+            - name: UPDATER_PERIOD
+              value: "24h"
             - name: FIREWALL_OUTBOUND_SUBNETS
               value: "10.244.0.0/16" # Your cluster's pod CIDR (adjust if needed)
           securityContext:

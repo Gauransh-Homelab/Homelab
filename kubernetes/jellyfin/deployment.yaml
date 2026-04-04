@@ -7,6 +7,7 @@ metadata:
     app: jellyfin
 spec:
   replicas: 1
+  revisionHistoryLimit: 2
   strategy:
     type: Recreate # Ensures old pod stops before new one starts, good for stateful apps
   selector:

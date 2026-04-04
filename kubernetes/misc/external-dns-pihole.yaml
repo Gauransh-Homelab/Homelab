@@ -45,6 +45,7 @@ metadata:
   name: external-dns
   namespace: misc
 spec:
+  revisionHistoryLimit: 2
   strategy:
     type: Recreate
   selector:

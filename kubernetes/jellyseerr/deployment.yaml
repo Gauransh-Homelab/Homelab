@@ -32,7 +32,7 @@ spec:
               name: http
           env:
             - name: LOG_LEVEL
-              value: "debug"
+              value: "info"
             - name: TZ
               value: "Asia/Singapore"
           volumeMounts:
@@ -45,7 +45,7 @@ spec:
               cpu: "100m"
             limits:
               memory: "512Mi"
-              cpu: "500m"
+              cpu: "1500m"
       volumes:
         - name: jellyseerr-config
           persistentVolumeClaim:

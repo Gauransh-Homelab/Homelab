@@ -378,11 +378,12 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 </td>
 <td valign="top" width="33%">
 
-<h3>In Progress (3)</h3>
+<h3>In Progress (4)</h3>
 
 - Create N8N workflow to update me on cluster issues<br>
 - Use bot to send messages<br>
 - Fix jellyfin slow scrubbing and subtitles<br>
+- [BUG] Authentik crash due to low storage in CNPG<br>
 
 </td>
 <td valign="top" width="33%">

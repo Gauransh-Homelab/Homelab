@@ -6,6 +6,13 @@ spec:
   instances: 2
   primaryUpdateStrategy: unsupervised
 
+  postgresql:
+    parameters:
+      max_slot_wal_keep_size: "2048MB"
+      autovacuum_vacuum_scale_factor: "0.05"
+      autovacuum_analyze_scale_factor: "0.02"
+      autovacuum_naptime: "30s"
+
   storage:
     size: 30Gi
     storageClass: synostorage

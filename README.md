@@ -368,25 +368,25 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 <tr>
 <td valign="top" width="33%">
 
-<h3>To Do (3)</h3>
+<h3>To Do (4)</h3>
 
 - Configure Prometheus and Grafana with Alert Manager for dashboarding and alerts<br>
 - Add Prometheus alerting rule for Velero backup failures<br>
 - Create new GPU node<br>
+- Research on Calendarr and Lingarr and Maintainarr<br>
 
 </td>
 <td valign="top" width="33%">
 
-<h3>In Progress (3)</h3>
+<h3>In Progress (2)</h3>
 
-- Use bot to send messages<br>
 - Fix jellyfin slow scrubbing and subtitles<br>
 - Add trakt plugin in jellyfin<br>
 
 </td>
 <td valign="top" width="33%">
 
-<h3>Done (27)</h3>
+<h3>Done (28)</h3>
 
 - Figure out why aws s3 is more costly<br>
 - Switch kanban to jira<br>
@@ -413,6 +413,7 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 - Issue with duckdns cert<br>
 - Import all users into Authentik then disable normal login<br>
 - Create N8N workflow to update me on cluster issues<br>
+- Use bot to send messages<br>
 - Fix Failing VPN pod<br>
 - [BUG] Authentik crash due to low storage in CNPG<br>
 

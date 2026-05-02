@@ -2,11 +2,11 @@
 
 <div align="center">
 
-![Kubernetes](https://img.shields.io/badge/Kubernetes-1.35.2-326CE5?logo=kubernetes&logoColor=white)
-![Talos](https://img.shields.io/badge/Talos_Linux-1.12.4-FF7300?logo=linux&logoColor=white)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-1.36.0-326CE5?logo=kubernetes&logoColor=white)
+![Talos](https://img.shields.io/badge/Talos_Linux-1.13.0-FF7300?logo=linux&logoColor=white)
 ![Services](https://img.shields.io/badge/Services-30+-00ADD8?logo=docker&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-Operational-brightgreen?logo=statuspage&logoColor=white)
-![Last Updated](https://img.shields.io/badge/Updated-February%202026-purple?logo=github&logoColor=white)
+![Last Updated](https://img.shields.io/badge/Updated-May%202026-purple?logo=github&logoColor=white)
 
 _A modern homelab running on Kubernetes with Talos Linux, migrated from Proxmox/Docker_
 

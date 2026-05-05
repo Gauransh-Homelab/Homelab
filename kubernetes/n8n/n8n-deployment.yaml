@@ -65,10 +65,10 @@ spec:
           resources:
             requests:
               cpu: "50m"
-              memory: "250Mi"
+              memory: "384Mi"
             limits:
               cpu: "500m"
-              memory: "500Mi"
+              memory: "768Mi"
           volumeMounts:
             - mountPath: /home/node/.n8n
               name: n8n-claim0

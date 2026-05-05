@@ -40,12 +40,12 @@ spec:
           imagePullPolicy: IfNotPresent
           resources:
             limits:
-              memory: "4Gi"
+              memory: "6Gi"
               cpu: "4"
               gpu.intel.com/i915: "1"
             requests:
-              memory: "2Gi"
-              cpu: "500m"
+              memory: "3584Mi"
+              cpu: "1"
               gpu.intel.com/i915: "1"
           env:
             - name: JELLYFIN_CACHE_DIR

@@ -42,7 +42,7 @@ spec:
           mountPath: /NAS
         resources:
           requests:
-            memory: "256Mi"
+            memory: "320Mi"
             cpu: "25m"
           limits:
             memory: "512Mi"

@@ -37,7 +37,7 @@ prometheus:
     resources:
       requests:
         cpu: 50m
-        memory: 512Mi
+        memory: 640Mi
       limits:
         cpu: 500m
         memory: 2Gi
@@ -101,10 +101,10 @@ grafana:
   resources:
     requests:
       cpu: 100m
-      memory: 256Mi
+      memory: 384Mi
     limits:
       cpu: 500m
-      memory: 512Mi
+      memory: 768Mi
   
   service:
     type: LoadBalancer

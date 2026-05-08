@@ -65,15 +65,6 @@ spec:
               mountPath: /gluetun
             - name: nfs-nas
               mountPath: /NAS
-          livenessProbe:
-            exec:
-              command:
-                - sh
-                - -c
-                - 'wget -O - -q http://localhost:8000/v1/openvpn/status | grep -q ''"status":"running"'''
-            initialDelaySeconds: 120
-            periodSeconds: 60
-            failureThreshold: 2
         - name: qbittorrent
           image: lscr.io/linuxserver/qbittorrent:5.1.2-r1-ls411
           env:

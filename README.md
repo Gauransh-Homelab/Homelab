@@ -378,9 +378,9 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 </td>
 <td valign="top" width="33%">
 
-<h3>In Progress (0)</h3>
+<h3>In Progress (1)</h3>
 
-<em>No items</em>
+- Fix liveliness issues on gluetun and issues on other pods<br>
 
 </td>
 <td valign="top" width="33%">

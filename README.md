@@ -368,12 +368,13 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 <tr>
 <td valign="top" width="33%">
 
-<h3>To Do (4)</h3>
+<h3>To Do (5)</h3>
 
 - Configure Prometheus and Grafana with Alert Manager for dashboarding and alerts<br>
 - Add Prometheus alerting rule for Velero backup failures<br>
 - Create new GPU node<br>
 - *arr Stack Migration (SQLite to PostgreSQL)<br>
+- Monthly new movies and shows<br>
 
 </td>
 <td valign="top" width="33%">

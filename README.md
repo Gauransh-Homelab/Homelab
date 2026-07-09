@@ -382,7 +382,7 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 <h3>In Progress (3)</h3>
 
 - Install Jellyfin Stats<br>
-- Research/Install of Calendarr,Lingarr,Maintainarr<br>
+- Research/Install of Calendarr,Maintainarr<br>
 - Configure Jellyfin known proxies and known local networks<br>
 
 </td>

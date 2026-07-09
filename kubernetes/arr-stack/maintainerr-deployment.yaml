@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: maintainerr
+  namespace: arr-stack
+  labels:
+    app: maintainerr
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: maintainerr
+  template:
+    metadata:
+      labels:
+        app: maintainerr
+      annotations:
+        backup.velero.io/backup-volumes: maintainerr-data
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+      - name: maintainerr
+        image: ghcr.io/maintainerr/maintainerr:3.17.1
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: TZ
+          value: "Asia/Singapore"
+        ports:
+        - containerPort: 6246
+          name: webui
+        resources:
+          requests:
+            cpu: "25m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "1Gi"
+        volumeMounts:
+        - name: maintainerr-data
+          mountPath: /opt/data
+        livenessProbe:
+          httpGet:
+            path: /api/health/live
+            port: 6246
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /api/health/ready
+            port: 6246
+          initialDelaySeconds: 10
+          periodSeconds: 10
+      volumes:
+      - name: maintainerr-data
+        persistentVolumeClaim:
+          claimName: maintainerr-data

@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: calendarr
+  namespace: arr-stack
+  labels:
+    app: calendarr
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: calendarr
+  template:
+    metadata:
+      labels:
+        app: calendarr
+    spec:
+      containers:
+      - name: calendarr
+        image: ghcr.io/jordanlambrecht/calendarr:1.5.1
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: TZ
+          value: "Asia/Singapore"
+        - name: USE_DISCORD
+          value: "true"
+        - name: SCHEDULE_TYPE
+          value: "DAILY"
+        - name: RUN_TIME
+          value: "14:00"
+        - name: RUN_ON_STARTUP
+          value: "false"
+        - name: CALENDAR_RANGE
+          value: "AUTO"
+        - name: DISCORD_WEBHOOK_URL
+          valueFrom:
+            secretKeyRef:
+              name: calendarr-secrets
+              key: discord-webhook-url
+        - name: CALENDAR_URLS
+          valueFrom:
+            secretKeyRef:
+              name: calendarr-secrets
+              key: calendar-urls
+        resources:
+          requests:
+            cpu: "10m"
+            memory: "64Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
+        volumeMounts:
+        - name: logs
+          mountPath: /app/logs
+      volumes:
+      - name: logs
+        emptyDir: {}

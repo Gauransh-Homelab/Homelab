@@ -379,16 +379,15 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 </td>
 <td valign="top" width="33%">
 
-<h3>In Progress (3)</h3>
+<h3>In Progress (2)</h3>
 
 - Install Jellyfin Stats<br>
-- Research/Install of Calendarr,Maintainarr<br>
 - Configure Jellyfin known proxies and known local networks<br>
 
 </td>
 <td valign="top" width="33%">
 
-<h3>Done (31)</h3>
+<h3>Done (32)</h3>
 
 - Figure out why aws s3 is more costly<br>
 - Switch kanban to jira<br>
@@ -419,6 +418,7 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 - Fix Failing VPN pod<br>
 - [BUG] Authentik crash due to low storage in CNPG<br>
 - [BUG] Jellyfin data pvc full<br>
+- Research/Install of Calendarr,Maintainarr<br>
 - Fix liveliness issues on gluetun and issues on other pods<br>
 - jellyfin crashed due to filled pvc data<br>
 

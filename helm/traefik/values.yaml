@@ -43,11 +43,14 @@ ingressRoute:
 # env: []
 
 # Logging Configuration
-logs:
-  general:
-    level: DEBUG # Change to DEBUG for troubleshooting
-  access:
-    enabled: true # Access logs for monitoring
+# Chart v41.0.0 aligned these keys with upstream Traefik syntax:
+#   logs.general -> log      |  logs.access -> accessLog
+# NOTE: additionalArguments below still passes --log.level=INFO, which is
+# rendered last and therefore wins over the level set here.
+log:
+  level: DEBUG # Change to DEBUG for troubleshooting
+accessLog:
+  enabled: true # Access logs for monitoring
 
 # Prometheus Metrics - Optional monitoring integration
 metrics:
@@ -56,13 +59,52 @@ metrics:
     # If you have Prometheus Operator, this will auto-discover
 
 # Resource Limits - Appropriate for homelab environment
+# NOTE: the chart derives GOMAXPROCS from limits.cpu (rounded up to a whole
+# core). The previous 100m limit gave Traefik a single Go thread with only
+# 0.1 core of quota, so a burst of slow backend requests starved the /ping
+# handler and tripped the probes below.
 resources:
   requests:
-    cpu: "10m"
-    memory: "64Mi"
-  limits:
     cpu: "100m"
+    memory: "128Mi"
+  limits:
+    cpu: "1000m"
     memory: "256Mi"
+
+# Health probes - the chart defaults to readiness failureThreshold: 1, which
+# marks the pod NotReady (and emits a Warning event) on a single missed /ping.
+# Use the Kubernetes-standard 3 so a transient blip doesn't flap the pod.
+readinessProbe:
+  failureThreshold: 3
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  successThreshold: 1
+  timeoutSeconds: 5
+
+livenessProbe:
+  failureThreshold: 3
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  successThreshold: 1
+  timeoutSeconds: 5
+
+# Spread the 2 replicas across nodes so one saturated node cannot take out
+# both. Dormant today: the control plane is the only other node and it carries
+# a NoSchedule taint, so both replicas stay on the worker. Kept as "preferred"
+# (never blocks scheduling) so it starts spreading automatically once a third
+# node joins. Deliberately NOT paired with a control-plane toleration: MetalLB
+# refuses to advertise from nodes labelled
+# node.kubernetes.io/exclude-from-external-load-balancers, so a replica there
+# would take no external traffic and could not take over on failover.
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          topologyKey: kubernetes.io/hostname
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
 
 
 # Additional Arguments - Basic configuration for cert-manager integration

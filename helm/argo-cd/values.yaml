@@ -17,6 +17,7 @@ configs:
     policy.csv: |
       p, claude, applications, get, */*, allow
       p, claude, applications, sync, */*, allow
+      p, claude, projects, get, *, allow
 
 server:
   resources:

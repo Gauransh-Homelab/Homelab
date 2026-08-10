@@ -11,6 +11,12 @@ configs:
     url: "https://argocd.arkhaya.duckdns.org"
     # Check for updates every 3 minutes (default is 3m)
     timeout.reconciliation: "180s"
+    # Local account for CLI automation - apiKey only (no UI login), token stored locally
+    accounts.claude: "apiKey"
+  rbac:
+    policy.csv: |
+      p, claude, applications, get, */*, allow
+      p, claude, applications, sync, */*, allow
 
 server:
   resources:

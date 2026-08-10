@@ -49,55 +49,35 @@
       "allowedVersions": "!/^.*-(alpha|beta|rc|dev|canary|unstable|preview|pre|test|experimental).*$/"
     },
     {
-      "description": "Review stable container updates manually",
+      "description": "Label Helm chart updates",
       "matchDatasources": [
-        "docker"
+        "helm"
       ],
+      "labels": [
+        "renovate",
+        "dependencies",
+        "helm-chart"
+      ]
+    },
+    {
+      "description": "Auto-merge non-breaking updates (minor, patch, digest) once checks pass",
       "matchUpdateTypes": [
         "minor",
         "patch",
         "digest"
       ],
-      "matchPackageNames": [
-        "lscr.io/linuxserver/sonarr",
-        "lscr.io/linuxserver/radarr",
-        "lscr.io/linuxserver/bazarr",
-        "lscr.io/linuxserver/prowlarr",
-        "lscr.io/linuxserver/qbittorrent",
-        "lscr.io/linuxserver/nzbget",
-        "linuxserver/sonarr",
-        "linuxserver/radarr",
-        "linuxserver/bazarr",
-        "linuxserver/prowlarr",
-        "linuxserver/qbittorrent",
-        "linuxserver/nzbget",
-        "jellyfin/jellyfin",
-        "fallenbagel/jellyseerr",
-        "golift/notifiarr",
-        "gcr.io/distroless/static",
-        "qmcgaw/gluetun"
-      ]
+      "automerge": true
     },
     {
-      "description": "Review k8s infrastructure updates manually",
-      "matchDatasources": [
-        "docker"
-      ],
+      "description": "Major (breaking) updates require manual PR review and approval",
       "matchUpdateTypes": [
-        "minor",
-        "patch"
+        "major"
       ],
-      "matchPackageNames": [
-        "registry.k8s.io/descheduler/descheduler",
-        "quay.io/jetstack/cert-manager-controller",
-        "quay.io/jetstack/cert-manager-webhook",
-        "quay.io/jetstack/cert-manager-cainjector",
-        "traefik",
-        "ghcr.io/onedr0p/kubernetes-kubectl"
-      ]
+      "enabled": true,
+      "automerge": false
     },
     {
-      "description": "Group ArgoCD updates",
+      "description": "Group ArgoCD updates - never auto-merge the GitOps engine itself",
       "matchDatasources": [
         "docker",
         "helm"
@@ -107,29 +87,6 @@
       "matchPackageNames": [
         "/argo-cd/",
         "/argocd/"
-      ]
-    },
-    {
-      "description": "Allow major updates but don't auto-merge",
-      "matchDatasources": [
-        "docker"
-      ],
-      "matchUpdateTypes": [
-        "major"
-      ],
-      "enabled": true,
-      "automerge": false
-    },
-    {
-      "description": "Helm chart updates - never auto-merge, review manually",
-      "matchDatasources": [
-        "helm"
-      ],
-      "automerge": false,
-      "labels": [
-        "renovate",
-        "dependencies",
-        "helm-chart"
       ]
     },
     {
@@ -145,15 +102,6 @@
         "major"
       ],
       "enabled": false
-    },
-    {
-      "description": "Auto-merge patch releases directly without PRs",
-      "matchUpdateTypes": [
-        "patch",
-        "digest"
-      ],
-      "automerge": true,
-      "automergeType": "branch"
     }
   ],
   "customManagers": [

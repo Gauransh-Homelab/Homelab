@@ -19,6 +19,10 @@ sources:
         event:
           types:
             - error
+          reason:
+            exclude:
+              - "^Unhealthy$"
+              - "^ProbeWarning$"
         resources:
           - type: v1/pods
           - type: v1/services

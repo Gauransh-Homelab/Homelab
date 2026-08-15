@@ -368,26 +368,24 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 <tr>
 <td valign="top" width="33%">
 
-<h3>To Do (5)</h3>
+<h3>To Do (4)</h3>
 
 - Configure Prometheus and Grafana with Alert Manager for dashboarding and alerts<br>
 - Add Prometheus alerting rule for Velero backup failures<br>
-- Create new GPU node<br>
 - *arr Stack Migration (SQLite to PostgreSQL)<br>
 - Monthly new movies and shows<br>
 
 </td>
 <td valign="top" width="33%">
 
-<h3>In Progress (2)</h3>
+<h3>In Progress (1)</h3>
 
 - Install Jellyfin Stats<br>
-- Configure Jellyfin known proxies and known local networks<br>
 
 </td>
 <td valign="top" width="33%">
 
-<h3>Done (32)</h3>
+<h3>Done (41)</h3>
 
 - Figure out why aws s3 is more costly<br>
 - Switch kanban to jira<br>
@@ -406,7 +404,12 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 - Add skills.md for claude to change how CLAUDE.md is used<br>
 - Verify ArgoCD Helm argo image updater is working<br>
 - Authentik - Identity Provider setup<br>
+- Create manifests<br>
+- Check secrets etc that is needed for CNPG<br>
+- Configure Jellyfin<br>
+- Expose specific path for SSO on internet only<br>
 - Apply and configure Dashboard<br>
+- Figure out why SSO doesn’t show admin dashboard when logging in as user<br>
 - Switch to seerr v3<br>
 - Fix loki degradation<br>
 - N8N using authentik middleware for routes<br>
@@ -415,10 +418,14 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 - Import all users into Authentik then disable normal login<br>
 - Create N8N workflow to update me on cluster issues<br>
 - Use bot to send messages<br>
+- Create n8n workflow to connect to jellyfin and jellyseerr api<br>
+- Use Bot to tell people to watch new shows or continue old ones<br>
+- Use bot to inform about cluster status and issues<br>
 - Fix Failing VPN pod<br>
 - [BUG] Authentik crash due to low storage in CNPG<br>
 - [BUG] Jellyfin data pvc full<br>
 - Research/Install of Calendarr,Maintainarr<br>
+- Configure Jellyfin known proxies and known local networks<br>
 - Fix liveliness issues on gluetun and issues on other pods<br>
 - jellyfin crashed due to filled pvc data<br>
 

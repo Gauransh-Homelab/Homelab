@@ -2,6 +2,10 @@ apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
   name: database
+  # REQUIRED: a duplicate Cluster named "database" also exists in the argo-cd
+  # namespace, and the default kubectl context points at argo-cd. Without this,
+  # `kubectl apply -f` silently targets the wrong cluster.
+  namespace: default
 spec:
   instances: 2
   primaryUpdateStrategy: unsupervised
@@ -32,3 +36,10 @@ spec:
         login: true
         passwordSecret:
           name: authentik-user-secret
+      # Role name must match the database name - Jellystat's create_database.js
+      # connects with no database specified, so node-pg falls back to the user name.
+      - name: jellystat
+        ensure: present
+        login: true
+        passwordSecret:
+          name: jellystat-user-secret

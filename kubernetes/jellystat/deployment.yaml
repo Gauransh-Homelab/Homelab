@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jellystat
+  namespace: jelly
+  labels:
+    app: jellystat
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: jellystat
+  template:
+    metadata:
+      labels:
+        app: jellystat
+      annotations:
+        backup.velero.io/backup-volumes: jellystat-backup
+    spec:
+      containers:
+      - name: jellystat
+        image: cyfershepard/jellystat:1.1.11
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: TZ
+          value: "Asia/Singapore"
+        # CNPG cluster lives in the default namespace
+        - name: POSTGRES_IP
+          value: "database-rw.default.svc.cluster.local"
+        - name: POSTGRES_PORT
+          value: "5432"
+        # User and DB must share a name - see jellystat_deployment_design memory
+        - name: POSTGRES_USER
+          value: "jellystat"
+        - name: POSTGRES_DB
+          value: "jellystat"
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: jellystat-secret
+              key: POSTGRES_PASSWORD
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: jellystat-secret
+              key: JWT_SECRET
+        # Talk to Jellyfin in-cluster, never through the Traefik ingress
+        - name: JF_HOST
+          value: "http://jellyfin-service.jelly.svc.cluster.local:8096"
+        ports:
+        - containerPort: 3000
+          name: webui
+        resources:
+          requests:
+            cpu: "25m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "1Gi"
+        volumeMounts:
+        - name: jellystat-backup
+          mountPath: /app/backend/backup-data
+        readinessProbe:
+          httpGet:
+            path: /auth/isConfigured
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 15
+          timeoutSeconds: 10
+          failureThreshold: 6
+        livenessProbe:
+          httpGet:
+            path: /auth/isConfigured
+            port: 3000
+          initialDelaySeconds: 60
+          periodSeconds: 60
+          timeoutSeconds: 15
+          failureThreshold: 5
+      volumes:
+      - name: jellystat-backup
+        persistentVolumeClaim:
+          claimName: jellystat-backup

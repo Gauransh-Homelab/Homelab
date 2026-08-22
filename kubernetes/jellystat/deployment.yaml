@@ -55,11 +55,12 @@ spec:
           name: webui
         resources:
           requests:
-            cpu: "25m"
-            memory: "256Mi"
+            cpu: "100m"
+            memory: "512Mi"
           limits:
-            cpu: "500m"
-            memory: "1Gi"
+            # No CPU limit: GC throttling during hourly sync tasks was
+            # inflating memory spikes into OOM kills (upstream jellystat #344)
+            memory: "2Gi"
         volumeMounts:
         - name: jellystat-backup
           mountPath: /app/backend/backup-data

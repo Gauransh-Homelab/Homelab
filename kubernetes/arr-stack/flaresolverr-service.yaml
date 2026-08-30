@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: flaresolverr-service
+  namespace: arr-stack
+  labels:
+    app: flaresolverr
+spec:
+  # Internal only: no UI, only Prowlarr talks to it.
+  type: ClusterIP
+  selector:
+    app: flaresolverr
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8191
+      targetPort: http

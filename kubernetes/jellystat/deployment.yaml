@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
       - name: jellystat
-        image: cyfershepard/jellystat:1.1.11
+        image: cyfershepard/jellystat:1.1.12
         imagePullPolicy: IfNotPresent
         env:
         - name: TZ

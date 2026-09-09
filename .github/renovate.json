@@ -127,7 +127,7 @@
   "prCreation": "immediate",
   "prHourlyLimit": 10,
   "prConcurrentLimit": 20,
-  "fetchReleaseNotes": true,
+  "fetchChangeLogs": "pr",
   "prBodyColumns": [
     "Package",
     "Type",

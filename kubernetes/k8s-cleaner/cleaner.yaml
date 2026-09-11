@@ -14,10 +14,10 @@ spec:
         function evaluate()
           local hs = {}
 
-          -- Velero reads Kopia maintenance-job results from the pod termination
-          -- message. Deleting those pods leaves Jobs with no result, which makes
-          -- the BackupRepository controller panic and skip maintenance forever.
-          -- Velero prunes its own maintenance Jobs; never touch its namespace.
+          -- Velero reads a failed maintenance Job's error from its pod's
+          -- termination message; deleting the pod loses that diagnostic (KAN-74).
+          -- Velero prunes its own maintenance Jobs to the latest 3, so nothing
+          -- accumulates. Never touch its namespace.
           if obj.metadata.namespace == "velero" then
             hs.matching = false
             return hs

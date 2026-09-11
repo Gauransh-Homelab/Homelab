@@ -1,21 +1,47 @@
 # KAN-69 restore test: proves a Kopia file-system backup can be read back.
-# Restores only the jellystat pod and its PVC into a scratch namespace.
+# Restores only the n8n pod and its PVC into a scratch namespace.
 #
-# Why the patch rule: the label selector also filters out the PersistentVolume
-# (it carries no app label), so Velero never marks it for re-provisioning. The
-# restored PVC would keep spec.volumeName pointing at the live, bound PV and
-# stay Pending. Removing volumeName lets nfs-client provision a fresh volume.
+# Target: n8n-claim0. The first target, jellystat-backup, is empty: its
+# PodVolumeBackup recorded no bytes, so restoring it would prove nothing.
 #
-# jellystat-secret is deliberately not restored. The app container sits in
-# CreateContainerConfigError while Velero's restore-wait init container still
-# completes the data restore, so nothing runs against the live database.
+# Pass: the PodVolumeRestore reaches Completed with progress.bytesDone equal to
+# 25800672 (PodVolumeBackup homelab-daily-backup-20260910020040-fjtcp), and the
+# scratch PVC binds a NEW synostorage-delete PV whose CSI volumeHandle is not
+# the live one (1230d277-c857-4fb4-a80e-9361705a8ada).
 #
-# Static-PV volumes (storageClassName: "") cannot be restored this way.
-# Apply by hand (this directory is not ArgoCD-managed) and clean up afterwards.
+# Velero v1.16.1 behaviour this depends on:
+# - persistentvolumes must be in includedResources: Velero creates the
+#   PodVolumeRestore only when both PVCs and PVs are included. The live PV is
+#   still never restored: it has a pod volume backup, so Velero provisions a
+#   fresh one instead. Every other PV is cluster-scoped and skipped, because
+#   only one namespace is included.
+# - The namespace is created here, first. Otherwise Velero builds it from the
+#   backed-up n8n namespace and copies its ArgoCD tracking-id, and the
+#   auto-pruning n8n app could delete it mid-test. The PSA label mirrors n8n.
+# - One merge patch on the PVC: clears volumeName, switches the class to
+#   synostorage-delete so the scratch LUN is deleted with the namespace, and
+#   drops the copied tracking-id. A merge patch cannot fail on a missing key.
+#
+# n8n-user-secret is not restored, so the n8n container sits in
+# CreateContainerConfigError and never reaches the live Postgres database.
+# Velero's restore-wait init container still completes the data restore.
+#
+# The scratch namespace is not excluded from the daily schedule: clean up
+# before the next 02:00 UTC run. Static-PV volumes (storageClassName: "")
+# cannot be restored this way. Apply by hand; this directory is not
+# ArgoCD-managed.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: velero-restore-test
+  labels:
+    purpose: velero-restore-test
+    pod-security.kubernetes.io/enforce: privileged
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: restore-test-jellystat-modifiers
+  name: restore-test-n8n-modifiers
   namespace: velero
 data:
   modifiers.yaml: |
@@ -23,28 +49,26 @@ data:
     resourceModifierRules:
       - conditions:
           groupResource: persistentvolumeclaims
-          resourceNameRegex: "^jellystat-backup$"
-        patches:
-          - operation: remove
-            path: "/spec/volumeName"
+          resourceNameRegex: "^n8n-claim0$"
+        mergePatches:
+          - patchData: |
+              {"metadata": {"annotations": {"argocd.argoproj.io/tracking-id": null}}, "spec": {"volumeName": null, "storageClassName": "synostorage-delete"}}
 ---
 apiVersion: velero.io/v1
 kind: Restore
 metadata:
-  name: restore-test-jellystat
+  name: restore-test-n8n
   namespace: velero
 spec:
   backupName: homelab-daily-backup-20260910020040
   includedNamespaces:
-    - jelly
+    - n8n
   namespaceMapping:
-    jelly: velero-restore-test
-  labelSelector:
-    matchLabels:
-      app: jellystat
+    n8n: velero-restore-test
   includedResources:
     - pods
     - persistentvolumeclaims
+    - persistentvolumes
   resourceModifier:
     kind: ConfigMap
-    name: restore-test-jellystat-modifiers
+    name: restore-test-n8n-modifiers

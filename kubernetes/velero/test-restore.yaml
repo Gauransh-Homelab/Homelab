@@ -19,8 +19,11 @@
 #   backed-up n8n namespace and copies its ArgoCD tracking-id, and the
 #   auto-pruning n8n app could delete it mid-test. The PSA label mirrors n8n.
 # - One merge patch on the PVC: clears volumeName, switches the class to
-#   synostorage-delete so the scratch LUN is deleted with the namespace, and
-#   drops the copied tracking-id. A merge patch cannot fail on a missing key.
+#   synostorage-delete, and drops the copied tracking-id. A merge patch cannot
+#   fail on a missing key.
+# - Velero's restore finalizer then copies the ORIGINAL PV's reclaim policy
+#   (Retain) onto the new PV, whatever the class says. Before cleanup, patch
+#   the scratch PV to Delete, or its LUN stays on the Synology.
 #
 # n8n-user-secret is not restored, so the n8n container sits in
 # CreateContainerConfigError and never reaches the live Postgres database.

@@ -1,0 +1,50 @@
+# KAN-69 restore test: proves a Kopia file-system backup can be read back.
+# Restores only the jellystat pod and its PVC into a scratch namespace.
+#
+# Why the patch rule: the label selector also filters out the PersistentVolume
+# (it carries no app label), so Velero never marks it for re-provisioning. The
+# restored PVC would keep spec.volumeName pointing at the live, bound PV and
+# stay Pending. Removing volumeName lets nfs-client provision a fresh volume.
+#
+# jellystat-secret is deliberately not restored. The app container sits in
+# CreateContainerConfigError while Velero's restore-wait init container still
+# completes the data restore, so nothing runs against the live database.
+#
+# Static-PV volumes (storageClassName: "") cannot be restored this way.
+# Apply by hand (this directory is not ArgoCD-managed) and clean up afterwards.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: restore-test-jellystat-modifiers
+  namespace: velero
+data:
+  modifiers.yaml: |
+    version: v1
+    resourceModifierRules:
+      - conditions:
+          groupResource: persistentvolumeclaims
+          resourceNameRegex: "^jellystat-backup$"
+        patches:
+          - operation: remove
+            path: "/spec/volumeName"
+---
+apiVersion: velero.io/v1
+kind: Restore
+metadata:
+  name: restore-test-jellystat
+  namespace: velero
+spec:
+  backupName: homelab-daily-backup-20260910020040
+  includedNamespaces:
+    - jelly
+  namespaceMapping:
+    jelly: velero-restore-test
+  labelSelector:
+    matchLabels:
+      app: jellystat
+  includedResources:
+    - pods
+    - persistentvolumeclaims
+  resourceModifier:
+    kind: ConfigMap
+    name: restore-test-jellystat-modifiers

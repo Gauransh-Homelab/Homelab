@@ -22,6 +22,14 @@ for all operations; there is no CLI. The README roadmap is synced from the KAN b
 - **Close**: `transitionJiraIssue` to `Done`. For `wontfix`, apply the label and transition to `Cancelled` instead.
 - **Claim**: `editJiraIssue` with `fields: { assignee: { accountId } }`; get your own id from `atlassianUserInfo`.
 
+## Writing style
+
+- Jira tracks progress. It is not documentation.
+- A comment is one status line plus a few bullets: what changed, what was verified, what's next.
+- Use short sentences. Don't paste logs or evidence dumps; quote at most one key line.
+- Don't repeat context the ticket already has.
+- Put root-cause write-ups, design notes, runbooks and how-tos on a Confluence page, and link it from the ticket.
+
 ## Pull requests as a triage surface
 
 **PRs as a request surface: no.** _(Set to `yes` if this repo treats external PRs as feature

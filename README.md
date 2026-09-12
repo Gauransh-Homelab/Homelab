@@ -389,7 +389,7 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 </td>
 <td valign="top" width="33%">
 
-<h3>Done (45)</h3>
+<h3>Done (48)</h3>
 
 - Figure out why aws s3 is more costly<br>
 - Switch kanban to jira<br>
@@ -436,6 +436,9 @@ Synology DS423+ (24TB Raw / ~10.9TB Usable) 1 drive fault tolerance
 - Re-scope S3 lifecycle rule off the kopia/ prefix (root cause — blocks everything else)<br>
 - Clear 13 zombie backups stuck in Deleting phase<br>
 - Re-initialise Kopia BackupRepositories and verify PodVolumeBackups reach Completed<br>
+- Velero server OOMKilled at 512Mi: nightly TTL-expiry deletion collides with the 02:00 UTC backup (TTL 288h)<br>
+- Kopia maintenance never ran: Velero 1.16.1 panics when every retained maintenance Job has failed<br>
+- Flannel and kube-proxy still deployed beside Cilium; migrate Omni CNI/proxy patches to Talos v1.14 documents<br>
 
 </td>
 </tr>
